@@ -1,0 +1,22 @@
+<?xml version="1.0" standalone="no"?> <!--*- mode: xml -*-->
+<!DOCTYPE glade-interface SYSTEM "http://glade.gnome.org/glade-2.0.dtd">
+
+<glade-interface>
+
+<widget class="GtkAboutDialog" id="about_win">
+  <property name="visible">True</property>
+  <property name="destroy_with_parent">False</property>
+  <property name="name" translatable="yes">Open Machinist</property>
+  <property name="copyright" translatable="yes">(c) 2007 Elektrokultur</property>
+  <property name="comments" translatable="yes">An open-source, parametrical, 3D, mechanical design application.</property>
+  <property name="license" translatable="yes">GPL</property>
+  <property name="wrap_license">False</property>
+  <property name="website"></property>
+  <property name="website_label" translatable="yes"></property>
+  <property name="authors">Björn Breitgoff &lt;&lt;breidibreitweb.de&gt;&gt;</property>
+  <property name="translator_credits" translatable="yes" comments="TRANSLATORS: Replace this string with your names, one name per line.">translator-credits</property>
+  <property name="logo">assembly.png</property>
+  <signal name="close" handler="gtk_widget_hide" last_modification_time="Mon, 13 Aug 2007 12:47:13 GMT"/>
+</widget>
+
+</glade-interface>
