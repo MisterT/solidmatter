@@ -1,3 +1,8 @@
+#!/usr/bin/env ruby
+#
+#  Created by Björn Breitgoff on unknown date.
+#  Copyright (c) 2008. All rights reserved.
+
 require 'matrix'
 include Math
 

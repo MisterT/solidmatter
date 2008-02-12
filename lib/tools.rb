@@ -1,11 +1,8 @@
-#!/usr/local/bin/ruby -w
-#########################################################################################
-### tools.rb      - tools involving displaying additional interface elements          ###
-###                 directly in the viewport and interacting with the mouse           ###
-#########################################################################################
-### creation date: 13.10.06  by Björn Breitgoff                                       ###
-### last changed : 19.03.07  by Björn Breitgoff                                       ###
-#########################################################################################
+#!/usr/bin/env ruby
+#
+#  Created by Björn Breitgoff on 13-10-06.
+#  Copyright (c) 2008. All rights reserved.
+
 require 'lib/misc.rb'
 #require 'lib/geometry.rb'
 

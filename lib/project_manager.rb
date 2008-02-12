@@ -1,11 +1,8 @@
-#!/usr/local/bin/ruby -w
-#########################################################################################
-### project_manager.rb            - handles a complete project, from loading to       ###
-###                                 applying all commands                             ###
-#########################################################################################
-### creation date: 08.03.04  by Björn Breitgoff                                       ###
-### last changed : 08.03.04  by Björn Breitgoff                                       ###
-#########################################################################################
+#!/usr/bin/env ruby
+#
+#  Created by Björn Breitgoff on unknown date.
+#  Copyright (c) 2008. All rights reserved.
+
 require 'gtk2'
 require 'lib/geometry.rb'
 require 'lib/operators.rb'

@@ -1,10 +1,8 @@
-#!/usr/local/bin/ruby -w
-#########################################################################################
-### main_win.rb            - main interface class for vlsi                            ###
-#########################################################################################
-### creation date: 08.03.04  by Björn Breitgoff                                       ###
-### last changed : 08.03.04  by Björn Breitgoff                                       ###
-#########################################################################################
+#!/usr/bin/env ruby
+#
+#  Created by Björn Breitgoff on unknown date.
+#  Copyright (c) 2008. All rights reserved.
+
 require 'lib/geometry.rb'
 require 'lib/vector.rb'
 require 'lib/widgets.rb'

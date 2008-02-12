@@ -1,10 +1,8 @@
-#!/usr/local/bin/ruby -w
-#########################################################################################
-### widgets.rb                     - additional Gtk widgets                           ###
-#########################################################################################
-### creation date: 08.03.04  by Björn Breitgoff                                       ###
-### last changed : 08.03.04  by Björn Breitgoff                                       ###
-#########################################################################################
+#!/usr/bin/env ruby
+#
+#  Created by Björn Breitgoff on unknown date.
+#  Copyright (c) 2008. All rights reserved.
+
 require 'gnome2'
 
 class SearchEntry < Gtk::VBox 

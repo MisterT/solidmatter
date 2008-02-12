@@ -1,10 +1,7 @@
-#!/usr/local/bin/ruby -w
-#########################################################################################
-### misc.rb                     - stuff                                               ###
-#########################################################################################
-### creation date: 19.03.07  by Björn Breitgoff                                       ###
-### last changed : 19.03.07  by Björn Breitgoff                                       ###
-#########################################################################################
+#!/usr/bin/env ruby
+#
+#  Created by Björn Breitgoff on 19-03-07.
+#  Copyright (c) 2008. All rights reserved.
 
 def distance( from , to)
 		Math::sqrt(

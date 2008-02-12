@@ -1,10 +1,7 @@
 #!/usr/bin/env ruby
-#########################################################################################
-### vlsi.rb            - main interface class for vlsi                                ###
-#########################################################################################
-### creation date: 08.03.04  by Björn Breitgoff                                       ###
-### last changed : 08.03.04  by Björn Breitgoff                                       ###
-#########################################################################################
+#
+#  Created by Björn Breitgoff on unknown date.
+#  Copyright (c) 2008. All rights reserved.
 require 'lib/main_win.rb'
 require 'lib/preferences.rb'
 
