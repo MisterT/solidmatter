@@ -25,15 +25,14 @@ class ExtrudeOperator < Operator
 			# make sure we are in part coordinate space
 			origin = segments.first.sketch.plane.origin
 			segments.each do |seg|
-				corner1 = seg.pos1.dup + origin
+				corner1 = seg.pos1 + origin
 				corner2 = seg.pos1 + direction + origin
 				corner3 = seg.pos2 + direction + origin
-				corner4 = seg.pos2.dup + origin
-				segs = []
-				segs.push( Line.new( corner1, corner2 ) )
-				segs.push( Line.new( corner2, corner3 ) )
-				segs.push( Line.new( corner3, corner4 ) )
-				segs.push( Line.new( corner4, corner1 ) )
+				corner4 = seg.pos2 + origin
+				segs = [ Line.new( corner1, corner2 ),
+				         Line.new( corner2, corner3 ),
+				         Line.new( corner3, corner4 ),
+				         Line.new( corner4, corner1 ) ]
 				face = PlanarFace.new
 				face.bound_segments = segs
 				face.plane.u_vec = corner1.vector_to( corner2 ).normalize

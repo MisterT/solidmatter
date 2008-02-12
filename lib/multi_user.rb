@@ -24,10 +24,11 @@ class UserAccount
   end
 end
 
-
 Client = Struct.new( :client_id, :account, :locked_components )
 
 Change = Struct.new( :obj, :client_ids_to_serve )
+
+Request = Struct.new( :type, :what, :client_ids_to_serve, :client_ids_accepted, :num_clients, :id )
 
 
 class ProjectServer
@@ -40,6 +41,7 @@ class ProjectServer
     @accounts = []
     @clients  = []
     @changes  = []
+    @requests = []
   end
   
   def get_projects
@@ -108,25 +110,66 @@ class ProjectServer
   end
   
   def get_changes_for client_id
-    puts "in get changes"
     objects = []
     for change in @changes
+      # if there is still something for client
       if change.client_ids_to_serve.include? client_id
         objects.push change.obj
+        # make sure client's not changed twice
         change.client_ids_to_serve.delete client_id
       end
     end
-    puts "after for"
+    # delete change when everybody already has it
     @changes.delete_if{|c| c.client_ids_to_serve.empty? }
-    puts "after delete"
     return objects
   end
   
-  def new_client_id
-    @used_client_ids ||= []
-    new_id = rand 99999999999999999999999999999999999999999 while @used_client_ids.include? new_id
-    @used_client_ids.push new_id
-    return new_id
+  def new_request( type, projectname, client_id )
+    ids_to_accept = @clients.select{|c| c.account.registered_projects.include? projectname }.map{|c| c.client_id } - [client_id]
+    @requests.push Request.new( type, projectname, ids_to_accept, [], ids_to_accept.size, new_id )
+  end
+  
+  def accept_request( request_id, client_id )
+    # memorize that client accepted
+    re = @requests.select{|r| r.id == request_id }
+    re.client_ids_accepted.push client_id
+    # take action if everybody accepted
+    if re.client_ids_accepted.size == re.num_clients
+      case re.type
+      when :save then
+        pr = @projects.select{|p| p.name == re.what }.first
+        pr.filename = "hosted_projects/#{projectname}"
+        pr.save
+      end
+    end
+  end
+  
+  def cancel_request( request_id, client_id )
+    # delete original request
+    re = @requests.select{|r| r.id == request_id }
+    @requests.delete re
+    # create cancel-request to make sure clients cancel too
+    @request.push Request.new( :cancel, re.id, ids_to_serve, [], ids_to_serve.size, new_id )
+  end
+  
+  def get_requests_for client_id
+    requests = []
+    for re in @requests
+      # if there is still something for client
+      if re.client_ids_to_serve.include? client_id
+        requests.push [re.type, re.id]
+        # make sure client's not requested twice
+        re.client_ids_to_serve.delete client_id
+      end
+    end
+    return requests
+  end
+  
+  def new_id
+    @used_ids ||= []
+    id = rand 99999999999999999999999999999999999999999 while @used_ids.include? id
+    @used_ids.push id
+    return id
   end
   
   def exit
@@ -180,12 +223,29 @@ class ProjectClient
   def start_polling
     @poller = Thread.start do
       loop do
-        puts "polling"
-        sleep 1
+        # get model changes from server
         for new_obj in @server.get_changes_for @client_id
-          puts "got change"
           exchange_object new_obj
         end
+        # get action requests from server
+        for type, id in @server.get_requests_for @client_id
+          case re
+          when :save then
+            @save_dialog = SaveRequestDialog.new
+          when :cancel then
+            @wait_dialog.close
+            @save_dialog.close
+            dialog = Gtk::MessageDialog.new(@manager.main_win, 
+                                            Gtk::Dialog::DESTROY_WITH_PARENT,
+                                            Gtk::MessageDialog::INFO,
+                                            Gtk::MessageDialog::BUTTONS_CLOSE,
+                                            "Request canceled")
+            dialog.secondary_text = "The save request was cancelled by another user"
+            dialog.run
+            dialog.destroy
+          end
+        end
+        sleep 1
       end
     end
   end
@@ -198,17 +258,31 @@ class ProjectClient
           inst.real_component = new_object
         end
     end
+    # setup open gl
     new_object.displaylist = @manager.glview.add_displaylist
     new_object.build_displaylist
     @manager.glview.redraw
   end
   
+  def save_request
+    @server.new_request( :save, @projectname, @client_id )
+    @wait_dialog = WaitForSaveDialog.new
+  end
+  
+  def accept_save_request
+    
+  end
+  
+  def cancel_save_request
+    
+  end
+  
   def component_changed comp
-   # @server.exchange_object( @projectname, comp, @client_id )
+    @server.exchange_object( @projectname, comp, @client_id )
   end
   
   def exit
-    @poller.stop if @poller
+    @poller.kill if @poller
     @server.remove_client @client_id
   end
 end

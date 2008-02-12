@@ -460,9 +460,9 @@ class Part < Component
 			  GL.Color3f( c[0],c[1],c[2] ) if type == :select_faces
 				GL.Begin( GL::POLYGON )
 				face.bound_segments.each do |seg|
-            #GL.TexCoord2f(0.995, 0.005)
-						GL.Vertex( seg.pos1.x, seg.pos1.y, seg.pos1.z )
-					end
+          #GL.TexCoord2f(0.995, 0.005)
+					GL.Vertex( seg.pos1.x, seg.pos1.y, seg.pos1.z )
+				end
 				GL.End
 			end
 		GL.EndList

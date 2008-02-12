@@ -77,9 +77,9 @@ class Selection
 end
 
 class ProjectManager
-	attr_accessor :focus_view, :materials, :return_btn, :previous_btn, :next_btn, :main_assembly, :all_assemblies, 
+	attr_accessor :filename, :focus_view, :materials, :return_btn, :previous_btn, :next_btn, :main_assembly, :all_assemblies, 
 	              :all_parts, :all_part_instances, :all_sketches, :name, :author, :server_win, :main_win
-	attr_reader :filename, :selection, :work_component, :point_snapping, :work_sketch, 
+	attr_reader :selection, :work_component, :point_snapping, :work_sketch, 
 	            :glview, :op_view, :has_been_changed, :keys_pressed, :keymap
 	def initialize( main_win, op_view, glview, asm_toolbar, prt_toolbar, sketch_toolbar, statusbar, main_vbox, op_view_controls )
 	  @main_win = main_win
@@ -273,16 +273,20 @@ public
 	end
 	
 	def save_file
-		if @filename
-			File::open( @filename, "w" ) do |file|
-			  strip_non_dumpable
-				Marshal::dump( [@main_assembly, @all_assemblies,	@all_parts, @all_part_instances, @all_sketches], file )
-				readd_non_dumpable  
-			end
-			self.has_been_changed = false
-		else
-			save_file_as
-		end
+	  if @client
+	    @client.save_request
+    else
+  		if @filename
+  			File::open( @filename, "w" ) do |file|
+  			  strip_non_dumpable
+  				Marshal::dump( [@main_assembly, @all_assemblies,	@all_parts, @all_part_instances, @all_sketches], file )
+  				readd_non_dumpable  
+  			end
+  			self.has_been_changed = false
+  		else
+  			save_file_as
+  		end
+	  end
 	end
 	
 	def strip_non_dumpable

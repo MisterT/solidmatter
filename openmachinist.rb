@@ -37,7 +37,7 @@ Gtk::main
 # nach new local project screen refresh
 # projekt name wird nicht mitgespeichert
 # insert und library palette
-# close prooject confirmation funzt nicht
 # nach dem ladén einer anderen scene wird bis zum ersten build_displaylist noch altes Part angezeigt
 # speichern im operator modus hinterlässt nach "return" den toolbar aktiv
 # sketch button sollte eingedrückt bleib wenn plane gewählt wird
+# sicherheitsprüfungen im server ( is_valid(projectname, client_id) schreiben)
