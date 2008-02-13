@@ -22,7 +22,7 @@ Gtk::main
 # grid animation mit transparenzen vervollständigen
 # operatoren parallelisieren
 # drag and drop im op-view
-# undo stack
+# undo/redo stack
 # vererbung von parts
 # use gtkuimanager for the menu
 # point selection im sketcher
