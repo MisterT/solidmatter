@@ -446,8 +446,10 @@ public
 	  if sel
 	    if sel.is_a? Operator
 	      @work_component.remove_operator sel 
-	      @all_sketches.delete sel.settings[:sketch]
-	      sel.settings[:sketch].clean_up
+	      if sel.settings[:sketch]
+	        @all_sketches.delete sel.settings[:sketch]
+	        sel.settings[:sketch].clean_up
+        end
       elsif sel.is_a? Instance and not sel == @op_view.base_component 
 	      sel.parent.remove_component sel 
 	      @all_part_instances.delete sel
