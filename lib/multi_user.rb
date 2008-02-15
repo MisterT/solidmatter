@@ -6,6 +6,8 @@
 require 'drb'
 require 'lib/project_manager.rb'
 require 'lib/account_editor.rb'
+require 'lib/save_request_dialog.rb'
+require 'lib/wait_for_save_dialog.rb'
 
 
 class UserAccount
@@ -28,7 +30,7 @@ Client = Struct.new( :client_id, :account, :locked_components )
 
 Change = Struct.new( :obj, :client_ids_to_serve )
 
-Request = Struct.new( :type, :what, :client_ids_to_serve, :client_ids_accepted, :num_clients, :id )
+Request = Struct.new( :type, :what, :client_ids_to_serve, :client_ids_received, :num_accepted, :id )
 
 
 class ProjectServer
@@ -76,12 +78,13 @@ class ProjectServer
   def add_client( login, password )
     for ac in @accounts
       if ac.login == login and ac.password == password
-        client_id = new_client_id
+        client_id = new_id
         @clients.push Client.new( client_id, ac, [] )
         @clients.uniq!
         return client_id
       end
     end
+    return nil
   end
   
   def remove_client client_id
@@ -125,43 +128,47 @@ class ProjectServer
   end
   
   def new_request( type, projectname, client_id )
-    ids_to_accept = @clients.select{|c| c.account.registered_projects.include? projectname }.map{|c| c.client_id } - [client_id]
-    @requests.push Request.new( type, projectname, ids_to_accept, [], ids_to_accept.size, new_id )
+    ids_to_serve = @clients.select{|c| c.account.registered_projects.include? projectname }.map{|c| c.client_id } - [client_id]
+    @requests.push Request.new( type, projectname, ids_to_serve, [], 0, new_id )
   end
   
   def accept_request( request_id, client_id )
     # memorize that client accepted
-    re = @requests.select{|r| r.id == request_id }
-    re.client_ids_accepted.push client_id
+    re = @requests.select{|r| r.id == request_id }.first
+    re.num_accepted += 1
     # take action if everybody accepted
-    if re.client_ids_accepted.size == re.num_clients
+    if re.num_accepted == re.client_ids_to_serve.size
       case re.type
       when :save then
         pr = @projects.select{|p| p.name == re.what }.first
-        pr.filename = "hosted_projects/#{projectname}"
+        pr.filename = "hosted_projects/#{pr.name}"
         pr.save
       end
+      @requests.delete re
+      @requests.push Request.new( :accepted, re.id, re.ids_to_serve, 0, new_id )
     end
   end
   
   def cancel_request( request_id, client_id )
     # delete original request
-    re = @requests.select{|r| r.id == request_id }
+    re = @requests.select{|r| r.id == request_id }.first
     @requests.delete re
     # create cancel-request to make sure clients cancel too
-    @request.push Request.new( :cancel, re.id, ids_to_serve, [], ids_to_serve.size, new_id )
+    @request.push Request.new( :cancel, re.id, re.ids_to_serve, 0, new_id )
   end
   
   def get_requests_for client_id
     requests = []
     for re in @requests
       # if there is still something for client
-      if re.client_ids_to_serve.include? client_id
-        requests.push [re.type, re.id]
+      unless re.client_ids_received.include? client_id
+        requests.push [re.type, re.what, re.id]
         # make sure client's not requested twice
-        re.client_ids_to_serve.delete client_id
+        re.client_ids_received.push client_id
       end
     end
+    # delete all informational requests. Save requests must be kept around until cancelled or accepted
+    @requests.delete_if{|r| r.type == :save ? false : (r.client_ids_received.size == r.client_ids_to_serve.size) }
     return requests
   end
   
@@ -209,15 +216,28 @@ class ProjectClient
     @projectname = projectname
     @login = login
     @client_id = @server.add_client( login, password )
-    project = available_projects.select{|p| p.name == projectname }.first
-    @manager.main_assembly      = project.main_assembly
-    @manager.all_assemblies     = project.all_assemblies
-    @manager.all_parts          = project.all_parts
-    @manager.all_part_instances = project.all_part_instances
-    @manager.all_sketches       = project.all_sketches
-    @manager.readd_non_dumpable
-    @manager.glview.redraw
-    start_polling
+    if @client_id
+      project = available_projects.select{|p| p.name == projectname }.first
+      @manager.main_assembly      = project.main_assembly
+      @manager.all_assemblies     = project.all_assemblies
+      @manager.all_parts          = project.all_parts
+      @manager.all_part_instances = project.all_part_instances
+      @manager.all_sketches       = project.all_sketches
+      @manager.readd_non_dumpable
+      @manager.glview.redraw
+      start_polling
+      return true
+    else
+      dialog = Gtk::MessageDialog.new(@manager.main_win, 
+                                      Gtk::Dialog::DESTROY_WITH_PARENT,
+                                      Gtk::MessageDialog::WARNING,
+                                      Gtk::MessageDialog::BUTTONS_CLOSE,
+                                      "Login failed")
+      dialog.secondary_text = "Please make sure that your login information is correct"
+      dialog.run
+      dialog.destroy
+      return false
+    end
   end
   
   def start_polling
@@ -228,13 +248,15 @@ class ProjectClient
           exchange_object new_obj
         end
         # get action requests from server
-        for type, id in @server.get_requests_for @client_id
-          case re
+        for type, what, id in @server.get_requests_for @client_id
+          case type
           when :save then
+            puts "save request received"
+            @save_request_id = id
             @save_dialog = SaveRequestDialog.new
           when :cancel then
-            @wait_dialog.close
-            @save_dialog.close
+            @wait_dialog.close if @wait_dialog
+            @save_dialog.close if @save_dialog
             dialog = Gtk::MessageDialog.new(@manager.main_win, 
                                             Gtk::Dialog::DESTROY_WITH_PARENT,
                                             Gtk::MessageDialog::INFO,
@@ -243,6 +265,8 @@ class ProjectClient
             dialog.secondary_text = "The save request was cancelled by another user"
             dialog.run
             dialog.destroy
+          when :accepted then
+            @wait_dialog.close
           end
         end
         sleep 1
@@ -265,24 +289,37 @@ class ProjectClient
   end
   
   def save_request
-    @server.new_request( :save, @projectname, @client_id )
+    puts "entering client#save_request"
+    if @save_request_id
+      puts @save_request_id
+      puts "before accepts"
+      accept_save_request
+    else
+      @wait_dialog = WaitForSaveDialog.new
+      puts "before new request on server"
+      @server.new_request( :save, @projectname, @client_id )
+      puts "after"
+      #@wait_dialog = WaitForSaveDialog.new
+    end
+  end
+  
+  def accept_save_request 
+    @server.accept_request( @save_request_id, @client_id )
+    @save_request_id = nil
     @wait_dialog = WaitForSaveDialog.new
   end
   
-  def accept_save_request
-    
-  end
-  
   def cancel_save_request
-    
+    @server.cancel_request( @save_request_id, @client_id )
+    @save_request_id = nil
   end
   
   def component_changed comp
-    @server.exchange_object( @projectname, comp, @client_id )
+    @server.exchange_object( @projectname, comp, @client_id ) if @client_id
   end
   
   def exit
     @poller.kill if @poller
-    @server.remove_client @client_id
+    @server.remove_client @client_id if @client_id
   end
 end

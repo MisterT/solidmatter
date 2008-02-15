@@ -161,7 +161,11 @@ public
     	  save_file
     	  if @filename and not @client.available_projects.map{|pr| pr.name }.include? @name
           @client.server.add_project self 
-          @client.join_project( @name, 'synthetic', 'bla' )
+          valid = @client.join_project( @name, 'synthetic', 'bla' )
+          if not valid
+            @client.exit
+    	      @client = nil
+  	      end
         end
       end
     end
@@ -170,8 +174,15 @@ public
 	def join_project( server, port, projectname, login, password )
 	  @client.exit if @client
 	  @client = ProjectClient.new( server, port, self )
-	  @client.join_project( projectname, login, password ) if @client.working
-	  self.has_been_changed = false
+	  if @client.working
+	    valid = @client.join_project( projectname, login, password ) 
+	    if valid
+	      self.has_been_changed = false
+      else
+	      @client.exit
+	      @client = nil 
+	    end
+    end
 	end
 	
 	def component_changed comp

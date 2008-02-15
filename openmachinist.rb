@@ -41,3 +41,4 @@ Gtk::main
 # speichern im operator modus hinterlässt nach "return" den toolbar aktiv
 # sketch button sollte eingedrückt bleib wenn plane gewählt wird
 # sicherheitsprüfungen im server ( is_valid(projectname, client_id) schreiben)
+# immer nach glDrawable fragen um redraw probleme zu vermeiden
