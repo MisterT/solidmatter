@@ -68,7 +68,7 @@
             </child>
             <child>
               <widget class="GtkFrame" id="frame4">
-                <property name="width_request">350</property>
+                <property name="width_request">450</property>
                 <property name="height_request">150</property>
                 <property name="visible">True</property>
                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
@@ -92,7 +92,7 @@
                             <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
                             <property name="shadow_type">GTK_SHADOW_IN</property>
                             <child>
-                              <widget class="GtkTreeView" id="server_view2">
+                              <widget class="GtkTreeView" id="all_parts_view">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
@@ -116,6 +116,7 @@
                                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                                 <property name="tooltip" translatable="yes">Move to user's projects</property>
                                 <property name="response_id">0</property>
+                                <signal name="clicked" handler="move_to_colliding"/>
                                 <child>
                                   <widget class="GtkImage" id="image6">
                                     <property name="visible">True</property>
@@ -137,6 +138,7 @@
                                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                                 <property name="tooltip" translatable="yes">Remove project from user</property>
                                 <property name="response_id">0</property>
+                                <signal name="clicked" handler="remove_from_colliding"/>
                                 <child>
                                   <widget class="GtkImage" id="image7">
                                     <property name="visible">True</property>
@@ -167,7 +169,7 @@
                             <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
                             <property name="shadow_type">GTK_SHADOW_IN</property>
                             <child>
-                              <widget class="GtkTreeView" id="user_view2">
+                              <widget class="GtkTreeView" id="colliding_parts_view">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
@@ -277,13 +279,20 @@
                             <property name="spacing">8</property>
                             <property name="homogeneous">True</property>
                             <child>
-                              <widget class="GtkHScale" id="hscale1">
+                              <widget class="GtkAlignment" id="alignment2">
                                 <property name="visible">True</property>
-                                <property name="can_focus">True</property>
                                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                <property name="adjustment">0 0 30 1 10 10</property>
-                                <property name="digits">0</property>
-                                <property name="value_pos">GTK_POS_RIGHT</property>
+                                <property name="right_padding">10</property>
+                                <child>
+                                  <widget class="GtkHScale" id="hscale1">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                    <property name="adjustment">0 0 30 1 10 10</property>
+                                    <property name="digits">0</property>
+                                    <property name="value_pos">GTK_POS_RIGHT</property>
+                                  </widget>
+                                </child>
                               </widget>
                             </child>
                             <child>

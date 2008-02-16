@@ -3,22 +3,20 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>openmachinist.rb</string>
+	<string>lib/multi_user.rb</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
 			<string>om_server.rb</string>
 			<key>lastUsed</key>
-			<date>2008-02-15T03:58:27Z</date>
+			<date>2008-02-15T23:56:15Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>openmachinist.rb</string>
 			<key>lastUsed</key>
-			<date>2008-02-15T03:58:27Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2008-02-15T23:56:40Z</date>
 		</dict>
 		<dict>
 			<key>expanded</key>
@@ -49,34 +47,6 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
-		<key>lib/account_editor.rb</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>38</integer>
-				<key>line</key>
-				<integer>81</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
-		<key>lib/gl_view.rb</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>238</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>205</integer>
-		</dict>
 		<key>lib/join_project_dialog.rb</key>
 		<dict>
 			<key>caret</key>
@@ -89,7 +59,7 @@
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>7</integer>
+			<integer>1</integer>
 		</dict>
 		<key>lib/make_public_dialog.rb</key>
 		<dict>
@@ -168,14 +138,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>56</integer>
+				<integer>20</integer>
 				<key>line</key>
-				<integer>153</integer>
+				<integer>146</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>100</integer>
+			<integer>118</integer>
 		</dict>
 		<key>lib/new_dialog.rb</key>
 		<dict>
@@ -219,6 +189,20 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
+		<key>lib/part_dialog.rb</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>59</integer>
+				<key>line</key>
+				<integer>23</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
 		<key>lib/pop_ups.rb</key>
 		<dict>
 			<key>caret</key>
@@ -247,33 +231,19 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
-		<key>lib/project_dialog.rb</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>0</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
 		<key>lib/project_manager.rb</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>12</integer>
+				<integer>73</integer>
 				<key>line</key>
-				<integer>167</integer>
+				<integer>83</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>133</integer>
+			<integer>271</integer>
 		</dict>
 		<key>lib/save_request_dialog.rb</key>
 		<dict>
@@ -283,20 +253,6 @@
 				<integer>20</integer>
 				<key>line</key>
 				<integer>10</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
-		<key>lib/server_win.rb</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>5</integer>
-				<key>line</key>
-				<integer>28</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -322,30 +278,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>4</integer>
+				<integer>31</integer>
 				<key>line</key>
-				<integer>10</integer>
+				<integer>23</integer>
 			</dict>
-			<key>columnSelection</key>
-			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
-			<key>selectFrom</key>
-			<dict>
-				<key>column</key>
-				<integer>64</integer>
-				<key>line</key>
-				<integer>10</integer>
-			</dict>
-			<key>selectTo</key>
-			<dict>
-				<key>column</key>
-				<integer>4</integer>
-				<key>line</key>
-				<integer>10</integer>
-			</dict>
 		</dict>
 		<key>lib/widgets.rb</key>
 		<dict>
@@ -354,7 +294,7 @@
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>4</integer>
+				<integer>15</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -393,6 +333,7 @@
 	<key>openDocuments</key>
 	<array>
 		<string>openmachinist.rb</string>
+		<string>lib/join_project_dialog.rb</string>
 		<string>om_server.rb</string>
 		<string>lib/project_manager.rb</string>
 		<string>lib/multi_user.rb</string>
@@ -402,6 +343,6 @@
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{352, 19}, {987, 1159}}</string>
+	<string>{{212, 0}, {807, 746}}</string>
 </dict>
 </plist>

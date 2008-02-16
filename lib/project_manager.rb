@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #
-#  Created by Björn Breitgoff on unknown date.
+#  Created by BjÃ¶rn Breitgoff on unknown date.
 #  Copyright (c) 2008. All rights reserved.
 
 require 'gtk2'
@@ -12,6 +12,7 @@ require 'lib/material_editor.rb'
 require 'lib/project_dialog.rb'
 require 'lib/make_public_dialog.rb'
 require 'lib/close_project_confirmation.rb'
+require 'lib/simulation_settings.rb'
 
 class Selection
 	def initialize
@@ -77,8 +78,9 @@ class Selection
 end
 
 class ProjectManager
-	attr_accessor :filename, :focus_view, :materials, :return_btn, :previous_btn, :next_btn, :main_assembly, :all_assemblies, 
-	              :all_parts, :all_part_instances, :all_sketches, :name, :author, :server_win, :main_win
+	attr_accessor :filename, :focus_view, :materials, :return_btn, :previous_btn, :next_btn,
+	              :main_assembly, :all_assemblies, :all_parts, :all_instances, :all_assembly_instances, 
+	              :all_part_instances, :all_sketches, :name, :author, :server_win, :main_win
 	attr_reader :selection, :work_component, :point_snapping, :work_sketch, 
 	            :glview, :op_view, :has_been_changed, :keys_pressed, :keymap
 	def initialize( main_win, op_view, glview, asm_toolbar, prt_toolbar, sketch_toolbar, statusbar, main_vbox, op_view_controls )
@@ -137,21 +139,26 @@ public
   
 	def new_project
     @client.exit if @client
-  	@name               = "Untitled project"
-  	@author             = ""
-  	@main_assembly      = Instance.new( Assembly.new( "Untitled assembly", self ) )
-  	@selection          = Selection.new
-  	@work_component     = @main_assembly
-  	@work_sketch        = nil
-  	@all_assemblies     = [@main_assembly]
-  	@all_parts          = []
-  	@all_part_instances = []
-  	@all_sketches       = []
+    @client = nil
+  	@name = "Untitled project"
+  	@author = ""
+  	@main_assembly = Instance.new( Assembly.new( "Untitled assembly", self ) )
+  	@selection = Selection.new
+  	@work_component = @main_assembly
+  	@work_sketch = nil
+  	@all_assemblies         = [@main_assembly]
+  	@all_parts              = []
+  	@all_instances          = []
+  	@all_part_instances     = []
+  	@all_assembly_instances = []
+  	@all_sketches           = []
+  	@colliding_instances    = []
   	@filename = nil
   	self.has_been_changed = false
   	@op_view.set_base_component( @main_assembly ) if @op_view
   	@toolstack = [ PartSelectionTool.new( glview, self ) ] if @glview
-  	display_properties
+  	display_properties if @not_starting_up
+  	@not_starting_up = true
 	end
 	
 	def make_project_public
@@ -194,9 +201,11 @@ public
 	def new_instance( component )
 		# make component instance the work component
 		instance = Instance.new( component, @work_component )
-		@work_component.components.push( instance )
-		@all_part_instances.push( instance ) if instance.class == Part
-		change_working_level( instance )
+		@work_component.components.push instance
+		@all_instances.push instance
+		@all_part_instances.push instance if instance.class == Part
+		@all_assembly_instances.push instance if instance.class == Assembly
+		change_working_level instance 
 		instance.display_properties
 	end
 	
@@ -568,7 +577,7 @@ public
 	end
 	
 	def display_contact_set
-		@work_component.display_contact_set if @work_component.class == Assembly
+		SimulationSettingsDialog.new( @all_part_instances, @colliding_instances )
 	end
 	
 	def key_pressed( key )

@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #
-#  Created by Björn Breitgoff on unknown date.
+#  Created by BjÃ¶rn Breitgoff on unknown date.
 #  Copyright (c) 2008. All rights reserved.
 
 require 'gtkglext'
@@ -179,7 +179,7 @@ class GLView < Gtk::DrawingArea
 	
 	def release_left( x,y )
 	  @manager.current_tool.release_left
-	 	click_left( x, y ) if Time.now - @button_press_time < 0.5
+	 	click_left( x, y ) if @button_press_time and Time.now - @button_press_time < 0.5
 	end
 	
 	def click_left( x,y )

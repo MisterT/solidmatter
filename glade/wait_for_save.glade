@@ -5,8 +5,7 @@
   <widget class="GtkDialog" id="wait_for_save">
     <property name="width_request">430</property>
     <property name="visible">True</property>
-    <property name="type">GTK_WINDOW_POPUP</property>
-    <property name="title" translatable="yes">Progress...</property>
+    <property name="title" translatable="yes">Save request</property>
     <property name="resizable">False</property>
     <property name="modal">True</property>
     <property name="window_position">GTK_WIN_POS_CENTER</property>
@@ -92,8 +91,8 @@ request and retry at a later time.</property>
                     <property name="visible">True</property>
                     <property name="activity_mode">True</property>
                     <property name="show_text">True</property>
-                    <property name="fraction">0.829999983311</property>
-                    <property name="pulse_step">0.10000000149011612</property>
+                    <property name="fraction">0.82999998331069946</property>
+                    <property name="pulse_step">0.0099999997764825821</property>
                     <property name="text" translatable="yes"></property>
                   </widget>
                 </child>

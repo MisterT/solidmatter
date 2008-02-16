@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #
-#  Created by Björn Breitgoff on unknown date.
+#  Created by BjÃ¶rn Breitgoff on unknown date.
 #  Copyright (c) 2008. All rights reserved.
 
 require 'gtkglext'
@@ -104,7 +104,7 @@ class OpenMachinistMainWin < Gtk::Window
                          										 										      ['Bjoern Breitgoff <breidibreit@web.de>'], [], nil)
                          										 					                about.logo = Gdk::Pixbuf.new('icons/big/assembly.png')
                          										 					                about.show
-                                                                     # Gtk::AboutDialog.show(self, {:name => "Open Machinist", :authors => ["Björn Breitgoff"], 
+                                                                     # Gtk::AboutDialog.show(self, {:name => "Open Machinist", :authors => ["BjÃ¶rn Breitgoff"], 
                                                                      #                              :copyright => "Copyright (c) 2006 Elektrokultur", 
                                                                      #                              :logo => Gdk::Pixbuf.new('icons/search.png'),
                                                                      #                              :version => "0.1"})
@@ -127,8 +127,7 @@ class OpenMachinistMainWin < Gtk::Window
 		toolbar.append( "Save", "Save current part or assembly", "Toolbar/Save", Gtk::Image.new('icons/big/save.png') ){ @manager.save_file }
 		toolbar.append( Gtk::SeparatorToolItem.new){}
 		select_button = Gtk::MenuToolButton.new( Gtk::Image.new( 'icons/big/list-add.png' ), 'Select' )
-		select_button.signal_connect("clicked"){ @manager.activate_tool('select') }
-		toolbar.append( select_button )
+		toolbar.append( select_button, "Choose selection mode" ){ @manager.activate_tool 'select' }
 		return_btn = toolbar.append( "Return", "Work on parent assembly","Toolbar/Return", Gtk::Image.new('icons/big/undo.png') ){ @manager.working_level_up }
 		return_btn.sensitive = false
 		@manager.return_btn = return_btn
@@ -144,8 +143,7 @@ class OpenMachinistMainWin < Gtk::Window
 		next_btn.sensitive = false
 		@manager.next_btn = next_btn
 		toolbar.append( Gtk::SeparatorToolItem.new ){}
-		toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( 'icons/big/information.png' ), 'Shading' ) ){}
-		#toolbar.append( "Focus", "Make all components except the current one transparent","Toolbar/Focus", Gtk::Image.new('icons/focus.png') ){}
+		toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( 'icons/big/information.png' ), 'Shading' ), "Select shading mode for the viewport" ){}
 		focus_btn = Gtk::ToggleToolButton.new
 		focus_btn.icon_widget = Gtk::Image.new('icons/big/focus.png').show
 		focus_btn.label = "Focus"
@@ -156,7 +154,7 @@ class OpenMachinistMainWin < Gtk::Window
   		@manager.work_component.transparent = false
   		glview.redraw
 		end
-		toolbar.append focus_btn
+		toolbar.append( focus_btn, "Make all components except the current one transparent" ){}
 		hbox.pack_end( SearchEntry.new(@manager), false, true )
 ###                                                                 ###
 ######---------------------- UI components ----------------------######
@@ -167,7 +165,7 @@ class OpenMachinistMainWin < Gtk::Window
 		# pack in OpView
 		vbox = Gtk::VBox.new
 		vbox.pack_start op_view
-		op_view.set_size_request(200,700)
+		op_view.set_size_request(200,500)
 		# ... with controls
 		up_btn = Gtk::Button.new
 		up_btn.image = Gtk::Image.new 'icons/small/up_small.png'
@@ -236,8 +234,7 @@ class OpenMachinistMainWin < Gtk::Window
 		sketch_toolbar.icon_size = Gtk::IconSize::SMALL_TOOLBAR
 		@main_vbox.pack_start(sketch_toolbar, false, true)
 		line_button = Gtk::MenuToolButton.new( Gtk::Image.new( 'icons/big/list-remove.png' ), 'Line' )
-		line_button.signal_connect("clicked"){ @manager.activate_tool('line', true) }
-		sketch_toolbar.append( line_button )
+		sketch_toolbar.append( line_button, "Line tool" ){ @manager.activate_tool('line', true) }
 		sketch_toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( 'icons/big/circle.png' ),    'Circle' ) )    { @manager.activate_tool('circle') }
 		sketch_toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( 'icons/big/arc.png' ),       'Arc' ) )       { @manager.activate_tool('arc') }
 		sketch_toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( 'icons/big/rectangle.png' ), 'Rectangle' ) ) { @manager.activate_tool('rectangle') }

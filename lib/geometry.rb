@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #
-#  Created by Björn Breitgoff on unknown date.
+#  Created by BjÃ¶rn Breitgoff on unknown date.
 #  Copyright (c) 2008. All rights reserved.
 
 require 'gtk2'
@@ -541,72 +541,6 @@ class Assembly < Component
 		  @information = info if info
 			@manager.op_view.update
 	  end
-	end
-	
-	def display_contact_set
-		dia = Gtk::Dialog.new( "Contact set for #{@name}",
-					nil,
-					Gtk::Dialog::DESTROY_WITH_PARENT,
-					[Gtk::Stock::OK, Gtk::Dialog::RESPONSE_OK]
-		)
-		dia.resizable = false
-		# partlist
-		listframe =  Gtk::Frame.new( 'Participating parts' )
-		listframe.border_width = 3
-		dia.vbox.add( listframe )
-		hbox = Gtk::HBox.new(false)
-		sw = Gtk::ScrolledWindow.new
-		listview = Gtk::TreeView.new
-		model = Gtk::ListStore.new( Gdk::Pixbuf, String )
-		listframe.add( hbox )
-		hbox.add( sw )
-		sw.add( listview )
-		sw.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
-		sw.set_size_request(200, 300)
-		vbox = Gtk::VBox.new(false) 
-		hbox.add( vbox )
-		vbox.add( Gtk::Button.new("Add") )
-		vbox.add( Gtk::Button.new("Remove") )
-		vbox.add( Gtk::Button.new("Enabled") )
-		# simulation options
-		optionframe =  Gtk::Frame.new( 'Simulation options' )
-		optionframe.border_width = 3
-		dia.vbox.add( optionframe )
-		vbox = Gtk::VBox.new(true)
-		optionframe.add( vbox )
-		# resolution
-		hbox = Gtk::HBox.new(true)
-		hbox.add( Gtk::Label.new("Samples per unit:") )
-	        adjustment = Gtk::Adjustment.new( 5,          # initial
-                                      		  1,          # min
-                                        	  21,         # max
-                                        	  1,          # step_inc (unused)
-                                        	  1,          # page_inc (unused)
-                                        	  1           # page_size (unused)
-		)          
-		sample_scale = Gtk::HScale.new( adjustment )
-		hbox.add( sample_scale )
-		sample_scale.signal_connect('value_changed') {  }
-		vbox.add( hbox )
-		# friction
-		hbox = Gtk::HBox.new(true)
-		hbox.add( Gtk::Label.new("Friction:") )
-		#hbox.add( Gtk::CheckBox.new )
-		hbox.add( Gtk::HScale.new )
-		vbox.add( hbox )
-		# resolution
-		hbox = Gtk::HBox.new(true)
-		hbox.add( Gtk::Label.new("Use bounding box:") )
-		hbox.add( Gtk::HScale.new )
-		vbox.add( hbox )
-		# get response from dialog
-		dia.signal_connect('response') do |w, r|
-			case r
-				when Gtk::Dialog::RESPONSE_OK
-					dia.destroy
-			end
-		end
-		dia.show_all
 	end
 end
 

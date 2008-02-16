@@ -6,18 +6,22 @@
 require 'libglade2'
 
 class WaitForSaveDialog
-  def initialize
+  def initialize client
+    @client = client
     @glade = GladeXML.new( "glade/wait_for_save.glade", nil, nil, nil, GladeXML::FILE ) {|handler| method(handler)}
     @glade['wait_for_save'].signal_connect('destroy'){ @t.kill }
-    @t = Thread.new do
-      @glade['progressbar'].pulse
-      Gtk::main_iteration while Gtk::events_pending?
-      sleep 0.1
+    progressbar = @glade['progressbar']
+    @t = Thread.start do
+      loop do
+        progressbar.pulse
+        sleep 0.01
+      end
     end
   end
 
   def cancel
     @glade['wait_for_save'].destroy
+    @client.cancel_save_request
   end
   
   def close

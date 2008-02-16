@@ -129,7 +129,9 @@ class ProjectServer
   
   def new_request( type, projectname, client_id )
     ids_to_serve = @clients.select{|c| c.account.registered_projects.include? projectname }.map{|c| c.client_id } - [client_id]
-    @requests.push Request.new( type, projectname, ids_to_serve, [], 0, new_id )
+    re = Request.new( type, projectname, ids_to_serve, [], 0, new_id )
+    @requests.push re
+    return re.id
   end
   
   def accept_request( request_id, client_id )
@@ -137,12 +139,12 @@ class ProjectServer
     re = @requests.select{|r| r.id == request_id }.first
     re.num_accepted += 1
     # take action if everybody accepted
-    if re.num_accepted == re.client_ids_to_serve.size
+    if re.num_accepted == re.client_ids_to_serve.size + 1
       case re.type
       when :save then
         pr = @projects.select{|p| p.name == re.what }.first
         pr.filename = "hosted_projects/#{pr.name}"
-        pr.save
+        pr.save_file
       end
       @requests.delete re
       @requests.push Request.new( :accepted, re.id, re.ids_to_serve, 0, new_id )
@@ -253,7 +255,7 @@ class ProjectClient
           when :save then
             puts "save request received"
             @save_request_id = id
-            @save_dialog = SaveRequestDialog.new
+            @save_dialog = SaveRequestDialog.new self
           when :cancel then
             @wait_dialog.close if @wait_dialog
             @save_dialog.close if @save_dialog
@@ -266,6 +268,7 @@ class ProjectClient
             dialog.run
             dialog.destroy
           when :accepted then
+            puts "accepted message received"
             @wait_dialog.close
           end
         end
@@ -289,24 +292,19 @@ class ProjectClient
   end
   
   def save_request
-    puts "entering client#save_request"
     if @save_request_id
-      puts @save_request_id
-      puts "before accepts"
       accept_save_request
     else
-      @wait_dialog = WaitForSaveDialog.new
-      puts "before new request on server"
-      @server.new_request( :save, @projectname, @client_id )
-      puts "after"
-      #@wait_dialog = WaitForSaveDialog.new
+      @save_request_id = @server.new_request( :save, @projectname, @client_id )
+      accept_save_request
+      @wait_dialog = WaitForSaveDialog.new self
     end
   end
   
   def accept_save_request 
     @server.accept_request( @save_request_id, @client_id )
     @save_request_id = nil
-    @wait_dialog = WaitForSaveDialog.new
+    @wait_dialog = WaitForSaveDialog.new self
   end
   
   def cancel_save_request
