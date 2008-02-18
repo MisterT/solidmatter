@@ -234,7 +234,8 @@ class OpenMachinistMainWin < Gtk::Window
 		sketch_toolbar.icon_size = Gtk::IconSize::SMALL_TOOLBAR
 		@main_vbox.pack_start(sketch_toolbar, false, true)
 		line_button = Gtk::MenuToolButton.new( Gtk::Image.new( 'icons/big/list-remove.png' ), 'Line' )
-		sketch_toolbar.append( line_button, "Line tool" ){ @manager.activate_tool('line', true) }
+		line_button.signal_connect('clicked'){ @manager.activate_tool('line', true) }
+		sketch_toolbar.append( line_button, "Line tool" )
 		sketch_toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( 'icons/big/circle.png' ),    'Circle' ) )    { @manager.activate_tool('circle') }
 		sketch_toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( 'icons/big/arc.png' ),       'Arc' ) )       { @manager.activate_tool('arc') }
 		sketch_toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( 'icons/big/rectangle.png' ), 'Rectangle' ) ) { @manager.activate_tool('rectangle') }
