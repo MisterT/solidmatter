@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 #
-#  Created by Björn Breitgoff on 13-10-06.
+#  Created by BjÃ¶rn Breitgoff on 13-10-06.
 #  Copyright (c) 2008. All rights reserved.
 
-require 'lib/misc.rb'
-#require 'lib/geometry.rb'
+require 'lib/pop_ups.rb'
+
 
 class Tool
 	def initialize( status_text, glview, manager )
@@ -207,7 +207,6 @@ class MeasureDistanceTool < Tool
 	
 	def click_left( x,y )
 	  super
-		puts "internal click"
 		pick_point x, y
 	end
 	
@@ -221,7 +220,7 @@ private
 		dist = 0
 		previous = nil
 		@points.each do |p|
-			dist += distance( previous, p ) if previous
+			dist += p.distance_to previous if previous
 			previous = p
 		end
 		# lenght should be displayed even when tool was paused
@@ -260,21 +259,36 @@ end
 ###                                                                     ###
 
 class SketchTool < Tool
+  attr_accessor :create_reference_geometry
 	def initialize( text, glview, manager, sketch )
 		super( text, glview, manager )
 		@sketch = sketch
 		@snap_tolerance = 0.05
 		@last_reference_points = []
+		@create_reference_geometry = false
+	end
+	
+	# snap points to guides, then to other points, then to grid
+	def snapped( x,y )
+    guide = [@x_guide,@z_guide].compact.first
+    point = guide ? guide.last : @glview.screen2world( x, y )
+    if point
+      point, was_point_snapped = point_snapped point
+      point = grid_snapped point unless was_point_snapped or guide
+      return point, was_point_snapped
+    else
+      return nil
+    end
 	end
 	
 	# snap to surrounding points
 	def point_snapped point 
 		closest = nil
-		if @manager.point_snapping and not @sketch.segments.empty?
+		if @manager.point_snap and not @sketch.segments.empty?
 			closest_dist = 999999
 			@sketch.segments.each do |seg|
 				[seg.pos1, seg.pos2].each do |pos|
-					dist = distance( point, pos )
+					dist = point.distance_to pos
 					if dist < @snap_tolerance
 						if dist < closest_dist
 							closest = pos
@@ -289,6 +303,25 @@ class SketchTool < Tool
 		else
 			return point, false
 		end
+	end
+	
+	def grid_snapped p
+	  if @manager.grid_snap
+	    spacing = @sketch.plane.spacing
+	    div, mod = p.x.divmod spacing
+	    new_x = div * spacing
+	    new_x += spacing if mod > spacing / 2
+	    div, mod = p.y.divmod spacing
+	    new_y = div * spacing
+	    new_y += spacing if mod > spacing / 2
+	    div, mod = p.z.divmod spacing
+	    new_z = div * spacing
+	    new_z += spacing if mod > spacing / 2
+	    new_point = Vector[new_x, new_y, new_z]
+	    return new_point
+    else
+      return p
+    end
 	end
 		
 	def mouse_move( x,y )
@@ -359,13 +392,6 @@ class LineTool < SketchTool
 		super( "Click left to create a point, middle click to move points:", glview, manager, sketch )
 	end
 	
-	# snap points to guides then to other points
-	def snapped( x,y )
-    guide = [@x_guide,@z_guide].compact.first
-    point = guide ? guide.last : @glview.screen2world( x, y )
-		return point ? point_snapped(point) : nil
-	end
-	
 	# add temporary line to sketch and add a new one
 	def click_left( x,y )
 	  super
@@ -388,6 +414,12 @@ class LineTool < SketchTool
 			#XXX create temp dot at snap location
 		end
 		@glview.redraw
+	end
+	
+	def click_right( x,y, time )
+	  super
+	  menu = SketchToolMenu.new( @manager, self )
+	  menu.popup(nil, nil, 3,  time)
 	end
 	
 	def draw
@@ -413,27 +445,40 @@ class EditSketchTool < SketchTool
 	  super
 	  sel = @glview.select( x,y )
 	 	if sel
-	 	  @manager.selection.select sel
-		  @selection = [sel]
+	 	  if @manager.keys_pressed.include? @manager.keymap.invert[:Shift]
+	 	    @manager.selection.add sel
+	 	    @selection.push sel
+ 	    else
+	 	    @manager.selection.select sel
+		    @selection = [sel]
+	    end
 	  else
 	    @manager.selection.deselect_all
+	    @selection = nil
 		end
 	end
 	
-	def press_left( x,y )
-	  super
-	  pos = @glview.screen2world( x,y )
-	  if @selection and pos# and @selection.include? @glview.select( x,y )
-	    @points_to_drag = @selection.map{|e| e.own_and_neighbooring_points }.flatten.uniq
-	    @old_points = Marshal.load(Marshal.dump( @points_to_drag ))
-	    @drag_start = pos
+  def press_left( x,y )
+    super
+    pos = @glview.screen2world( x,y )
+    new_selection = @glview.select( x,y )
+    # if drag starts on an already selected segment
+    if @selection and pos and @selection.include? new_selection	    
+      @points_to_drag = @selection.map{|e| e.own_and_neighbooring_points }.flatten.uniq
+      @old_points = Marshal.load(Marshal.dump( @points_to_drag ))
+      @drag_start = pos
+    elsif new_selection
+      click_left( x,y )
+      press_left( x,y )
+    else
+      click_left( x,y )
     end
-	end
+  end
 	
 	def drag_left( x,y )
 	  super
 	  pos = @glview.screen2world( x,y )
-	  if @selection and pos
+	  if @selection and pos and @drag_start
 	    move = @drag_start.vector_to pos
 	    @points_to_drag.zip( @old_points ).each do |neu, original|
 	      neu.x = original.x + move.x

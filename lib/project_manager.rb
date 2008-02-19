@@ -80,8 +80,9 @@ end
 class ProjectManager
 	attr_accessor :filename, :focus_view, :materials, :return_btn, :previous_btn, :next_btn,
 	              :main_assembly, :all_assemblies, :all_parts, :all_instances, :all_assembly_instances, 
-	              :all_part_instances, :all_sketches, :name, :author, :server_win, :main_win
-	attr_reader :selection, :work_component, :point_snapping, :work_sketch, 
+	              :all_part_instances, :all_sketches, :name, :author, :server_win, :main_win,
+	              :point_snap, :grid_snap, :use_sketch_guides
+	attr_reader :selection, :work_component, :work_sketch, 
 	            :glview, :op_view, :has_been_changed, :keys_pressed, :keymap
 	def initialize( main_win, op_view, glview, asm_toolbar, prt_toolbar, sketch_toolbar, statusbar, main_vbox, op_view_controls )
 	  @main_win = main_win
@@ -96,7 +97,9 @@ class ProjectManager
 		@op_view_controls = op_view_controls
 		@focus_view = true
 		@keys_pressed = []
-		@point_snapping = true
+		@point_snap = true
+		@grid_snap = true
+		@use_sketch_guides = true
 		@server_win = nil
 		@materials = [ Material.new("Aluminum"),
                    Material.new("Steel"),

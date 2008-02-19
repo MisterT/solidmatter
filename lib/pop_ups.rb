@@ -38,7 +38,6 @@ class ComponentMenu < Gtk::Menu
       part.visible = items[5].active?
       manager.glview.redraw
 		end
-
   end
 end
 
@@ -66,5 +65,45 @@ class OperatorMenu < Gtk::Menu
 		items[3].signal_connect("activate") do
       manager.delete_op_view_selected
 		end
+  end
+end
+
+class SketchToolMenu < Gtk::Menu
+  def initialize( manager, tool )
+    super()
+    items = [
+			Gtk::CheckMenuItem.new("Snap to points"),
+			Gtk::CheckMenuItem.new("Snap to grid"),
+			Gtk::CheckMenuItem.new("Use guides"),
+			Gtk::CheckMenuItem.new("Create reference geometry"),
+			Gtk::SeparatorMenuItem.new,
+			Gtk::ImageMenuItem.new(Gtk::Stock::STOP)
+		]
+		# snap points
+		items[0].signal_connect("activate") do
+      manager.point_snap = (not manager.point_snap)
+		end
+		# snap grid
+		items[1].signal_connect("activate") do
+      manager.grid_snap = (not manager.grid_snap)
+		end
+		# guides
+		items[2].signal_connect("activate") do
+			manager.use_sketch_guides = (not manager.use_sketch_guides)
+		end
+		# reference
+		items[3].signal_connect("activate") do
+			tool.create_reference_geometry = (not tool.create_reference_geometry)
+		end
+		# stop
+		items[5].signal_connect("activate") do
+      manager.cancel_current_tool
+		end
+		items[0].active = manager.point_snap
+		items[1].active = manager.grid_snap
+		items[2].active = manager.use_sketch_guides
+		items[3].active = tool.create_reference_geometry
+		items.each{|i| append i }
+		show_all
   end
 end

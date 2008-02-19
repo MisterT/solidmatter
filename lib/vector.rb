@@ -97,6 +97,10 @@ class Vector
 		v - self
 	end
 	
+	def distance_to v
+	 (vector_to v).length
+	end
+	
 	def project_xy
 	 Vector[ self[0], self[1], 0 ]
 	end
