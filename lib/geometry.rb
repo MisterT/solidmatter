@@ -184,6 +184,8 @@ class WorkingPlane < Plane
 	def clean_up
 		GL.DeleteLists( @displaylist, 1 )
 		GL.DeleteLists( @pick_displaylist, 1 )
+		@displaylist = nil
+		@pick_displaylist = nil
 	end
 end
 
@@ -254,6 +256,7 @@ class Sketch
 	
 	def clean_up
 		GL.DeleteLists( @displaylist, 1 )
+		@displaylist = nil
 	end
 end
 
@@ -361,7 +364,13 @@ end
 
 
 class Component
+  @@used_ids = []
 	attr_reader :information
+	def initialize
+		@component_id = rand 99999999999999999999999999999999999999999 while @@used_ids.include? @component_id
+    @@used_ids.push @component_id 
+	end
+	
 	def name
 	  information[:name]
 	end
@@ -369,6 +378,8 @@ class Component
 	def clean_up
 	  GL.DeleteLists( @displaylist, 1 )
 	  GL.DeleteLists( @wire_displaylist, 1 )
+	  @displaylist = nil
+	  @wire_displaylist = nil
 	end
 end
 
@@ -547,6 +558,7 @@ end
 class Instance
   include Selectable
   @@highest_id ||= 0
+  @@used_ids = []
 	attr_reader :parent, :position, :transparent, :component_id
 	attr_accessor :visible, :real_component
 	def initialize
@@ -560,8 +572,8 @@ class Instance
 		@transparent = false
 		@visible = true
 		@selection_pass_color = [1.0, 1.0, 1.0]
-		@component_id = @@highest_id
-		@@highest_id += 1
+		@instance_id = rand 99999999999999999999999999999999999999999 while @@used_ids.include? @instance_id
+    @@used_ids.push @instance_id
 	end
 	
 	def class

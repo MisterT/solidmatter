@@ -80,23 +80,23 @@ class SketchToolMenu < Gtk::Menu
 			Gtk::ImageMenuItem.new(Gtk::Stock::STOP)
 		]
 		# snap points
-		items[0].signal_connect("activate") do
-      manager.point_snap = (not manager.point_snap)
+		items[0].signal_connect("activate") do |w|
+      manager.point_snap = w.active?
 		end
 		# snap grid
-		items[1].signal_connect("activate") do
-      manager.grid_snap = (not manager.grid_snap)
+		items[1].signal_connect("activate") do |w|
+      manager.grid_snap = w.active?
 		end
 		# guides
-		items[2].signal_connect("activate") do
-			manager.use_sketch_guides = (not manager.use_sketch_guides)
+		items[2].signal_connect("activate") do |w|
+			manager.use_sketch_guides = w.active?
 		end
 		# reference
-		items[3].signal_connect("activate") do
-			tool.create_reference_geometry = (not tool.create_reference_geometry)
+		items[3].signal_connect("activate") do |w|
+			tool.create_reference_geometry = w.active?
 		end
 		# stop
-		items[5].signal_connect("activate") do
+		items[5].signal_connect("activate") do |w|
       manager.cancel_current_tool
 		end
 		items[0].active = manager.point_snap

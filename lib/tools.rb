@@ -271,12 +271,15 @@ class SketchTool < Tool
 	# snap points to guides, then to other points, then to grid
 	def snapped( x,y )
     guide = [@x_guide,@z_guide].compact.first
-    point = guide ? guide.last : @glview.screen2world( x, y )
+    point = (guide and @manager.use_sketch_guides) ? guide.last : @glview.screen2world( x, y )
     if point
-      point, was_point_snapped = point_snapped point
-      point = grid_snapped point unless was_point_snapped or guide
+      was_point_snapped = false
+      point, was_point_snapped = point_snapped point if @manager.point_snap
+      point = grid_snapped point unless was_point_snapped or guide or not @manager.grid_snap
+      puts "returning point: #{point}"
       return point, was_point_snapped
     else
+      puts "return nil"
       return nil
     end
 	end

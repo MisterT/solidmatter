@@ -28,7 +28,7 @@ end
 
 Client = Struct.new( :client_id, :account, :locked_components )
 
-Change = Struct.new( :obj, :client_ids_to_serve )
+Change = Struct.new( :obj_or_id, :type, :client_ids_to_serve )
 
 Request = Struct.new( :type, :what, :client_ids_to_serve, :client_ids_received, :num_accepted, :id )
 
@@ -92,6 +92,36 @@ class ProjectServer
   end
   
   def exchange_object( projectname, new_object, client_id )
+    on_project_if_valid( projectname, client_id ) do |pr|
+      # find all occurences of object with same id and replace them
+      for inst in pr.all_instances
+        if inst.real_component.component_id == new_object.component_id 
+          inst.real_component = new_object
+        end
+      end
+      # save change for other clients in this project
+      client_ids_to_serve = @clients.select{|c| c.account.registered_projects.include? pr }.map{|c| c.client_id } - [client_id]
+      @changes.push Change.new( new_object, :change, client_ids_to_serve )
+    end
+  end
+  
+  def add_object( projectname, new_object, client_id )
+    on_project_if_valid( projectname, client_id ) do |pr|
+      pr.add_object new_object
+      client_ids_to_serve = @clients.select{|c| c.account.registered_projects.include? pr }.map{|c| c.client_id } - [client_id]
+      @changes.push Change.new( new_object, :add, client_ids_to_serve )
+    end
+  end
+  
+  def delete_object( projectname, obj_id, client_id )
+    on_project_if_valid( projectname, client_id ) do |pr|
+      pr.delete_object obj_id
+      client_ids_to_serve = @clients.select{|c| c.account.registered_projects.include? pr }.map{|c| c.client_id } - [client_id]
+      @changes.push Change.new( obj_id, :delete, client_ids_to_serve )
+    end
+  end
+  
+  def on_project_if_valid( projectname, client_id )
     # check if client is connected and ignore otherwise
     client = @clients.select{|c| c.client_id == client_id }.first
     if client
@@ -99,15 +129,7 @@ class ProjectServer
       pr = @projects.select{|p| p.name == projectname }.first
       # check if he has the rights to 
       if client.account.registered_projects.include? pr
-        # find all occurences of object with same id and replace them
-        for inst in pr.all_instances
-          if inst.real_component.component_id == new_object.component_id 
-            inst.real_component = new_object
-          end
-        end
-        # save change for other clients in this project
-        client_ids_to_serve = @clients.select{|c| c.account.registered_projects.include? pr }.map{|c| c.client_id } - [client_id]
-        @changes.push Change.new( new_object, client_ids_to_serve )
+        yield pr
       end
     end
   end
@@ -117,7 +139,7 @@ class ProjectServer
     for change in @changes
       # if there is still something for client
       if change.client_ids_to_serve.include? client_id
-        objects.push change.obj
+        objects.push [change.obj_or_id, change.type]
         # make sure client's not changed twice
         change.client_ids_to_serve.delete client_id
       end
@@ -220,12 +242,15 @@ class ProjectClient
     @client_id = @server.add_client( login, password )
     if @client_id
       project = available_projects.select{|p| p.name == projectname }.first
-      @manager.main_assembly      = project.main_assembly
-      @manager.all_assemblies     = project.all_assemblies
-      @manager.all_parts          = project.all_parts
-      @manager.all_part_instances = project.all_part_instances
-      @manager.all_sketches       = project.all_sketches
+      @manager.exchange_all_gl_components do 
+        @manager.main_assembly      = project.main_assembly
+        @manager.all_assemblies     = project.all_assemblies
+        @manager.all_parts          = project.all_parts
+        @manager.all_part_instances = project.all_part_instances
+        @manager.all_sketches       = project.all_sketches
+      end
       @manager.readd_non_dumpable
+      @manager.op_view.update
       @manager.glview.redraw
       start_polling
       return true
@@ -246,8 +271,17 @@ class ProjectClient
     @poller = Thread.start do
       loop do
         # get model changes from server
-        for new_obj in @server.get_changes_for @client_id
-          exchange_object new_obj
+        for changes in @server.get_changes_for @client_id
+          for obj_or_id, type in changes
+            case type
+            when :change then
+              exchange_object obj_or_id
+            when :add then
+              @manager.add_object obj_or_id
+            when :delete then
+              @manager.delete_object obj_or_id
+            end
+          end
         end
         # get action requests from server
         for type, what, id in @server.get_requests_for @client_id
@@ -314,6 +348,14 @@ class ProjectClient
   
   def component_changed comp
     @server.exchange_object( @projectname, comp, @client_id ) if @client_id
+  end
+  
+  def component_added comp
+    @server.add_object( @projectname, comp, @client_id )
+  end
+  
+  def component_deleted inst_id
+    @server.delete_object( @projectname, inst_id, @client_id )
   end
   
   def exit

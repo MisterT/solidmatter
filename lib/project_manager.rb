@@ -149,19 +149,45 @@ public
   	@selection = Selection.new
   	@work_component = @main_assembly
   	@work_sketch = nil
-  	@all_assemblies         = [@main_assembly]
-  	@all_parts              = []
-  	@all_instances          = []
-  	@all_part_instances     = []
-  	@all_assembly_instances = []
-  	@all_sketches           = []
+  	exchange_all_gl_components do
+    	@all_assemblies         = [@main_assembly]
+    	@all_parts              = []
+    	@all_instances          = []
+    	@all_part_instances     = []
+    	@all_assembly_instances = []
+    	@all_sketches           = []
+	  end
   	@colliding_instances    = []
   	@filename = nil
   	self.has_been_changed = false
   	@op_view.set_base_component( @main_assembly ) if @op_view
   	@toolstack = [ PartSelectionTool.new( glview, self ) ] if @glview
   	display_properties if @not_starting_up
+  	@glview.redraw if @not_starting_up
   	@not_starting_up = true
+  	@op_view.update
+	end
+	
+	def exchange_all_gl_components
+	  if @not_starting_up
+	    @all_parts.each{|p| p.clean_up ; p.working_planes.each{|pl| pl.clean_up } }
+	    @all_sketches.each{|sk| sk.clean_up }
+    end
+	  yield
+	  if @not_starting_up
+  	  @all_parts.each do |p| 
+  	    p.displaylist = @glview.add_displaylist
+  	    p.build_displaylist
+  	    p.working_planes.each do |pl| 
+  	      pl.displaylist = @glview.add_displaylist
+  	      pl.build_displaylists
+	      end
+      end
+      @all_sketches.each do |sk| 
+        sk.displaylist = @glview.add_displaylist
+        sk.build_displaylist
+      end
+    end
 	end
 	
 	def make_project_public
@@ -243,6 +269,40 @@ public
 		  end
 	  end
 	end
+	
+	def add_object inst
+    # check if we already know the real_component
+    real_comp = (@all_parts + @all_assemblies).select{|e| e.componen_id == inst.real_component.component_id }.first
+    # add part
+    if inst.class == Part
+      @all_part_instances.push inst
+      if real_comp
+        inst.real_component = real_comp
+      else
+        @all_parts.push inst.real_component
+      end
+    # add assembly
+    else
+      @all_assembly_instances.push inst
+      if real_comp
+        inst.real_component = real_comp
+      else
+        @all_assemblies.push inst.real_component
+      end
+    end
+	end
+	
+	def delete_object obj_or_id
+	  obj = @all_instances.select{|inst| inst.instance_id == obj_or_id }.first if obj_or_id.is_a? Integer
+	  if obj.is_a? Instance and obj.parent
+      obj.parent.remove_component obj
+    elsif obj.is_a? Segment
+      obj.sketch.segments.delete obj
+      obj.sketch.build_displaylist
+    end
+    @op_view.update
+    @glview.redraw
+	end
 ###                                                                 ###
 ######---------------------- File handling ----------------------######
 ###                                                                 ###
@@ -259,11 +319,12 @@ public
       progress = ProgressDialog.new
 			File::open( @filename ) do |file|
 				scene = Marshal::restore file 
-				@main_assembly      = scene[0]
-				@all_assemblies     = scene[1]
-				@all_parts          = scene[2]
-				@all_part_instances = scene[3]
-				@all_sketches       = scene[4]
+				@name               = scene[0]
+				@main_assembly      = scene[1]
+				@all_assemblies     = scene[2]
+				@all_parts          = scene[3]
+				@all_part_instances = scene[4]
+				@all_sketches       = scene[5]
 				readd_non_dumpable
 				increment = 1.0 / @all_parts.map{|p| p.operators}.flatten.size
 				@all_parts.each do |p| 
@@ -302,7 +363,7 @@ public
   		if @filename
   			File::open( @filename, "w" ) do |file|
   			  strip_non_dumpable
-  				Marshal::dump( [@main_assembly, @all_assemblies,	@all_parts, @all_part_instances, @all_sketches], file )
+  				Marshal::dump( [@name, @main_assembly, @all_assemblies,	@all_parts, @all_part_instances, @all_sketches], file )
   				readd_non_dumpable  
   			end
   			self.has_been_changed = false
@@ -542,16 +603,9 @@ public
 	
 	def delete_selected
 	  for comp in @selection
-      if comp.is_a? Instance and comp.parent
-        comp.parent.remove_component comp
-      elsif comp.is_a? Segment
-        comp.sketch.segments.delete comp
-        comp.sketch.build_displaylist
-      end
+      delete_object comp
     end
     @selection.deselect_all
-    @op_view.update
-    @glview.redraw
 	end
 ###                                                                            ###
 ######---------------------- Interface customizations ----------------------######
