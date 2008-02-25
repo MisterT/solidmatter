@@ -72,6 +72,10 @@ class Selection
 	  end
 	end
 	
+	def all
+	 @sel
+	end
+	
 	def method_missing( method, *args, &block )
 		@sel.send( method, *args, &block )
 	end
@@ -165,7 +169,7 @@ public
   	display_properties if @not_starting_up
   	@glview.redraw if @not_starting_up
   	@not_starting_up = true
-  	@op_view.update
+  	@op_view.update if @op_view
 	end
 	
 	def exchange_all_gl_components
@@ -177,7 +181,7 @@ public
 	  if @not_starting_up
   	  @all_parts.each do |p| 
   	    p.displaylist = @glview.add_displaylist
-  	    p.build_displaylist
+  	    p.build
   	    p.working_planes.each do |pl| 
   	      pl.displaylist = @glview.add_displaylist
   	      pl.build_displaylists
@@ -228,6 +232,8 @@ public
   ######---------------------- Creation of new components ----------------------######
   ###             	                                                               ###
 	def new_instance( component )
+	  # make sure we are inserting into an assembly
+		working_level_up while @work_component.class == Part
 		# make component instance the work component
 		instance = Instance.new( component, @work_component )
 		@work_component.components.push instance
@@ -239,8 +245,6 @@ public
 	end
 	
 	def new_part
-		# make sure we are inserting into an assembly
-		working_level_up while @work_component.class == Part
 		# create part and make its instance the work part
 		part = Part.new( unique_name( "part" ), self, @glview.add_displaylist, @glview.add_displaylist )
 		@all_parts.push part
@@ -248,8 +252,6 @@ public
 	end
 	
 	def new_assembly
-		# make sure we are inserting into an assembly
-		working_level_up while @work_component.class == Part
 		# create assembly and make it the work assembly
 		assembly = Assembly.new( unique_name("assembly"), self )
 		@all_assemblies.push assembly
@@ -270,30 +272,50 @@ public
 	  end
 	end
 	
-	def add_object inst
-    # check if we already know the real_component
-    real_comp = (@all_parts + @all_assemblies).select{|e| e.componen_id == inst.real_component.component_id }.first
-    # add part
-    if inst.class == Part
-      @all_part_instances.push inst
-      if real_comp
-        inst.real_component = real_comp
-      else
-        @all_parts.push inst.real_component
+	def add_object( inst, insert=true )
+    if inst.is_a? Instance
+      # check if we already know the real_component
+      real_comp = (@all_parts + @all_assemblies).select{|e| e.component_id == inst.real_component.component_id }.first
+      # add part
+      if inst.class == Part
+        @all_part_instances.push inst
+        @all_part_instances.uniq!
+        if real_comp
+          inst.real_component = real_comp
+        else
+          @all_parts.push inst.real_component
+          inst.displaylist = @glview.add_displaylist
+          inst.build
+        end
+      # add assembly
+      elsif inst.class == Assembly
+        @all_assembly_instances.push inst
+        if real_comp
+          inst.real_component = real_comp
+        else
+          @all_assemblies.push inst.real_component
+          inst.components.each{|c| add_object( c, false ) }
+        end
       end
-    # add assembly
-    else
-      @all_assembly_instances.push inst
-      if real_comp
-        inst.real_component = real_comp
-      else
-        @all_assemblies.push inst.real_component
-      end
+    # add segment
+    elsif inst.is_a? Segment and @work_sketch
+      puts inst.pos1
+      puts inst.pos2
+      @work_sketch.segments.push inst
+      @work_sketch.build_displaylist
     end
+    puts inst
+    puts @work_sketch
+    if insert and not @work_sketch
+      working_level_up while @work_component.class == Part
+      @work_component.components.push inst
+      @op_view.update
+    end
+    @glview.redraw
 	end
 	
 	def delete_object obj_or_id
-	  obj = @all_instances.select{|inst| inst.instance_id == obj_or_id }.first if obj_or_id.is_a? Integer
+	  obj = (obj_or_id.is_a? Integer) ? @all_instances.select{|inst| inst.instance_id == obj_or_id }.first : obj_or_id
 	  if obj.is_a? Instance and obj.parent
       obj.parent.remove_component obj
     elsif obj.is_a? Segment
@@ -606,6 +628,31 @@ public
       delete_object comp
     end
     @selection.deselect_all
+	end
+	
+	def cut_to_clipboard
+	 copy_to_clipboard
+	 delete_selected
+	end
+	
+	def copy_to_clipboard
+    @clipboard = @selection.all.map{|c| c.dup }
+	end
+	
+	def paste_from_clipboard
+	  @selection.deselect_all
+	  if @clipboard
+      for obj in @clipboard
+        copy = obj.dup
+        add_object copy
+        @selection.add copy
+      end
+    end
+	end
+	
+	def duplicate_instance
+	  copy_to_clipboard
+	  paste_from_clipboard
 	end
 ###                                                                            ###
 ######---------------------- Interface customizations ----------------------######

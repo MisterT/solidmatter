@@ -1,18 +1,20 @@
 #!/usr/bin/env ruby
 #
-#  Created by Björn Breitgoff on unknown date.
+#  Created by BjÃ¶rn Breitgoff on unknown date.
 #  Copyright (c) 2008. All rights reserved.
 
 require 'gnome2'
 
-class SearchEntry < Gtk::VBox 
+class SearchEntry < Gtk::ToolItem 
 	def initialize( manager )
-		super( false )
+		super()
+		vbox = Gtk::VBox.new false
+		add vbox
 		@manager = manager
 		@entry = Gnome::Entry.new
 		@label = Gtk::Label.new("Search") 
-		self.pack_start( @entry )
-		self.pack_start( @label)
+		vbox.pack_start( @entry )
+		vbox.pack_start( @label)
 		@entry.signal_connect("changed"){|w| select_matching_objects( w.gtk_entry.text ) }
 	end
 	

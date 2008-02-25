@@ -66,6 +66,13 @@ class Line < Segment
     end
     @sketch.build_displaylist
 	end
+	
+	def dup
+	 copy = super
+	 copy.pos1 = @pos1.dup
+	 copy.pos2 = @pos2.dup
+	 return copy
+	end
 end
 
 
@@ -440,21 +447,23 @@ class Part < Component
     end
 	end
 
-	def build( from_op )
-		@operators.index( from_op ).upto( @history_limit - 1 ){|i| @operators[i].operate; yield if block_given? } # update progressbar
-		solid = @operators[@history_limit - 1].solid
-		if solid
-			@solid = solid
-			build_displaylist
-			@manager.component_changed self
-		else
-			dia = Gtk::MessageDialog.new( nil, Gtk::Dialog::DESTROY_WITH_PARENT,
-							                           Gtk::MessageDialog::WARNING,
-							                           Gtk::MessageDialog::BUTTONS_OK,
-							                           "Part could not be built. \nPlease recheck all operator settings!"
-			)
-			dia.run
-			dia.destroy
+	def build( from_op=@operators.first )
+	  if from_op
+  		@operators.index( from_op ).upto( @history_limit - 1 ){|i| @operators[i].operate; yield if block_given? } # update progressbar
+  		solid = @operators[@history_limit - 1].solid
+  		if solid
+  			@solid = solid
+  			build_displaylist
+  			@manager.component_changed self
+  		else
+  			dia = Gtk::MessageDialog.new( nil, Gtk::Dialog::DESTROY_WITH_PARENT,
+  							                           Gtk::MessageDialog::WARNING,
+  							                           Gtk::MessageDialog::BUTTONS_OK,
+  							                           "Part could not be built. \nPlease recheck all operator settings!"
+  			)
+  			dia.run
+  			dia.destroy
+  		end
 		end
 	end
 
@@ -502,6 +511,16 @@ class Part < Component
 			@manager.glview.redraw
 	  end
 	end
+=begin
+	def dup
+	  copy = super
+	  copy.unused_sketches = @unused_sketches.dup
+	  copy.working_planes = @working_planes.dup
+	  copy.operators = @operators.dup
+	  copy.information = @information.dup
+	  copy.solid = @solid.dup
+	end
+=end
 end
 
 

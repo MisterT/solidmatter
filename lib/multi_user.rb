@@ -208,7 +208,6 @@ class ProjectServer
   end
 end
 
-
 class ProjectClient
   attr_reader :server, :working, :projectname
   def initialize( server, port, manager )

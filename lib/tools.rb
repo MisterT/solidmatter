@@ -276,10 +276,8 @@ class SketchTool < Tool
       was_point_snapped = false
       point, was_point_snapped = point_snapped point if @manager.point_snap
       point = grid_snapped point unless was_point_snapped or guide or not @manager.grid_snap
-      puts "returning point: #{point}"
       return point, was_point_snapped
     else
-      puts "return nil"
       return nil
     end
 	end
@@ -512,6 +510,12 @@ class EditSketchTool < SketchTool
 		  @manager.selection.deselect_all
 		end
   end
+  
+  def click_right( x,y, time )
+	  super
+	  menu = SketchSelectionToolMenu.new @manager
+	  menu.popup(nil, nil, 3,  time)
+	end
 end
 
 

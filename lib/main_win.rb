@@ -61,9 +61,10 @@ class OpenMachinistMainWin < Gtk::Window
 				["/Edit/Undo",        "<StockItem>", nil, Gtk::Stock::UNDO,  Proc.new{}],
 				["/Edit/Redo",        "<StockItem>", nil, Gtk::Stock::REDO,  Proc.new{}],
 				["/Edit/sep4", "<Separator>"],
-				["/Edit/Copy",        "<StockItem>", nil, Gtk::Stock::COPY,  Proc.new{}],
-				["/Edit/Paste",       "<StockItem>", nil, Gtk::Stock::PASTE,  Proc.new{}],
-				["/Edit/Delete",      "<StockItem>", nil, Gtk::Stock::DELETE,  Proc.new{}],
+				["/Edit/Cut",         "<StockItem>", nil, Gtk::Stock::CUT,  Proc.new{ @manager.cut_to_clipboard }],
+				["/Edit/Copy",        "<StockItem>", nil, Gtk::Stock::COPY,  Proc.new{ @manager.copy_to_clipboard }],
+				["/Edit/Paste",       "<StockItem>", nil, Gtk::Stock::PASTE,  Proc.new{ @manager.paste_from_clipboard }],
+				["/Edit/Delete",      "<StockItem>", nil, Gtk::Stock::DELETE,  Proc.new{ @manager.delete_selected }],
 				["/Edit/sep4", "<Separator>"],
 				["/Edit/Preferences", "<StockItem>", nil, Gtk::Stock::PREFERENCES,  Proc.new{}],
 			["/_View"],
@@ -98,12 +99,12 @@ class OpenMachinistMainWin < Gtk::Window
 				["/Simulation/Activate contact solver",              "<CheckItem>", nil, nil, Proc.new{}],
 				["/Simulation/Define contact set...",                "<Item>", nil, nil, Proc.new{ @manager.display_contact_set }],
 			["/_Help"],
-				["/Help/_About Open Machinist", "<Item>", nil, nil, Proc.new{ about = Gnome::About.new('Open Machinist', '0.1',
-                         										   										    'Copyright (c) 2006 Elektrokultur',
-                         										 										      'A parametrical, 3D, mechanical design application',
-                         										 										      ['Bjoern Breitgoff <breidibreit@web.de>'], [], nil)
-                         										 					                about.logo = Gdk::Pixbuf.new('icons/big/assembly.png')
-                         										 					                about.show
+				["/Help/_About Open Machinist", "<StockItem>", nil, Gtk::Stock::ABOUT, Proc.new{ about = Gnome::About.new('Open Machinist', '0.1',
+                         										   										                                                'Copyright (c) 2006 Elektrokultur',
+                         										 										                                                  'A parametrical, 3D, mechanical design application',
+                         										 										                                                  ['Bjoern Breitgoff <breidibreit@web.de>'], [], nil)
+                         										 					                                                            about.logo = Gdk::Pixbuf.new('icons/big/assembly.png')
+                         										 					                                                            about.show
                                                                      # Gtk::AboutDialog.show(self, {:name => "Open Machinist", :authors => ["Björn Breitgoff"], 
                                                                      #                              :copyright => "Copyright (c) 2006 Elektrokultur", 
                                                                      #                              :logo => Gdk::Pixbuf.new('icons/search.png'),
@@ -196,8 +197,9 @@ class OpenMachinistMainWin < Gtk::Window
 ######---------------------- Lower toolbars ----------------------######
 ###                                                                  ###
 		assembly_toolbar.toolbar_style = Gtk::Toolbar::BOTH
-		assembly_toolbar.icon_size = Gtk::IconSize::SMALL_TOOLBAR
-		@main_vbox.pack_start(assembly_toolbar, false, true)
+		assembly_toolbar.icon_size = Gtk::IconSize::LARGE_TOOLBAR
+		assembly_toolbar.show_arrow = true
+		@main_vbox.pack_start(assembly_toolbar, false, false)
 		assembly_toolbar.append( "Insert", "Insert an existing component","AssemblyToolbar/Insert", Gtk::Image.new('icons/big/part.png') ){}
 		assembly_toolbar.append( "Library", "Insert a library part","AssemblyToolbar/Lib", Gtk::Image.new('icons/big/assembly.png') ){}
 		assembly_toolbar.append( Gtk::SeparatorToolItem.new )
@@ -212,7 +214,8 @@ class OpenMachinistMainWin < Gtk::Window
 		assembly_toolbar.append( "Mirror", "Mirror assembly along a plane", "AssemblyToolbar/Mirror", Gtk::Image.new('icons/big/mirror.png') ){}
 		part_toolbar.toolbar_style = Gtk::Toolbar::BOTH
 		part_toolbar.icon_size = Gtk::IconSize::SMALL_TOOLBAR
-		@main_vbox.pack_start(part_toolbar, false, true)
+		part_toolbar.show_arrow = true
+		@main_vbox.pack_start(part_toolbar, false, false)
 		part_toolbar.append( "Sketch", "Sketch on selected plane","Toolbar/Sketch", Gtk::Image.new('icons/big/sketch.png') ){@manager.new_sketch}
 		part_toolbar.append( Gtk::SeparatorToolItem.new )
 		part_toolbar.append( "Extrude", "Extrude sketch", "PartToolbar/Extrude", Gtk::Image.new('icons/big/extrude.png') ){ @manager.add_operator('extrude')}
@@ -232,7 +235,8 @@ class OpenMachinistMainWin < Gtk::Window
 		part_toolbar.append( "Mirror", "Mirror feature along a plane", "PartToolbar/Mirror", Gtk::Image.new('icons/big/mirror.png') ){}
 		sketch_toolbar.toolbar_style = Gtk::Toolbar::ICONS
 		sketch_toolbar.icon_size = Gtk::IconSize::SMALL_TOOLBAR
-		@main_vbox.pack_start(sketch_toolbar, false, true)
+		sketch_toolbar.show_arrow = true
+		@main_vbox.pack_start(sketch_toolbar, false, false)
 		line_button = Gtk::MenuToolButton.new( Gtk::Image.new( 'icons/big/list-remove.png' ), 'Line' )
 		line_button.signal_connect('clicked'){ @manager.activate_tool('line', true) }
 		sketch_toolbar.append( line_button, "Line tool" )
@@ -256,7 +260,7 @@ class OpenMachinistMainWin < Gtk::Window
 		# hide unneeded toolbars as soons as we are drawn
 		self.signal_connect_after('realize'){ @manager.assembly_toolbar; @op_view_controls.hide }
 		# create Statusbar
-		main_box.pack_start(statusbar, false, true)
+		main_box.pack_start(statusbar, false, false)
 	end
 end
 

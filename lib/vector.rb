@@ -6,6 +6,7 @@
 require 'matrix'
 
 class Vector
+  attr_accessor :elements
 	alias dot_product inner_product
 	alias length r
 	
@@ -111,6 +112,12 @@ class Vector
 	
 	def project_yz
 	 Vector[ 0, self[1], self[2] ]
+	end
+	
+	def dup
+	  copy = super
+	  copy.elements = @elements.dup
+	  return copy
 	end
 end
 
