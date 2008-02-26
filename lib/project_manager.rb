@@ -82,7 +82,7 @@ class Selection
 end
 
 class ProjectManager
-	attr_accessor :filename, :focus_view, :materials, :return_btn, :previous_btn, :next_btn,
+	attr_accessor :filename, :focus_view, :materials, :save_btn, :return_btn, :previous_btn, :next_btn,
 	              :main_assembly, :all_assemblies, :all_parts, :all_instances, :all_assembly_instances, 
 	              :all_part_instances, :all_sketches, :name, :author, :server_win, :main_win,
 	              :point_snap, :grid_snap, :use_sketch_guides
@@ -141,35 +141,40 @@ public
   
   def has_been_changed= v
     @has_been_changed = v
+    @save_btn.sensitive = v if @save_btn
     correct_title
   end
   
 	def new_project
-    @client.exit if @client
-    @client = nil
-  	@name = "Untitled project"
-  	@author = ""
-  	@main_assembly = Instance.new( Assembly.new( "Untitled assembly", self ) )
-  	@selection = Selection.new
-  	@work_component = @main_assembly
-  	@work_sketch = nil
-  	exchange_all_gl_components do
-    	@all_assemblies         = [@main_assembly]
-    	@all_parts              = []
-    	@all_instances          = []
-    	@all_part_instances     = []
-    	@all_assembly_instances = []
-    	@all_sketches           = []
-	  end
-  	@colliding_instances    = []
-  	@filename = nil
-  	self.has_been_changed = false
-  	@op_view.set_base_component( @main_assembly ) if @op_view
-  	@toolstack = [ PartSelectionTool.new( glview, self ) ] if @glview
-  	display_properties if @not_starting_up
-  	@glview.redraw if @not_starting_up
-  	@not_starting_up = true
-  	@op_view.update if @op_view
+	  CloseProjectConfirmation.new self do |response|
+	    save_file if response == :save
+      @client.exit if @client
+      @client = nil
+    	@name = "Untitled project"
+    	@author = ""
+    	@main_assembly = Instance.new( Assembly.new( "Untitled assembly", self ) )
+    	@selection = Selection.new
+    	@work_component = @main_assembly
+    	@work_sketch = nil
+    	exchange_all_gl_components do
+      	@all_assemblies         = [@main_assembly]
+      	@all_parts              = []
+      	@all_instances          = []
+      	@all_part_instances     = []
+      	@all_assembly_instances = []
+      	@all_sketches           = []
+  	  end
+    	@colliding_instances    = []
+    	@filename = nil
+    	self.has_been_changed = false
+    	@op_view.set_base_component( @main_assembly ) if @op_view
+    	@toolstack = [ PartSelectionTool.new( glview, self ) ] if @glview
+    	display_properties if @not_starting_up
+    	@glview.redraw if @not_starting_up
+    	@not_starting_up = true
+    	@op_view.update if @op_view
+    	yield if block_given?
+  	end
 	end
 	
 	def exchange_all_gl_components
@@ -329,37 +334,40 @@ public
 ######---------------------- File handling ----------------------######
 ###                                                                 ###
 	def open_file
-		dia = Gtk::FileChooserDialog.new("Choose project file",
-                                      nil,
-                                      Gtk::FileChooser::ACTION_OPEN,
-                                      nil,
-                                      [Gtk::Stock::CANCEL, Gtk::Dialog::RESPONSE_CANCEL],
-                                      [Gtk::Stock::OPEN, Gtk::Dialog::RESPONSE_ACCEPT])
-    if dia.run == Gtk::Dialog::RESPONSE_ACCEPT
-      @filename = dia.filename
-      dia.destroy
-      progress = ProgressDialog.new
-			File::open( @filename ) do |file|
-				scene = Marshal::restore file 
-				@name               = scene[0]
-				@main_assembly      = scene[1]
-				@all_assemblies     = scene[2]
-				@all_parts          = scene[3]
-				@all_part_instances = scene[4]
-				@all_sketches       = scene[5]
-				readd_non_dumpable
-				increment = 1.0 / @all_parts.map{|p| p.operators}.flatten.size
-				@all_parts.each do |p| 
-				  p.build( p.operators.first ){ progress.fraction += increment } if p.operators.first
-				  p.working_planes.each{|pl| pl.build_displaylists }
-			  end
-				@all_sketches.each{|sk| sk.build_displaylist }
-			end
-			change_working_level @main_assembly 
-			progress.close
-			self.has_been_changed = false
-		else
-		  dia.destroy
+	  CloseProjectConfirmation.new self do |response|
+	    save_file if response == :save
+  		dia = Gtk::FileChooserDialog.new("Choose project file",
+                                        nil,
+                                        Gtk::FileChooser::ACTION_OPEN,
+                                        nil,
+                                        [Gtk::Stock::CANCEL, Gtk::Dialog::RESPONSE_CANCEL],
+                                        [Gtk::Stock::OPEN, Gtk::Dialog::RESPONSE_ACCEPT])
+      if dia.run == Gtk::Dialog::RESPONSE_ACCEPT
+        @filename = dia.filename
+        dia.destroy
+        progress = ProgressDialog.new
+  			File::open( @filename ) do |file|
+  				scene = Marshal::restore file 
+  				@name               = scene[0]
+  				@main_assembly      = scene[1]
+  				@all_assemblies     = scene[2]
+  				@all_parts          = scene[3]
+  				@all_part_instances = scene[4]
+  				@all_sketches       = scene[5]
+  				readd_non_dumpable
+  				increment = 1.0 / @all_parts.map{|p| p.operators}.flatten.size
+  				@all_parts.each do |p| 
+  				  p.build( p.operators.first ){ progress.fraction += increment } if p.operators.first
+  				  p.working_planes.each{|pl| pl.build_displaylists }
+  			  end
+  				@all_sketches.each{|sk| sk.build_displaylist }
+  			end
+  			change_working_level @main_assembly 
+  			progress.close
+  			self.has_been_changed = false
+  		else
+  		  dia.destroy
+      end
     end
 	end
 	
@@ -383,6 +391,7 @@ public
 	    @client.save_request
     else
   		if @filename
+  		  @selection.deselect_all
   			File::open( @filename, "w" ) do |file|
   			  strip_non_dumpable
   				Marshal::dump( [@name, @main_assembly, @all_assemblies,	@all_parts, @all_part_instances, @all_sketches], file )
@@ -423,17 +432,6 @@ public
 	  @all_assemblies.each{|a| a.manager = self }
 	end
 	
-	def close_project_confirmation
-	  dialog = Gtk::MessageDialog.new(@main_win, 
-                                    Gtk::Dialog::DESTROY_WITH_PARENT,
-                                    Gtk::MessageDialog::WARNING,
-                                    [Gtk::MessageDialog::BUTTONS_CANCEL, Gtk::MessageDialog::BUTTONS_SAVE],
-                                    "Save changes to project '#{project_name}?'")
-    dialog.secondary_text = "Your changes will be lost if you don't save them"
-    dialog.run
-    dialog.destroy
-	end
-	
   def display_properties
     ProjectInformationDialog.new self
   end
@@ -441,6 +439,7 @@ public
 ######---------------------- Working level and mode transitions ----------------------######
 ###                                                                                      ###
 	def change_working_level( component )
+	  @selection.deselect_all
 	  # display only current part's sketches
 	  @work_component.unused_sketches.each{|sk| sk.visible = false } if @work_component.class == Part
 	  @work_component = component

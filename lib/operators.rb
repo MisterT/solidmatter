@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #
-#  Created by Björn Breitgoff on unknown date.
+#  Created by BjÃ¶rn Breitgoff on unknown date.
 #  Copyright (c) 2008. All rights reserved.
 
 require 'lib/geometry.rb'
@@ -47,7 +47,7 @@ class ExtrudeOperator < Operator
 	def fill_toolbar 
 		# sketch selection
 		sketch_button = Gtk::ToggleToolButton.new
-		sketch_button.icon_widget = Gtk::Image.new('icons/big/sketch.png').show
+		sketch_button.icon_widget = Gtk::Image.new('icons/middle/sketch_middle.png').show
 		sketch_button.label = "Sketch"
 		sketch_button.signal_connect("clicked") do |b| 
 		  if sketch_button.active?

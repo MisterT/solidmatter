@@ -99,12 +99,13 @@ class OpenMachinistMainWin < Gtk::Window
 				["/Simulation/Activate contact solver",              "<CheckItem>", nil, nil, Proc.new{}],
 				["/Simulation/Define contact set...",                "<Item>", nil, nil, Proc.new{ @manager.display_contact_set }],
 			["/_Help"],
-				["/Help/_About Open Machinist", "<StockItem>", nil, Gtk::Stock::ABOUT, Proc.new{ about = Gnome::About.new('Open Machinist', '0.1',
-                         										   										                                                'Copyright (c) 2006 Elektrokultur',
-                         										 										                                                  'A parametrical, 3D, mechanical design application',
-                         										 										                                                  ['Bjoern Breitgoff <breidibreit@web.de>'], [], nil)
-                         										 					                                                            about.logo = Gdk::Pixbuf.new('icons/big/assembly.png')
-                         										 					                                                            about.show
+				["/Help/_About Open Machinist", "<StockItem>", nil, Gtk::Stock::ABOUT, Proc.new{ AboutDialog.new
+				                                                                                #about = Gnome::About.new('Open Machinist', '0.1',
+                         										   										                       #                         'Copyright (c) 2006 Elektrokultur',
+                         										 										                          #                        'A parametrical, 3D, mechanical design application',
+                         										 										                           #                       ['Bjoern Breitgoff <breidibreit@web.de>'], [], nil)
+                         										 					                                      #                      about.logo = Gdk::Pixbuf.new('icons/big/assembly.png')
+                         										 					                                       #                     about.show
                                                                      # Gtk::AboutDialog.show(self, {:name => "Open Machinist", :authors => ["Björn Breitgoff"], 
                                                                      #                              :copyright => "Copyright (c) 2006 Elektrokultur", 
                                                                      #                              :logo => Gdk::Pixbuf.new('icons/search.png'),
@@ -124,29 +125,31 @@ class OpenMachinistMainWin < Gtk::Window
 		toolbar.toolbar_style = Gtk::Toolbar::BOTH
 		toolbar.icon_size = Gtk::IconSize::SMALL_TOOLBAR
 		hbox.pack_start(toolbar, false, true)
-		toolbar.append( "New", "Create a new project, part or assembly", "Toolbar/New", Gtk::Image.new('icons/big/new.png') ){ NewDialog.new @manager }
-		toolbar.append( "Save", "Save current part or assembly", "Toolbar/Save", Gtk::Image.new('icons/big/save.png') ){ @manager.save_file }
+		toolbar.append( "New", "Create a new project, part or assembly", "Toolbar/New", Gtk::Image.new('icons/middle/document-new_middle.png') ){ NewDialog.new @manager }
+		save_btn = toolbar.append( "Save", "Save current part or assembly", "Toolbar/Save", Gtk::Image.new('icons/middle/document-save_middle.png') ){ @manager.save_file }
+		save_btn.sensitive = false
+    @manager.save_btn = save_btn
 		toolbar.append( Gtk::SeparatorToolItem.new){}
-		select_button = Gtk::MenuToolButton.new( Gtk::Image.new( 'icons/big/list-add.png' ), 'Select' )
+		select_button = Gtk::MenuToolButton.new( Gtk::Image.new( 'icons/middle/list-add_middle.png' ), 'Select' )
 		toolbar.append( select_button, "Choose selection mode" ){ @manager.activate_tool 'select' }
-		return_btn = toolbar.append( "Return", "Work on parent assembly","Toolbar/Return", Gtk::Image.new('icons/big/undo.png') ){ @manager.working_level_up }
+		return_btn = toolbar.append( "Return", "Work on parent assembly","Toolbar/Return", Gtk::Image.new('icons/middle/edit-undo_middle.png') ){ @manager.working_level_up }
 		return_btn.sensitive = false
 		@manager.return_btn = return_btn
 		toolbar.append( Gtk::SeparatorToolItem.new){}
-		toolbar.append( "Camera", "Position the 3d viewpoint","Toolbar/Camera", Gtk::Image.new('icons/big/camera.png') ) {@manager.activate_tool('camera') }
-		toolbar.append( "Zoom selection", "Fit all selected objects into view","Toolbar/ZoomAll", Gtk::Image.new('icons/big/search.png') ){}
-		toolbar.append( "Look at", "Make view orthogonal to selected plane","Toolbar/ViewSelected", Gtk::Image.new('icons/big/look_at.png') ){glview.look_at_selection}
+		toolbar.append( "Camera", "Position the 3d viewpoint","Toolbar/Camera", Gtk::Image.new('icons/middle/camera_middle.png') ) {@manager.activate_tool('camera') }
+		toolbar.append( "Zoom selection", "Fit all selected objects into view","Toolbar/ZoomAll", Gtk::Image.new('icons/middle/system-search_middle.png') ){}
+		toolbar.append( "Look at", "Make view orthogonal to selected plane","Toolbar/ViewSelected", Gtk::Image.new('icons/middle/go-bottom_middle.png') ){glview.look_at_selection}
 		toolbar.append( Gtk::SeparatorToolItem.new ){}
-		previous_btn = toolbar.append( "Previous", "Previous camera location","Toolbar/Previous", Gtk::Image.new('icons/big/go-previous.png') ){ glview.previous_view }
+		previous_btn = toolbar.append( "Previous", "Previous camera location","Toolbar/Previous", Gtk::Image.new('icons/middle/go-previous_middle.png') ){ glview.previous_view }
 		previous_btn.sensitive = false
 		@manager.previous_btn = previous_btn
-		next_btn = toolbar.append( "Next", "Next camera location","Toolbar/Next", Gtk::Image.new('icons/big/go-next.png') ){ glview.next_view }
+		next_btn = toolbar.append( "Next", "Next camera location","Toolbar/Next", Gtk::Image.new('icons/middle/go-next_middle.png') ){ glview.next_view }
 		next_btn.sensitive = false
 		@manager.next_btn = next_btn
 		toolbar.append( Gtk::SeparatorToolItem.new ){}
-		toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( 'icons/big/information.png' ), 'Shading' ), "Select shading mode for the viewport" ){}
+		toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( 'icons/middle/information_middle.png' ), 'Shading' ), "Select shading mode for the viewport" ){}
 		focus_btn = Gtk::ToggleToolButton.new
-		focus_btn.icon_widget = Gtk::Image.new('icons/big/focus.png').show
+		focus_btn.icon_widget = Gtk::Image.new('icons/middle/emblem-important_middle.png').show
 		focus_btn.label = "Focus"
 		focus_btn.active = true
 		focus_btn.signal_connect("toggled") do |b| 
@@ -197,29 +200,29 @@ class OpenMachinistMainWin < Gtk::Window
 ######---------------------- Lower toolbars ----------------------######
 ###                                                                  ###
 		assembly_toolbar.toolbar_style = Gtk::Toolbar::BOTH
-		assembly_toolbar.icon_size = Gtk::IconSize::LARGE_TOOLBAR
+		assembly_toolbar.icon_size = Gtk::IconSize::SMALL_TOOLBAR
 		assembly_toolbar.show_arrow = true
 		@main_vbox.pack_start(assembly_toolbar, false, false)
-		assembly_toolbar.append( "Insert", "Insert an existing component","AssemblyToolbar/Insert", Gtk::Image.new('icons/big/part.png') ){}
-		assembly_toolbar.append( "Library", "Insert a library part","AssemblyToolbar/Lib", Gtk::Image.new('icons/big/assembly.png') ){}
+		assembly_toolbar.append( "Insert", "Insert an existing component","AssemblyToolbar/Insert", Gtk::Image.new('icons/middle/part_middle.png') ){}
+		assembly_toolbar.append( "Library", "Insert a library part","AssemblyToolbar/Lib", Gtk::Image.new('icons/middle/assembly_middle.png') ){}
 		assembly_toolbar.append( Gtk::SeparatorToolItem.new )
-		assembly_toolbar.append( "Constrain", "Define a relation between two components", "AssemblyToolbar/Constrain", Gtk::Image.new('icons/big/constrain.png') ){}
-		assembly_toolbar.append( "Contacts", "Define contact set for current assembly", "AssemblyToolbar/Contact", Gtk::Image.new('icons/big/contacts.png') ){ @manager.display_contact_set }
-		assembly_toolbar.append( "Spring", "Insert a simulated spring", "AssemblyToolbar/Spring", Gtk::Image.new('icons/big/spring.png') ){}
+		assembly_toolbar.append( "Constrain", "Define a relation between two components", "AssemblyToolbar/Constrain", Gtk::Image.new('icons/middle/constrain_middle.png') ){}
+		assembly_toolbar.append( "Contacts", "Define contact set for current assembly", "AssemblyToolbar/Contact", Gtk::Image.new('icons/middle/measure_middle.png') ){ @manager.display_contact_set }
+		assembly_toolbar.append( "Spring", "Insert a simulated spring", "AssemblyToolbar/Spring", Gtk::Image.new('icons/middle/spring.png') ){}
 		assembly_toolbar.append( "Belt", "Create a (tooth)belt", "AssemblyToolbar/Belt", Gtk::Image.new('icons/big/belt.png') ){}
-		assembly_toolbar.append( "Animate", "Induce motion into assembly", "AssemblyToolbar/Animate", Gtk::Image.new('icons/big/wheel.png') ){}
+		assembly_toolbar.append( "Animate", "Induce motion into assembly", "AssemblyToolbar/Animate", Gtk::Image.new('icons/middle/applications-system_middle.png') ){}
 		assembly_toolbar.append( Gtk::SeparatorToolItem.new )
-		assembly_toolbar.append( "Grid pattern", "Duplicate assembly in a 1/2/3 dimensional grid", "AssemblyToolbar/Grid", Gtk::Image.new('icons/big/assembly.png') ){}
-		assembly_toolbar.append( "Circular pattern", "Duplicate assembly with a radial offset", "AssemblyToolbar/Circular", Gtk::Image.new('icons/big/circular.png') ){}
-		assembly_toolbar.append( "Mirror", "Mirror assembly along a plane", "AssemblyToolbar/Mirror", Gtk::Image.new('icons/big/mirror.png') ){}
+		assembly_toolbar.append( "Grid pattern", "Duplicate assembly in a 1/2/3 dimensional grid", "AssemblyToolbar/Grid", Gtk::Image.new('icons/middle/assembly_middle.png') ){}
+		assembly_toolbar.append( "Circular pattern", "Duplicate assembly with a radial offset", "AssemblyToolbar/Circular", Gtk::Image.new('icons/middle/view-refresh_middle.png') ){}
+		assembly_toolbar.append( "Mirror", "Mirror assembly along a plane", "AssemblyToolbar/Mirror", Gtk::Image.new('icons/middle/align-vertical-center_middle.png') ){}
 		part_toolbar.toolbar_style = Gtk::Toolbar::BOTH
 		part_toolbar.icon_size = Gtk::IconSize::SMALL_TOOLBAR
 		part_toolbar.show_arrow = true
 		@main_vbox.pack_start(part_toolbar, false, false)
-		part_toolbar.append( "Sketch", "Sketch on selected plane","Toolbar/Sketch", Gtk::Image.new('icons/big/sketch.png') ){@manager.new_sketch}
+		part_toolbar.append( "Sketch", "Sketch on selected plane","Toolbar/Sketch", Gtk::Image.new('icons/middle/sketch_middle.png') ){@manager.new_sketch}
 		part_toolbar.append( Gtk::SeparatorToolItem.new )
-		part_toolbar.append( "Extrude", "Extrude sketch", "PartToolbar/Extrude", Gtk::Image.new('icons/big/extrude.png') ){ @manager.add_operator('extrude')}
-		part_toolbar.append( "Revolve", "Rotate a sketch around an axis to produce geometry", "PartToolbar/Revolve", Gtk::Image.new('icons/big/revolve.png') ){}
+		part_toolbar.append( "Extrude", "Extrude sketch", "PartToolbar/Extrude", Gtk::Image.new('icons/middle/extrude_middle.png') ){ @manager.add_operator('extrude')}
+		part_toolbar.append( "Revolve", "Rotate a sketch around an axis to produce geometry", "PartToolbar/Revolve", Gtk::Image.new('icons/middle/revolve_middle.png') ){}
 		part_toolbar.append( "Hole", "Drill hole", "PartToolbar/Hole", Gtk::Image.new('icons/hole.png') ){}
 		part_toolbar.append( "Shell", "Shell out solid", "PartToolbar/Shell", Gtk::Image.new('icons/big/shell.png') ){}
 		part_toolbar.append( "Loft", "Connect several sketches with a surface", "PartToolbar/Loft", Gtk::Image.new('icons/big/loft.png') ){}
@@ -230,9 +233,8 @@ class OpenMachinistMainWin < Gtk::Window
 		part_toolbar.append( "Chamfer", "Chamfer ege", "PartToolbar/Chamfer", Gtk::Image.new('icons/big/chamfer.png') ){}
 		part_toolbar.append( "Draft", "Draft faces", "PartToolbar/Draft", Gtk::Image.new('icons/big/draft.png') ){}
 		part_toolbar.append( Gtk::SeparatorToolItem.new )
-		part_toolbar.append( "Grid pattern", "Duplicate feature in a 1/2/3 dimensional grid", "PartToolbar/Grid", Gtk::Image.new('icons/big/assembly.png') ){}
-		part_toolbar.append( "Circular pattern", "Duplicate feature with a radial offset", "PartToolbar/Circular", Gtk::Image.new('icons/big/circular.png') ){}
-		part_toolbar.append( "Mirror", "Mirror feature along a plane", "PartToolbar/Mirror", Gtk::Image.new('icons/big/mirror.png') ){}
+		part_toolbar.append( "Pattern", "Pattern feature along an axis or in a grid", "PartToolbar/Pattern", Gtk::Image.new('icons/middle/assembly_middle.png') ){}
+		part_toolbar.append( "Mirror", "Mirror feature along a plane", "PartToolbar/Mirror", Gtk::Image.new('icons/middle/align-vertical-center_middle.png') ){}
 		sketch_toolbar.toolbar_style = Gtk::Toolbar::ICONS
 		sketch_toolbar.icon_size = Gtk::IconSize::SMALL_TOOLBAR
 		sketch_toolbar.show_arrow = true

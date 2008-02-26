@@ -14,11 +14,7 @@ class NewProjectDialog
   
   def ok_handle( w )
     @glade['new_project'].destroy
-    CloseProjectConfirmation.new @manager do |response|
-	    @manager.save_file if response == :save
-	    @manager.new_project 
-      @manager.make_project_public if @choice == 'multi_radio'
-    end
+	  @manager.new_project{ @manager.make_project_public if @choice == 'multi_radio' }
   end
   
   def cancel_handle( w )
