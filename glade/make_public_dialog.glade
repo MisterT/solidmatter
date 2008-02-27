@@ -10,7 +10,7 @@
     <property name="resizable">False</property>
     <property name="modal">True</property>
     <property name="window_position">GTK_WIN_POS_CENTER</property>
-    <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
+    <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
     <property name="skip_taskbar_hint">True</property>
     <property name="skip_pager_hint">True</property>
     <property name="deletable">False</property>
@@ -87,6 +87,7 @@
                             <property name="response_id">0</property>
                             <property name="active">True</property>
                             <property name="draw_indicator">True</property>
+                            <signal name="group_changed" handler="radio_changed"/>
                             <child>
                               <widget class="GtkHBox" id="hbox3">
                                 <property name="visible">True</property>
@@ -153,6 +154,7 @@ and take part in your project</property>
                             <property name="response_id">0</property>
                             <property name="draw_indicator">True</property>
                             <property name="group">local_radio</property>
+                            <signal name="group_changed" handler="radio_changed"/>
                             <child>
                               <widget class="GtkHBox" id="hbox4">
                                 <property name="visible">True</property>

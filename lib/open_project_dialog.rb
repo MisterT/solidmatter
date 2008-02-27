@@ -17,7 +17,6 @@ class OpenProjectDialog
     @glade['open_project'].destroy
     @manager.open_file if @choice == 'local_radio'
     JoinProjectDialog.new @manager if @choice == 'multi_radio'
-    @manager.serve_project if @choice == 'public_radio'
   end
   
   def cancel_handle( w )

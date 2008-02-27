@@ -17,6 +17,7 @@ class ComponentMenu < Gtk::Menu
 			Gtk::SeparatorMenuItem.new,
 			Gtk::ImageMenuItem.new(Gtk::Stock::PROPERTIES)
 		]
+		items[6].active = part.visible
 		# duplicate instance
 		items[0].signal_connect("activate") do
       @manager.duplicate_instance
@@ -46,7 +47,6 @@ class ComponentMenu < Gtk::Menu
 		items[8].signal_connect("activate") do
 			part.display_properties
 		end
-		items[6].active = part.visible
 		items.each{|i| append i }
 		show_all
   end
@@ -61,6 +61,7 @@ class OperatorMenu < Gtk::Menu
 			Gtk::MenuItem.new("Edit dimensions"),
 			Gtk::ImageMenuItem.new(Gtk::Stock::DELETE)
 		]
+		items[0].active = operator.enabled
 		# enable/disable
 		items[0].signal_connect("activate") do
       manager.enable_selected_operator
@@ -73,7 +74,6 @@ class OperatorMenu < Gtk::Menu
 		items[3].signal_connect("activate") do
       manager.delete_op_view_selected
 		end
-		items[0].active = operator.enabled
 		items.each{|i| append i }
 		show_all
   end
@@ -90,6 +90,10 @@ class SketchToolMenu < Gtk::Menu
 			Gtk::SeparatorMenuItem.new,
 			Gtk::ImageMenuItem.new(Gtk::Stock::STOP)
 		]
+		items[0].active = manager.point_snap
+		items[1].active = manager.grid_snap
+		items[2].active = manager.use_sketch_guides
+		items[3].active = tool.create_reference_geometry
 		# snap points
 		items[0].signal_connect("activate") do |w|
       manager.point_snap = w.active?
@@ -110,10 +114,6 @@ class SketchToolMenu < Gtk::Menu
 		items[5].signal_connect("activate") do |w|
       manager.cancel_current_tool
 		end
-		items[0].active = manager.point_snap
-		items[1].active = manager.grid_snap
-		items[2].active = manager.use_sketch_guides
-		items[3].active = tool.create_reference_geometry
 		items.each{|i| append i }
 		show_all
   end
@@ -131,6 +131,9 @@ class SketchSelectionToolMenu < Gtk::Menu
 			Gtk::ImageMenuItem.new(Gtk::Stock::PASTE),
 			Gtk::ImageMenuItem.new(Gtk::Stock::DELETE)
 		]
+		items[0].active = manager.point_snap
+		items[1].active = manager.grid_snap
+		items[2].active = manager.use_sketch_guides
 		# snap points
 		items[0].signal_connect("activate") do |w|
       manager.point_snap = w.active?
@@ -155,9 +158,6 @@ class SketchSelectionToolMenu < Gtk::Menu
 		items[6].signal_connect("activate") do |w|
       manager.delete_selected
 		end
-		items[0].active = manager.point_snap
-		items[1].active = manager.grid_snap
-		items[2].active = manager.use_sketch_guides
 		items.each{|i| append i }
 		show_all
   end

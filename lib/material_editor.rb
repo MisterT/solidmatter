@@ -37,6 +37,10 @@ class Material
       @density      = rand
     end
   end
+  
+  def == other
+  	@name == other.name
+  end
 end
 
 

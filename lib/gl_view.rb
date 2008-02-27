@@ -302,10 +302,10 @@ class GLView < Gtk::DrawingArea
 		GL.Enable(GL::LIGHT1)
 		GL.Enable(GL::DEPTH_TEST)
 		# setup line antialiasing
-		GL.Enable(GL::LINE_SMOOTH)
-		GL.Enable(GL::BLEND)
-		GL.BlendFunc(GL::SRC_ALPHA, GL::ONE_MINUS_SRC_ALPHA)
-		GL.Hint(GL::LINE_SMOOTH_HINT, GL::NICEST)
+		#GL.Enable(GL::LINE_SMOOTH)
+	  GL.Enable(GL::BLEND)
+		#GL.BlendFunc(GL::SRC_ALPHA, GL::ONE_MINUS_SRC_ALPHA)
+		#GL.Hint(GL::LINE_SMOOTH_HINT, GL::NICEST)
 		# set stipple pattern for focus transparency
 		GL.PolygonStipple [0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55] * 16
 		GL.Enable(GL::POLYGON_OFFSET_FILL)
@@ -512,7 +512,7 @@ class GLView < Gtk::DrawingArea
 		GL.ShadeModel(GL::SMOOTH)
 		GL.Enable(GL::DITHER)
 		GL.Enable(GL::BLEND)
-		GL.Enable(GL::LINE_SMOOTH)
+	#	GL.Enable(GL::LINE_SMOOTH)
 		@manager.work_component.unused_sketches.each{|sk| sk.build_displaylist } if @manager.work_component.class == Part
 		return obj
 	end

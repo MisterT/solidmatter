@@ -38,3 +38,4 @@ Gtk::main
 # sicherheitsprüfungen im server ( is_valid(projectname, client_id) schreiben)
 # immer nach glDrawable fragen um redraw probleme zu vermeiden
 # snap to point aktiv auch wenn im pop-up deaktiviert (wahrscheinlich beide guides aktiv)
+# confirm application quit
