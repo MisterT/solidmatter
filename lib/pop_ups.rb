@@ -20,7 +20,7 @@ class ComponentMenu < Gtk::Menu
 		items[6].active = part.visible
 		# duplicate instance
 		items[0].signal_connect("activate") do
-      @manager.duplicate_instance
+      manager.duplicate_instance
 		end
 		# duplicate original
 		items[1].signal_connect("activate") do

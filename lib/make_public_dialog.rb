@@ -56,4 +56,9 @@ class MakePublicDialog
     end
     @glade['bookmark_combo'].active = $om_preferences[:bookmarks].size - 1
   end
+  
+  def radio_changed w
+  	
+  end
 end
+

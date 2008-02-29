@@ -122,7 +122,7 @@ class OpenMachinistMainWin < Gtk::Window
 		hbox = Gtk::HBox.new(false)
 		main_box.pack_start(hbox, false, true)
 		toolbar = Gtk::Toolbar.new
-		toolbar.toolbar_style = Gtk::Toolbar::BOTH
+		#toolbar.toolbar_style = Gtk::Toolbar::BOTH
 		toolbar.icon_size = Gtk::IconSize::SMALL_TOOLBAR
 		hbox.pack_start(toolbar, false, true)
 		toolbar.append( "New", "Create a new project, part or assembly", "Toolbar/New", Gtk::Image.new('icons/middle/document-new_middle.png') ){ NewDialog.new @manager }
@@ -131,7 +131,8 @@ class OpenMachinistMainWin < Gtk::Window
     @manager.save_btn = save_btn
 		toolbar.append( Gtk::SeparatorToolItem.new){}
 		select_button = Gtk::MenuToolButton.new( Gtk::Image.new( 'icons/middle/list-add_middle.png' ), 'Select' )
-		toolbar.append( select_button, "Choose selection mode" ){ @manager.activate_tool 'select' }
+		select_button.signal_connect("clicked"){|b| @manager.activate_tool 'select' }
+		toolbar.append( select_button, "Choose selection mode" )
 		return_btn = toolbar.append( "Return", "Work on parent assembly","Toolbar/Return", Gtk::Image.new('icons/middle/edit-undo_middle.png') ){ @manager.working_level_up }
 		return_btn.sensitive = false
 		@manager.return_btn = return_btn
