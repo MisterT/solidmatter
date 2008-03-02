@@ -39,3 +39,5 @@ Gtk::main
 # immer nach glDrawable fragen um redraw probleme zu vermeiden
 # snap to point aktiv auch wenn im pop-up deaktiviert (wahrscheinlich beide guides aktiv)
 # confirm application quit
+# programm crasht bei zweitem operator
+# comp delete from right click doesn't work

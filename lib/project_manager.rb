@@ -343,6 +343,7 @@ public
                                         [Gtk::Stock::CANCEL, Gtk::Dialog::RESPONSE_CANCEL],
                                         [Gtk::Stock::OPEN, Gtk::Dialog::RESPONSE_ACCEPT])
       if dia.run == Gtk::Dialog::RESPONSE_ACCEPT
+      
         @filename = dia.filename
         dia.destroy
         progress = ProgressDialog.new
@@ -355,9 +356,16 @@ public
   				@all_part_instances = scene[4]
   				@all_sketches       = scene[5]
   				readd_non_dumpable
-  				increment = 1.0 / @all_parts.map{|p| p.operators}.flatten.size
+  				num_ops = @all_parts.map{|p| p.operators}.flatten.size
+  				op_i = 1
+  				increment = 1.0 / num_ops
   				@all_parts.each do |p| 
-  				  p.build( p.operators.first ){ progress.fraction += increment } if p.operators.first
+  				  p.build( p.operators.first ) do |op| 
+  				  	progress.fraction += increment
+  				  	progress.text = "Rebuilding operator '#{op.name}' (#{op_i}/#{num_ops})" 
+  				  	op_i += 1
+  				  	sleep 0.5
+  				  end if p.operators.first
   				  p.working_planes.each{|pl| pl.build_displaylists }
   			  end
   				@all_sketches.each{|sk| sk.build_displaylist }

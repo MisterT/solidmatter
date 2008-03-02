@@ -9,7 +9,6 @@ class ProgressDialog
   def initialize
     @glade = GladeXML.new( "glade/progress.glade", nil, nil, nil, GladeXML::FILE ) {|handler| method(handler)}
     self.fraction = 0.0
-    Gtk::main_iteration while Gtk::events_pending?
   end
   
   def fraction
@@ -18,7 +17,13 @@ class ProgressDialog
   
   def fraction= val
     @glade['progressbar'].fraction = val
+    @glade['progressbar'].text = (val * 100).round.to_s + "%"
     Gtk::main_iteration while Gtk::events_pending?
+  end
+  
+  def text= txt
+  	@glade['message_label'].text = txt
+  	Gtk::main_iteration while Gtk::events_pending?
   end
 
   def cancel

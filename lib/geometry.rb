@@ -5,6 +5,8 @@
 
 require 'gtk2'
 require 'gtkglext'
+require "opengl"
+require "glut"
 require 'lib/matrix.rb'
 require 'lib/material_editor.rb'
 require 'lib/part_dialog.rb'
@@ -275,6 +277,27 @@ class Face
 		@bound_segments = []
 		@selection_pass_color = [1.0, 1.0, 1.0]
 	end
+	
+	def draw
+		tess = GLU::NewTess()
+		GLU::TessCallback( tess, GLU::TESS_VERTEX, lambda{|v| GL::Vertex v if v} )
+   	GLU::TessCallback( tess, GLU::TESS_BEGIN, lambda{|which| GL::Begin which } )
+   	GLU::TessCallback( tess, GLU::TESS_END, lambda{ GL::End() } )
+   	GLU::TessCallback( tess, GLU::TESS_ERROR, lambda{|errorCode| puts "Tessellation Error: #{GLU::ErrorString errorCode}" } )
+   	GLU::TessCallback( tess, GLU::TESS_COMBINE, lambda do |coords, vertex_data, weight|
+			vertex = [coords[0], coords[1], coords[2]]
+			vertex
+		end )
+		GLU::TessProperty( tess, GLU::TESS_WINDING_RULE, GLU::TESS_WINDING_POSITIVE )
+		GLU::TessBeginPolygon( tess, nil )
+			GLU::TessBeginContour tess
+				for seg in @bound_segments
+					GLU::TessVertex( tess, seg.pos1.elements, seg.pos1.elements )
+				end
+			GLU::TessEndContour tess
+		GLU::TessEndPolygon tess
+		GLU::DeleteTess tess
+	end
 end
 
 class PlanarFace < Face
@@ -449,7 +472,7 @@ class Part < Component
 
 	def build( from_op=@operators.first )
 	  if from_op
-  		@operators.index( from_op ).upto( @history_limit - 1 ){|i| @operators[i].operate; yield if block_given? } # update progressbar
+  		@operators.index( from_op ).upto( @history_limit - 1 ){|i| op = @operators[i] ; yield op if block_given? ; op.operate  } # update progressbar
   		solid = @operators[@history_limit - 1].solid
   		if solid
   			@solid = solid
@@ -478,11 +501,12 @@ class Part < Component
 			  #GL.Color4f(col[0], col[1], col[2], @information[:material].opacity)
 			  c = face.selection_pass_color
 			  GL.Color3f( c[0],c[1],c[2] ) if type == :select_faces
-				GL.Begin( GL::POLYGON )
-				face.bound_segments.each do |seg|
+				#GL.Begin( GL::POLYGON )
+				#face.bound_segments.each do |seg|
           #GL.TexCoord2f(0.995, 0.005)
-					GL.Vertex( seg.pos1.x, seg.pos1.y, seg.pos1.z )
-				end
+					#GL.Vertex( seg.pos1.x, seg.pos1.y, seg.pos1.z )
+				#end
+				face.draw
 				GL.End
 			end
 		GL.EndList
