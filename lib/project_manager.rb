@@ -178,20 +178,31 @@ public
 	end
 	
 	def exchange_all_gl_components
-	  if @not_starting_up
+		if @not_starting_up
 	    @all_parts.each{|p| p.clean_up ; p.working_planes.each{|pl| pl.clean_up } }
 	    @all_sketches.each{|sk| sk.clean_up }
     end
 	  yield
 	  if @not_starting_up
+	  	progress = ProgressDialog.new
+	  	num_ops = @all_parts.map{|p| p.operators}.flatten.size
+  		op_i = 1
+  		increment = 1.0 / num_ops
   	  @all_parts.each do |p| 
+  	  	puts p
   	    p.displaylist = @glview.add_displaylist
-  	    p.build
+  	    p.build do |op| 
+  				progress.fraction += increment
+  				progress.text = "Rebuilding operator '#{op.name}' (#{op_i}/#{num_ops})" 
+  				op_i += 1
+  				sleep 0.5
+  			end
   	    p.working_planes.each do |pl| 
   	      pl.displaylist = @glview.add_displaylist
   	      pl.build_displaylists
 	      end
       end
+      progress.close
       @all_sketches.each do |sk| 
         sk.displaylist = @glview.add_displaylist
         sk.build_displaylist
@@ -343,35 +354,21 @@ public
                                         [Gtk::Stock::CANCEL, Gtk::Dialog::RESPONSE_CANCEL],
                                         [Gtk::Stock::OPEN, Gtk::Dialog::RESPONSE_ACCEPT])
       if dia.run == Gtk::Dialog::RESPONSE_ACCEPT
-      
         @filename = dia.filename
         dia.destroy
-        progress = ProgressDialog.new
   			File::open( @filename ) do |file|
   				scene = Marshal::restore file 
-  				@name               = scene[0]
-  				@main_assembly      = scene[1]
-  				@all_assemblies     = scene[2]
-  				@all_parts          = scene[3]
-  				@all_part_instances = scene[4]
-  				@all_sketches       = scene[5]
-  				readd_non_dumpable
-  				num_ops = @all_parts.map{|p| p.operators}.flatten.size
-  				op_i = 1
-  				increment = 1.0 / num_ops
-  				@all_parts.each do |p| 
-  				  p.build( p.operators.first ) do |op| 
-  				  	progress.fraction += increment
-  				  	progress.text = "Rebuilding operator '#{op.name}' (#{op_i}/#{num_ops})" 
-  				  	op_i += 1
-  				  	sleep 0.5
-  				  end if p.operators.first
-  				  p.working_planes.each{|pl| pl.build_displaylists }
-  			  end
-  				@all_sketches.each{|sk| sk.build_displaylist }
+  				exchange_all_gl_components do
+						@name               = scene[0]
+						@main_assembly      = scene[1]
+						@all_assemblies     = scene[2]
+						@all_parts          = scene[3]
+						@all_part_instances = scene[4]
+						@all_sketches       = scene[5]
+						readd_non_dumpable
+  				end
   			end
   			change_working_level @main_assembly 
-  			progress.close
   			self.has_been_changed = false
   		else
   		  dia.destroy
@@ -493,7 +490,7 @@ public
   		@selection.deselect_all
 			return true
 		elsif @work_operator
-			@main_vbox.remove( @work_operator.toolbar )
+			@main_vbox.remove( @op_toolbar )
 			@work_operator = nil
 			part_toolbar
 			cancel_current_tool
@@ -513,7 +510,8 @@ public
 	end
 	
 	def operator_mode( op )
-		@main_vbox.pack_start( op.show_toolbar, false, true )
+		@op_toolbar = op.show_toolbar
+		@main_vbox.pack_start( @op_toolbar, false, true )
 		@main_vbox.show_all
 		@prt_toolbar.visible = false
 		@asm_toolbar.visible = false

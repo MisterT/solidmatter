@@ -50,7 +50,7 @@ class OpView < Gtk::ScrolledWindow
 		    when Operator
 		      menu = OperatorMenu.new(@manager, sel)
 	      when Instance
-	        menu = ComponentMenu.new(@manager, sel)
+	        menu = ComponentMenu.new(@manager, sel, :op_view)
 		    end
 			  menu.popup(nil, nil, event.button, event.time) if menu
 			end

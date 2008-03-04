@@ -33,11 +33,9 @@ Gtk::main
 # direkt die iters manipulieren in server_win damit beim update scrollstand erhalten belibt
 # checken ob clean_up von workplane und sketch richtig erfolgt
 # insert und library palette
-# speichern im operator modus hinterlässt nach "return" den toolbar aktiv
 # sketch button sollte eingedrückt bleib wenn plane gewählt wird
 # sicherheitsprüfungen im server ( is_valid(projectname, client_id) schreiben)
 # immer nach glDrawable fragen um redraw probleme zu vermeiden
-# snap to point aktiv auch wenn im pop-up deaktiviert (wahrscheinlich beide guides aktiv)
 # confirm application quit
-# programm crasht bei zweitem operator
-# comp delete from right click doesn't work
+# order of segments shouldn't be relevant for tesselation
+# wenn ein alter sketch bearbeitet wird sollten die nachfolgenden features zurückgespult werden, oder view geclippt, oder part transparent

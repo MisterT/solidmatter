@@ -124,7 +124,7 @@ class PartSelectionTool < SelectionTool
 		click_left( x,y )
 		sel = @manager.selection.first
 		if sel
-		  menu = ComponentMenu.new(@manager, sel)
+		  menu = ComponentMenu.new(@manager, sel, :glview)
 		  menu.popup(nil, nil, 3,  time)
 	  end
 	end

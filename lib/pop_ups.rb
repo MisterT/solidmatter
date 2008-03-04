@@ -4,7 +4,7 @@
 #  Copyright (c) 2007. All rights reserved.
 
 class ComponentMenu < Gtk::Menu
-  def initialize( manager, part )
+  def initialize( manager, part, location )
     super()
     items = [
 			Gtk::MenuItem.new("Duplicate instance"),
@@ -36,7 +36,8 @@ class ComponentMenu < Gtk::Menu
 		end
 		# delete
 		items[4].signal_connect("activate") do
-			manager.delete_op_view_selected
+			manager.delete_op_view_selected if location == :op_view
+			manager.delete_selected 				if location == :glview
 		end
 		# visible
 		items[6].signal_connect("activate") do

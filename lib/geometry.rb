@@ -103,8 +103,8 @@ end
 
 class WorkingPlane < Plane
   include Selectable
-	attr_reader :plane, :displaylist, :pick_displaylist, :parent
-	attr_accessor :size, :spacing, :visible, :glview
+	attr_reader :plane, :parent
+	attr_accessor :size, :spacing, :visible, :glview, :displaylist, :pick_displaylist
 	def initialize( glview, parent, plane=nil )
 		if plane
 		  @origin = plane.origin
@@ -158,20 +158,17 @@ class WorkingPlane < Plane
 		end
 		GL.NewList( @displaylist, GL::COMPILE)
 			GL.LineWidth(0.1)
+			col = [0.5,0.5,0.5]
 			GL.Begin( GL::LINES )
-				col = [0,0,0]
 				@verticals.each do |line| 
 					GL.Color3f( col[0], col[1], col[2] )
 					GL.Vertex( line.pos1.x, line.pos1.y, line.pos1.z )
 					GL.Vertex( line.pos2.x, line.pos2.y, line.pos2.z )
-					col.map!{|c| c + 0.05 }
 				end
-				col = [0,0,0]
 				@horizontals.each do |line| 
 					GL.Color3f( col[0], col[1], col[2] )
 					GL.Vertex( line.pos1.x, line.pos1.y, line.pos1.z )
 					GL.Vertex( line.pos2.x, line.pos2.y, line.pos2.z )
-					col.map!{|c| c + 0.05 }
 				end
 			GL.End
 		GL.EndList
@@ -199,24 +196,7 @@ class WorkingPlane < Plane
 end
 
 
-class Sketch
-	attr_accessor :name, :parent, :op, :selection_pass, :visible, :selected, :glview
-	attr_reader :plane, :displaylist, :segments
-	@@sketchcolor = [0,1,0]
-	def initialize( name, parent, plane, glview )
-		@name = name
-		@parent = parent
-		@op = nil
-		@glview = glview
-		@segments = []
-		@plane = WorkingPlane.new( glview, parent, plane )
-		parent.working_planes.push @plane
-		@displaylist = glview.add_displaylist
-		@visible = false
-    @selected = false
-		@selection_pass = false
-	end
-	
+module ChainCompletion
 	def chain( segment )
 		chain = [segment]
 		last_seg = segment
@@ -241,6 +221,27 @@ class Sketch
 			end
 		end
 		return pos == segment.pos1 ? chain : nil
+	end
+end
+
+
+class Sketch
+	include ChainCompletion
+	attr_accessor :name, :parent, :op, :selection_pass, :visible, :selected, :glview, :displaylist
+	attr_reader :plane, :segments
+	@@sketchcolor = [0,1,0]
+	def initialize( name, parent, plane, glview )
+		@name = name
+		@parent = parent
+		@op = nil
+		@glview = glview
+		@segments = []
+		@plane = WorkingPlane.new( glview, parent, plane )
+		parent.working_planes.push @plane
+		@displaylist = glview.add_displaylist
+		@visible = false
+    @selected = false
+		@selection_pass = false
 	end
 
 	def build_displaylist
@@ -272,9 +273,10 @@ end
 
 class Face
   include Selectable
-	attr_accessor :bound_segments
+  include ChainCompletion
+	attr_accessor :segments
 	def initialize
-		@bound_segments = []
+		@segments = []
 		@selection_pass_color = [1.0, 1.0, 1.0]
 	end
 	
@@ -283,25 +285,48 @@ class Face
 		GLU::TessCallback( tess, GLU::TESS_VERTEX, lambda{|v| GL::Vertex v if v} )
    	GLU::TessCallback( tess, GLU::TESS_BEGIN, lambda{|which| GL::Begin which } )
    	GLU::TessCallback( tess, GLU::TESS_END, lambda{ GL::End() } )
-   	GLU::TessCallback( tess, GLU::TESS_ERROR, lambda{|errorCode| puts "Tessellation Error: #{GLU::ErrorString errorCode}" } )
-   	GLU::TessCallback( tess, GLU::TESS_COMBINE, lambda do |coords, vertex_data, weight|
+   	GLU::TessCallback( tess, GLU::TESS_ERROR, lambda{|errCode| puts "Tessellation Error: #{GLU::ErrorString errCode}" } )
+   	GLU::TessCallback( tess, GLU::TESS_COMBINE, 
+   	lambda do |coords, vertex_data, weight|
 			vertex = [coords[0], coords[1], coords[2]]
 			vertex
 		end )
 		GLU::TessProperty( tess, GLU::TESS_WINDING_RULE, GLU::TESS_WINDING_POSITIVE )
 		GLU::TessBeginPolygon( tess, nil )
 			GLU::TessBeginContour tess
-				for seg in @bound_segments
-					GLU::TessVertex( tess, seg.pos1.elements, seg.pos1.elements )
-				end
+				ch = chain( @segments.first )
+				if ch
+					last_points = nil
+					ordered_points = ch.map do |s| 
+						if last_points
+							new_point = ([s.pos1, s.pos2] - last_points).first
+							last_points = [new_point]
+							new_point
+						else
+							last_points = [s.pos1, s.pos2]
+							[s.pos1, s.pos2]
+						end
+					end.flatten
+					for point in ordered_points
+						GLU::TessVertex( tess, point.elements, point.elements )
+					end
+				else
+					puts "WARNING: Face #{self} could not be tesselated correctly"
+				end 
 			GLU::TessEndContour tess
 		GLU::TessEndPolygon tess
 		GLU::DeleteTess tess
 	end
+	
+	def dup
+		copy = super
+		copy.segments = segments.map{|s| s.dup }
+		return copy
+	end
 end
 
 class PlanarFace < Face
-	attr_reader :plane
+	attr_accessor :plane
 	def initialize
 		@plane = Plane.new
 	end
@@ -315,7 +340,7 @@ end
 
 
 class Solid
-	attr_reader :faces
+	attr_accessor :faces
 	def initialize
 		@faces = []
 	end
@@ -323,6 +348,12 @@ class Solid
 	def add_face f
 	  f.solid = self
 	  @faces.push f
+	end
+	
+	def dup
+		copy = super
+		copy.faces = faces.map{|f| f.dup }
+		return copy
 	end
 end
 
@@ -344,7 +375,7 @@ class Operator
 	end
 	
 	def operate
-		@solid = @previous ? Marshal.load(Marshal.dump(@previous.solid)) : Solid.new
+		@solid = @previous ? @previous.solid.dup : Solid.new
 		real_operate if @enabled 
 	end
 	
@@ -415,8 +446,8 @@ end
 
 
 class Part < Component
-  attr_accessor :manager
-	attr_reader :component_id, :operators, :working_planes, :displaylist, :wire_displaylist, :unused_sketches, :solid
+  attr_accessor :manager, :displaylist, :wire_displaylist
+	attr_reader :component_id, :operators, :working_planes, :unused_sketches, :solid
 	def initialize(name, manager, disp_num, wire_disp_num )
 		super()
 		@manager = manager
@@ -502,7 +533,7 @@ class Part < Component
 			  c = face.selection_pass_color
 			  GL.Color3f( c[0],c[1],c[2] ) if type == :select_faces
 				#GL.Begin( GL::POLYGON )
-				#face.bound_segments.each do |seg|
+				#face.segments.each do |seg|
           #GL.TexCoord2f(0.995, 0.005)
 					#GL.Vertex( seg.pos1.x, seg.pos1.y, seg.pos1.z )
 				#end
@@ -515,7 +546,7 @@ class Part < Component
 	
 	def build_wire_displaylist
 	  GL.NewList( @wire_displaylist, GL::COMPILE)
-  		all_segs = @solid.faces.map{|face| face.bound_segments }.flatten
+  		all_segs = @solid.faces.map{|face| face.segments }.flatten
   		GL.Disable(GL::LIGHTING)
   		GL.LineWidth( 1.5 )
   		GL.Begin( GL::LINES )

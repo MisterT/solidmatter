@@ -285,11 +285,11 @@ class ProjectClient
         # get action requests from server
         for type, what, id in @server.get_requests_for @client_id
           case type
-          when :save then
+          when :save 
             puts "save request received"
             @save_request_id = id
             @save_dialog = SaveRequestDialog.new self
-          when :cancel then
+          when :cancel 
             @wait_dialog.close if @wait_dialog
             @save_dialog.close if @save_dialog
             dialog = Gtk::MessageDialog.new(@manager.main_win, 
@@ -300,7 +300,7 @@ class ProjectClient
             dialog.secondary_text = "The save request was cancelled by another user"
             dialog.run
             dialog.destroy
-          when :accepted then
+          when :accepted 
             puts "accepted message received"
             @wait_dialog.close
           end

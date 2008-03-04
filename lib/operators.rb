@@ -34,7 +34,7 @@ class ExtrudeOperator < Operator
 				         Line.new( corner3, corner4 ),
 				         Line.new( corner4, corner1 ) ]
 				face = PlanarFace.new
-				face.bound_segments = segs
+				face.segments = segs
 				face.plane.u_vec = corner1.vector_to( corner2 ).normalize
 				face.plane.v_vec = corner1.vector_to( corner4 ).normalize
 				face.plane.origin = corner1
@@ -42,13 +42,13 @@ class ExtrudeOperator < Operator
 			end
 			# XXX build caps
 			lower_cap = PlanarFace.new
-			lower_cap.bound_segments = segments
+			lower_cap.segments = segments
 			lower_cap.plane.u_vec = segments[0].pos1.vector_to( segments[1].pos1 ).normalize
 			lower_cap.plane.v_vec = segments[0].pos1.vector_to( segments[2].pos1 ).normalize
 			lower_cap.plane.origin = segments[0].pos1
 			@solid.faces.push( lower_cap )
 			upper_cap = PlanarFace.new
-			upper_cap.bound_segments = segments.map{|s| se = s.dup; [se.pos1, se.pos2].each{|p| p.add direction } ; se }
+			upper_cap.segments = segments.map{|s| se = s.dup; [se.pos1, se.pos2].each{|p| p.add direction } ; se }
 			upper_cap.plane.u_vec = segments[0].pos1.vector_to( segments[1].pos1 ).normalize.invert
 			upper_cap.plane.v_vec = segments[0].pos1.vector_to( segments[2].pos1 ).normalize
 			upper_cap.plane.origin = segments[0].pos1
