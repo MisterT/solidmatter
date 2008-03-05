@@ -30,17 +30,17 @@ class MakePublicDialog
   
   def add_bookmark w
     bm = Bookmark.new( @glade['adress_entry'].text, @glade['port_entry'].text, @glade['login_entry'].text, @glade['password_entry'].text )
-    $om_preferences[:bookmarks].push bm
+    $preferences[:bookmarks].push bm
     update_combo
   end
   
   def remove_bookmark w
-    $om_preferences[:bookmarks].delete_at @glade['bookmark_combo'].active
+    $preferences[:bookmarks].delete_at @glade['bookmark_combo'].active
     update_combo
   end
   
   def bookmark_combo_changed w
-    current_bm = $om_preferences[:bookmarks][w.active]
+    current_bm = $preferences[:bookmarks][w.active]
     if current_bm
       @glade['adress_entry'].text   = current_bm.adress  
       @glade['port_entry'].text     = current_bm.port.to_s   
@@ -51,10 +51,10 @@ class MakePublicDialog
   
   def update_combo
     @glade['bookmark_combo'].model.clear
-    for bm in $om_preferences[:bookmarks]
+    for bm in $preferences[:bookmarks]
       @glade['bookmark_combo'].append_text bm.adress
     end
-    @glade['bookmark_combo'].active = $om_preferences[:bookmarks].size - 1
+    @glade['bookmark_combo'].active = $preferences[:bookmarks].size - 1
   end
   
   def radio_changed w

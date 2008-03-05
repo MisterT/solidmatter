@@ -8,24 +8,30 @@ require 'gnome2'
 class SearchEntry < Gtk::ToolItem 
 	def initialize( manager )
 		super()
-		vbox = Gtk::VBox.new false
-		add vbox
+		no_show_all = true
 		@manager = manager
-		@entry = Gnome::Entry.new
+		@icon = Gtk::Image.new( Gtk::Stock::FIND, Gtk::IconSize::SMALL_TOOLBAR )
+		@entry = Gtk::ComboBoxEntry.new
 		@label = Gtk::Label.new("Search") 
-		vbox.pack_start( @entry )
-		vbox.pack_start( @label)
-		@entry.signal_connect("changed"){|w| select_matching_objects( w.gtk_entry.text ) }
+		entry_box = Gtk::HBox.new false
+		entry_box.pack_start( @icon, false, false, 6 )
+		entry_box.pack_start( @entry, false )
+		vbox = Gtk::VBox.new false
+		vbox.pack_start( entry_box, false, false, 3 )
+		#vbox.pack_start( @label)
+		add vbox
+		set_mode
+		@entry.signal_connect("changed"){|w| select_matching_objects( w.active_text ) }
+		signal_connect("toolbar-reconfigured"){|w| set_mode }
 	end
 	
-	def icon_mode
-		@label.hide
+	def set_mode
+		if [Gtk::Toolbar::BOTH_HORIZ, Gtk::Toolbar::ICONS, Gtk::Toolbar::TEXT].any?{|style| style == toolbar_style }
+			@label.hide
+		else
+			@label.show
+		end
 	end
-	
-	def full_mode
-		@label.show
-	end
-	alias text_mode full_mode
 	
 	def select_matching_objects( str )
 	  str.downcase!

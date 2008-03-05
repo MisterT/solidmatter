@@ -39,3 +39,5 @@ Gtk::main
 # confirm application quit
 # order of segments shouldn't be relevant for tesselation
 # wenn ein alter sketch bearbeitet wird sollten die nachfolgenden features zurückgespult werden, oder view geclippt, oder part transparent
+# shortcuts über accelerators
+# animierte szenenbeleuchtung

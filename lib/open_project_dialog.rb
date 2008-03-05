@@ -19,7 +19,7 @@ class OpenProjectDialog
     JoinProjectDialog.new @manager if @choice == 'multi_radio'
   end
   
-  def cancel_handle( w )
+  def cancel_handle w 
     @glade['open_project'].destroy
   end
   

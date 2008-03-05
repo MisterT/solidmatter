@@ -707,28 +707,15 @@ public
 	  MaterialEditor.new @materials
 	end
 	
-private
 ###                                                         ###
 ######---------------------- Stuff ----------------------######
 ###                                                         ###
-	def unique_name( base )
-		number = 0
-		begin
-			found = true
-			if @work_component.class == Part
-				other_elements = @work_component.unused_sketches + @work_component.operators
-			else
-				other_elements = @work_component.components
-			end
-			other_elements.each do |e| 
-				if e.name == "Untitled #{base} #{number}"
-					number += 1
-					found = false
-					break
-				end
-			end
-		end while not found
-		return "Untitled #{base} #{number}"
+private
+
+	def unique_name base
+		num = 1
+		num += 1 while [@all_parts, @all_assemblies, @all_sketches].flatten.map{|e| e.name }.include? "Untitled #{base} #{num}"
+		return "Untitled #{base} #{num}"
 	end
 end
 

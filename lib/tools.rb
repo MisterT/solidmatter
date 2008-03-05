@@ -376,6 +376,7 @@ class SketchTool < Tool
     [@x_guide, @z_guide].compact.each do |guide|
       GL.Enable GL::LINE_STIPPLE
       GL.LineWidth(2)
+      GL.Enable GL::LINE_STIPPLE
   		GL.LineStipple(5, 0x1C47)
   		GL.Color3f(0.5,0.5,1)
   		GL.Begin( GL::LINES )

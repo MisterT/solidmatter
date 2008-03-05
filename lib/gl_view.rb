@@ -288,10 +288,6 @@ class GLView < Gtk::DrawingArea
 		@background_color = [0.3, 0.3, 0.3, 1.0]
 		GL.ClearColor( *@background_color )
 		GL.ClearDepth(1.0)
-		# setup model rendering
-		GL.ShadeModel(GL::SMOOTH)
-		GL.Enable(GL::TEXTURE_2D)
-		GL.Enable(GL::DITHER)
 		# set up lighting
 		GL.Light(GL::LIGHT0, GL::DIFFUSE, [0.5, 0.0, 1.0, 0.0])
 		GL.Light(GL::LIGHT0, GL::POSITION, [0.5, 0.0, 1.0, 0.0])
@@ -301,16 +297,40 @@ class GLView < Gtk::DrawingArea
 		GL.Enable(GL::LIGHT0)
 		GL.Enable(GL::LIGHT1)
 		GL.Enable(GL::DEPTH_TEST)
-		# setup line antialiasing
-		#GL.Enable(GL::LINE_SMOOTH)
-	  GL.Enable(GL::BLEND)
-		#GL.BlendFunc(GL::SRC_ALPHA, GL::ONE_MINUS_SRC_ALPHA)
-		#GL.Hint(GL::LINE_SMOOTH_HINT, GL::NICEST)
 		# set stipple pattern for focus transparency
 		GL.PolygonStipple [0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55] * 16
 		GL.Enable(GL::POLYGON_OFFSET_FILL)
     GL.PolygonOffset(1.0, 1.0)
+    render_style :regular
+    	  		GL.Enable(GL::BLEND)
+				GL.BlendFunc(GL::SRC_ALPHA, GL::ONE_MINUS_SRC_ALPHA)
 		gldrawable.gl_end
+	end
+	
+	def render_style style
+		case style
+		when :selection_pass
+	  	GL.ShadeModel(GL::FLAT)
+			GL.Disable(GL::TEXTURE_2D)
+			GL.Disable(GL::DITHER)
+			GL.Disable(GL::LINE_SMOOTH)
+	  	GL.Disable(GL::BLEND)
+		when :regular
+			# setup model rendering
+			GL.ShadeModel(GL::SMOOTH)
+			GL.Enable(GL::TEXTURE_2D)
+			GL.Enable(GL::DITHER)
+			# setup line antialiasing
+			if $preferences[:anti_aliasing]
+				GL.Enable(GL::LINE_SMOOTH)
+	  		GL.Enable(GL::BLEND)
+				GL.BlendFunc(GL::SRC_ALPHA, GL::ONE_MINUS_SRC_ALPHA)
+				GL.Hint(GL::LINE_SMOOTH_HINT, GL::NICEST)
+			else
+				GL.Disable(GL::LINE_SMOOTH)
+	  		#GL.Disable(GL::BLEND)
+			end
+		end
 	end
 	
 	def configure
@@ -375,9 +395,10 @@ class GLView < Gtk::DrawingArea
 				  end
   			else
   				GL.Enable GL::LIGHTING
-  				if top_comp.transparent
+  				if top_comp.transparent and $preferences[:stencil_transparency]
   				  GL.Enable GL::POLYGON_STIPPLE
   				  GL.Enable GL::LINE_STIPPLE
+  				  GL.LineStipple(5, 0x1C47)
     		  end
   				top_comp.selected ? GL.Color3f(1,0,0) : GL.Color3f(1,1,1)
   			  unless @picking_pass and @manager.work_sketch
@@ -461,10 +482,7 @@ class GLView < Gtk::DrawingArea
 		# corect coords from gtk to GL orientation
 		y = allocation.height - y
 		# change rendering style to aliased, flat-color rendering
-		GL.Disable(GL::LINE_SMOOTH)
-		GL.Disable(GL::BLEND) 
-		GL.Disable(GL::DITHER)
-		GL.ShadeModel(GL::FLAT)
+		render_style :selection_pass
 		if @manager.work_sketch
 		  selectables = @manager.work_sketch.segments 
 	  else
@@ -509,10 +527,7 @@ class GLView < Gtk::DrawingArea
 		end
 		obj = nil unless best_diff < increment
 		# reset regular rendering style
-		GL.ShadeModel(GL::SMOOTH)
-		GL.Enable(GL::DITHER)
-		GL.Enable(GL::BLEND)
-	#	GL.Enable(GL::LINE_SMOOTH)
+		render_style :regular
 		@manager.work_component.unused_sketches.each{|sk| sk.build_displaylist } if @manager.work_component.class == Part
 		return obj
 	end
