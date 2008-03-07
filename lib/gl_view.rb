@@ -127,7 +127,7 @@ class GLView < Gtk::DrawingArea
 	             Gdk::Event::BUTTON_RELEASE_MASK
 		)
 		signal_connect("button_press_event") do |widget, event|
-		  GC.disable
+		  GC.disable if $preferences[:manage_gc]
 			if event.button == 1
 				if event.event_type == 5
 				  double_click( event.x, event.y )
@@ -197,6 +197,7 @@ class GLView < Gtk::DrawingArea
 				  neu = @cameras[@current_cam_index]
 				  neu.look_at target
 				  view_transition( old,neu )
+				  redraw
 			  end
 		else
 			@manager.current_tool.double_click( x,y )
@@ -206,8 +207,10 @@ class GLView < Gtk::DrawingArea
 	def button_release( x,y )
 	  @last_button_down = nil
 	  @manager.current_tool.button_release
-	  GC.enable
-	  GC.start
+	  if $preferences[:manage_gc]
+	  	GC.enable
+	  	GC.start
+	  end
 	end
 	
 	def click_middle( x,y )
@@ -289,10 +292,10 @@ class GLView < Gtk::DrawingArea
 		GL.ClearColor( *@background_color )
 		GL.ClearDepth(1.0)
 		# set up lighting
-		GL.Light(GL::LIGHT0, GL::DIFFUSE, [0.5, 0.0, 1.0, 0.0])
-		GL.Light(GL::LIGHT0, GL::POSITION, [0.5, 0.0, 1.0, 0.0])
-		GL.Light(GL::LIGHT1, GL::DIFFUSE, [1.0, 0.5, 0.5, 1.0])
-		GL.Light(GL::LIGHT1, GL::POSITION, [-0.8, -0.8, 0.35, 0.0])
+		GL.Light(GL::LIGHT0, GL::DIFFUSE, $preferences[:first_light_color])
+		GL.Light(GL::LIGHT0, GL::POSITION, $preferences[:first_light_position])
+		GL.Light(GL::LIGHT1, GL::DIFFUSE, $preferences[:second_light_color])
+		GL.Light(GL::LIGHT1, GL::POSITION, $preferences[:second_light_position])
 		GL.Enable(GL::LIGHTING)
 		GL.Enable(GL::LIGHT0)
 		GL.Enable(GL::LIGHT1)
@@ -302,8 +305,6 @@ class GLView < Gtk::DrawingArea
 		GL.Enable(GL::POLYGON_OFFSET_FILL)
     GL.PolygonOffset(1.0, 1.0)
     render_style :regular
-    	  		GL.Enable(GL::BLEND)
-				GL.BlendFunc(GL::SRC_ALPHA, GL::ONE_MINUS_SRC_ALPHA)
 		gldrawable.gl_end
 	end
 	
@@ -328,7 +329,7 @@ class GLView < Gtk::DrawingArea
 				GL.Hint(GL::LINE_SMOOTH_HINT, GL::NICEST)
 			else
 				GL.Disable(GL::LINE_SMOOTH)
-	  		#GL.Disable(GL::BLEND)
+	  		GL.Disable(GL::BLEND)
 			end
 		end
 	end
@@ -533,16 +534,18 @@ class GLView < Gtk::DrawingArea
 	end
 	
 	def view_transition( from_cam, to_cam )
-	  GC.disable
-		@cameras.insert( @current_cam_index, Camera.new )
-		steps = 60
-		1.upto( steps ) do |i|
-			@cameras[@current_cam_index].position = from_cam.position / steps * (steps - i)  +  to_cam.position / steps * i
-			@cameras[@current_cam_index].target   = from_cam.target   / steps * (steps - i)  +  to_cam.target   / steps * i
-			redraw
+	  GC.disable if $preferences[:manage_gc]
+	  if $preferences[:view_transitions]
+			@cameras.insert( @current_cam_index, Camera.new )
+			steps = $preferences[:transition_duration]
+			1.upto( steps ) do |i|
+				@cameras[@current_cam_index].position = from_cam.position / steps * (steps - i)  +  to_cam.position / steps * i
+				@cameras[@current_cam_index].target   = from_cam.target   / steps * (steps - i)  +  to_cam.target   / steps * i
+				redraw
+			end
+			@cameras.delete_at( @current_cam_index )
 		end
-		@cameras.delete_at( @current_cam_index )
-		GC.enable
+		GC.enable if $preferences[:manage_gc]
 	end
 	
 	def look_at_selection
@@ -551,6 +554,7 @@ class GLView < Gtk::DrawingArea
 	 neu = @cameras[@current_cam_index]
 	 neu.look_at_plane
 	 view_transition( old, neu )
+	 redraw
 	end
 	
 	def previous_view
@@ -559,6 +563,7 @@ class GLView < Gtk::DrawingArea
 			previous = @cameras[@current_cam_index - 1]
 			view_transition( current, previous )
 			@current_cam_index -= 1
+			redraw
 		end
 		set_view_buttons
 	end
@@ -569,6 +574,7 @@ class GLView < Gtk::DrawingArea
 			nekst = @cameras[@current_cam_index + 1]
 			view_transition( current, nekst )
 			@current_cam_index += 1
+			redraw
 		end
 		set_view_buttons
 	end
