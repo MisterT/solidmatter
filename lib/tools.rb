@@ -63,7 +63,7 @@ public
 	end
 	
 	def resume
-		@glview.immediate_draw_routines.push Proc.new{ draw }
+		@glview.immediate_draw_routines.push lambda{ draw }
 		@manager.set_status_text( @status_text )
 	end
 	
@@ -144,13 +144,64 @@ class SketchSelectionTool < SelectionTool
 	
 	def click_left( x,y )
 		super
-		sel = @glview.select(x,y, :select_sketches)
+		sel = @glview.select(x,y, :select_segments)
 		if sel
 		  @selection = sel.sketch   
 		  @manager.selection.select *@selection.segments
 		  @glview.redraw
 		  @manager.cancel_current_tool
 	  end
+	end
+end
+
+
+class RegionSelectionTool < SelectionTool
+	def initialize( glview, manager )
+		super( "Pick a closed region from a sketch:", glview, manager )
+		@regions = manager.work_component.unused_sketches.inject([]) do |regions, sketch|
+		  regions += sketch.all_chains.map do |chain|
+  	    poly = Polygon.from_chain( chain )
+  	    face = PlanarFace.new
+  	    face.segments = chain
+  	    chain ? [poly, face] : nil
+	    end
+    end
+    @regions.compact!
+	end
+	
+	def click_left( x,y )
+		super
+		if @plane
+      pos = pos_of( x,y )
+  	  region = @regions.select{|r| r.first.contains? Point.new( pos.x, pos.z ) }.first if pos
+  	  if pos and region 
+  		  @selection = region.last.segments  
+  		  @manager.cancel_current_tool
+  	  end
+	  else
+	    sel = @glview.select(x,y, :select_segments)
+  		@plane = sel.sketch.plane if sel
+	  end
+	end
+	
+	def mouse_move( x,y )
+	  if @plane
+      pos = pos_of( x,y )
+      @current_region = @regions.select{|r| r.first.contains? Point.new( pos.x, pos.z ) }.first if pos
+      @glview.redraw
+    end
+	end
+	
+	def draw
+	  GL.Color3f( 0.9, 0.2, 0 )
+    @current_region.last.draw if @current_region
+	end
+	
+	def pos_of( x,y )
+	 	@plane.visible = true
+		pos = @glview.screen2world( x,y )
+		@plane.visible = false
+		return pos
 	end
 end
 

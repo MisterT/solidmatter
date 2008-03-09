@@ -493,7 +493,7 @@ class GLView < Gtk::DrawingArea
 	      selectables += @manager.work_component.working_planes
       when :select_instances
         selectables = @manager.all_part_instances.select{|inst| inst.visible }
-      when :select_sketches
+      when :select_segments
         selectables = @manager.work_component.unused_sketches.map{|sk| sk.segments }.flatten if @manager.work_component.class == Part
 	    end
     end

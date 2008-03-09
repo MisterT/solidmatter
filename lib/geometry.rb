@@ -5,8 +5,7 @@
 
 require 'gtk2'
 require 'gtkglext'
-require "opengl"
-require "glut"
+require 'opengl'
 require 'lib/matrix.rb'
 require 'lib/material_editor.rb'
 require 'lib/part_dialog.rb'
@@ -197,16 +196,16 @@ end
 
 
 module ChainCompletion
-	def chain( segment )
+	def chain( segment, segments=@segments )
 		chain = [segment]
 		last_seg = segment
 		pos = segment.pos2
 		changed = true
 		runs = 0
-		while (not pos == segment.pos1) and changed and runs <= @segments.size
+		while (not pos == segment.pos1) and changed and runs <= segments.size
 		  runs += 1
 			changed = false
-			for seg in @segments
+			for seg in segments
 				if [seg.pos1, seg.pos2].include? pos and not seg == last_seg
 					chain.push seg
 					last_seg = seg
@@ -221,6 +220,18 @@ module ChainCompletion
 			end
 		end
 		return pos == segment.pos1 ? chain : nil
+	end
+	
+	def all_chains
+	  chains = []
+	  segs = @segments.dup
+	  begin
+	    kette = chain( segs.first, segs )
+	    chains.push kette
+	    segs = segs - kette
+	  end until segs.empty? or not kette
+	  puts "#{chains.compact.size} chains found"
+	  return chains.compact
 	end
 end
 
@@ -271,6 +282,55 @@ class Sketch
 end
 
 
+class Polygon
+  def Polygon::from_chain chain
+    last_points = nil
+		poly = Polygon.new( chain.map do |s| 
+			if last_points
+				new_point = ([s.pos1, s.pos2] - last_points).first
+				last_points = [new_point]
+				new_point
+			else
+				last_points = [s.pos1, s.pos2]
+				[s.pos1, s.pos2]
+			end
+		end.flatten )
+		poly.close
+		poly
+  end
+  
+  attr_accessor :points
+  def initialize( points=[] )
+    @points = points
+  end
+  
+  def close
+    @points.push @points.first unless @points.last == @points.first    
+  end
+  
+  def push p
+    @points.push p
+  end
+
+  def contains? point
+    # shoot a ray from the point upwards and count the number ob edges it intersects
+    intersections = 0
+    0.upto(@points.size - 2) do |i|
+      e1 = @points[i]
+      e2 = @points[i+1]
+      # check if edge intersects up-axis
+      if (e1.x <= point.x and point.x <= e2.x) or (e1.x >= point.x and point.x >= e2.x)
+        left_dist = (e1.x - point.x).abs
+        right_dist = (e2.x - point.x).abs
+        intersection_point = (e1 * right_dist + e2 * left_dist) * (1.0 / (left_dist + right_dist))
+        intersections += 1 if intersection_point.z > point.y
+      end
+    end
+    return (intersections % 2 == 0) ? false : true
+  end
+end
+
+
 class Face
   include Selectable
   include ChainCompletion
@@ -296,18 +356,7 @@ class Face
 			GLU::TessBeginContour tess
 				ch = chain( @segments.first )
 				if ch
-					last_points = nil
-					ordered_points = ch.map do |s| 
-						if last_points
-							new_point = ([s.pos1, s.pos2] - last_points).first
-							last_points = [new_point]
-							new_point
-						else
-							last_points = [s.pos1, s.pos2]
-							[s.pos1, s.pos2]
-						end
-					end.flatten
-					for point in ordered_points
+					for point in Polygon.from_chain( ch ).points
 						GLU::TessVertex( tess, point.elements, point.elements )
 					end
 				else
@@ -329,6 +378,12 @@ class PlanarFace < Face
 	attr_accessor :plane
 	def initialize
 		@plane = Plane.new
+	end
+	
+	def draw
+	  normal = @plane.normal_vector.invert
+	  GL.Normal( normal.x, normal.y, normal.z )
+	  super
 	end
 end
 
@@ -470,6 +525,7 @@ class Part < Component
 		op.previous = @operators[index-1] unless index == 0
 		@operators[index+1].previous = op if @operators[index+1]
 		@history_limit += 1 if index <= @history_limit
+		build op
 	end
 	
 	def move_operator_up op
@@ -526,8 +582,6 @@ class Part < Component
 	  GL.NewList( @displaylist, GL::COMPILE)
 	    # draw shaded faces
 		  @solid.faces.each do |face|
-			  normal = face.plane.normal_vector
-			  GL.Normal( -normal.x, -normal.y, -normal.z )
 			  #col = @information[:material].color
 			  #GL.Color4f(col[0], col[1], col[2], @information[:material].opacity)
 			  c = face.selection_pass_color
@@ -538,7 +592,7 @@ class Part < Component
 					#GL.Vertex( seg.pos1.x, seg.pos1.y, seg.pos1.z )
 				#end
 				face.draw
-				GL.End
+				#GL.End
 			end
 		GL.EndList
 		build_wire_displaylist

@@ -18,8 +18,8 @@ class ExtrudeOperator < Operator
 	end
 	
 	def real_operate
-		if @settings[:sketch]
-		  segments = @settings[:sketch].segments
+	  segments = @settings[:segments]
+		if segments
 			# create face in extrusion direction for every segment
 			direction = segments.first.sketch.plane.normal_vector * @settings[:depth] * (@settings[:direction] == :up ? 1 : -1)
 			# make sure we are in part coordinate space
@@ -40,7 +40,7 @@ class ExtrudeOperator < Operator
 				face.plane.origin = corner1
 				@solid.faces.push( face )
 			end
-			# XXX build caps
+			# build caps
 			lower_cap = PlanarFace.new
 			lower_cap.segments = segments
 			lower_cap.plane.u_vec = segments[0].pos1.vector_to( segments[1].pos1 ).normalize
@@ -63,8 +63,10 @@ class ExtrudeOperator < Operator
 		sketch_button.label = "Sketch"
 		sketch_button.signal_connect("clicked") do |b| 
 		  if sketch_button.active?
-  			@manager.activate_tool("sketch_select", true) do |sketch|
-  			  if sketch
+  			@manager.activate_tool("region_select", true) do |segments|
+  			  if segments
+    				@settings[:segments] = segments
+    				sketch = segments.first.sketch
     				@settings[:sketch] = sketch
     				sketch.op = self
     				@part.unused_sketches.delete sketch

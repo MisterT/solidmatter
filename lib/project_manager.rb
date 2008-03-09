@@ -593,8 +593,10 @@ public
 				tool = PartSelectionTool.new( @glview, self, &block )
 			when 'operator_select'
   			tool = PartSelectionTool.new( @glview, self, &block )
+			when 'region_select'
+				tool = RegionSelectionTool.new( @glview, self, &block )
 			when 'sketch_select'
-				tool = SketchSelectionTool.new( @glview, self, &block )
+  			tool = SketchSelectionTool.new( @glview, self, &block )
 			when 'plane_select'
 				tool = PlaneSelectionTool.new( @glview, self, &block )
 			when 'measure_distance'
