@@ -223,6 +223,7 @@ module ChainCompletion
 	end
 	
 	def all_chains
+		return [] if @segments.empty?
 	  chains = []
 	  segs = @segments.dup
 	  begin
@@ -233,7 +234,24 @@ module ChainCompletion
 	  puts "#{chains.compact.size} chains found"
 	  return chains.compact
 	end
+	
+	def ordered_polygons
+		polygons = all_chains.map{|ch| Polygon::from_chain ch }
+		poly_tree = {}
+		for poly in polygons
+			enclosed_polys = []
+			for other in polygons
+				if poly.contains? other
+					enclosed_polys.push other
+				end
+			end 
+			poly_tree[poly] = enclosed_polys
+		end
+		poly_tree.delete_if{|p,en| en.empty? }
+		return poly_tree
+	end
 end
+
 
 
 class Sketch
@@ -312,21 +330,27 @@ class Polygon
     @points.push p
   end
 
-  def contains? point
-    # shoot a ray from the point upwards and count the number ob edges it intersects
-    intersections = 0
-    0.upto(@points.size - 2) do |i|
-      e1 = @points[i]
-      e2 = @points[i+1]
-      # check if edge intersects up-axis
-      if (e1.x <= point.x and point.x <= e2.x) or (e1.x >= point.x and point.x >= e2.x)
-        left_dist = (e1.x - point.x).abs
-        right_dist = (e2.x - point.x).abs
-        intersection_point = (e1 * right_dist + e2 * left_dist) * (1.0 / (left_dist + right_dist))
-        intersections += 1 if intersection_point.z > point.y
-      end
-    end
-    return (intersections % 2 == 0) ? false : true
+  def contains? point_or_poly
+  	if point_or_poly.is_a? Polygon
+  		poly = point_or_poly
+  		return poly.points.all?{|p| self.contains? p }
+  	else
+  		point = point_or_poly
+		  # shoot a ray from the point upwards and count the number ob edges it intersects
+		  intersections = 0
+		  0.upto(@points.size - 2) do |i|
+		    e1 = @points[i]
+		    e2 = @points[i+1]
+		    # check if edge intersects up-axis
+		    if (e1.x <= point.x and point.x <= e2.x) or (e1.x >= point.x and point.x >= e2.x)
+		      left_dist = (e1.x - point.x).abs
+		      right_dist = (e2.x - point.x).abs
+		      intersection_point = (e1 * right_dist + e2 * left_dist) * (1.0 / (left_dist + right_dist))
+		      intersections += 1 if intersection_point.z > point.y
+		    end
+		  end
+		  return (intersections % 2 == 0) ? false : true
+		 end
   end
 end
 

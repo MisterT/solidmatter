@@ -43,15 +43,15 @@ class ExtrudeOperator < Operator
 			# build caps
 			lower_cap = PlanarFace.new
 			lower_cap.segments = segments
-			lower_cap.plane.u_vec = segments[0].pos1.vector_to( segments[1].pos1 ).normalize
-			lower_cap.plane.v_vec = segments[0].pos1.vector_to( segments[2].pos1 ).normalize
-			lower_cap.plane.origin = segments[0].pos1
+			lower_cap.plane.u_vec = segments.first.sketch.plane.u_vec
+			lower_cap.plane.v_vec = segments.first.sketch.plane.v_vec
+			lower_cap.plane.origin = segments[0].pos1 + origin
 			@solid.faces.push( lower_cap )
 			upper_cap = PlanarFace.new
 			upper_cap.segments = segments.map{|s| se = s.dup; [se.pos1, se.pos2].each{|p| p.add direction } ; se }
-			upper_cap.plane.u_vec = segments[0].pos1.vector_to( segments[1].pos1 ).normalize.invert
-			upper_cap.plane.v_vec = segments[0].pos1.vector_to( segments[2].pos1 ).normalize
-			upper_cap.plane.origin = segments[0].pos1
+			upper_cap.plane.u_vec = segments.first.sketch.plane.u_vec.invert
+			upper_cap.plane.v_vec = segments.first.sketch.plane.v_vec
+			upper_cap.plane.origin = segments[0].pos1 + origin + direction
 			@solid.faces.push( upper_cap )
 		end
 	end

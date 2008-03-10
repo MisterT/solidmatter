@@ -86,8 +86,8 @@ class ProjectManager
 	              :main_assembly, :all_assemblies, :all_parts, :all_instances, :all_assembly_instances, 
 	              :all_part_instances, :all_sketches, :name, :author, :server_win, :main_win,
 	              :point_snap, :grid_snap, :use_sketch_guides
-	attr_reader :selection, :work_component, :work_sketch, 
-	            :glview, :op_view, :has_been_changed, :keys_pressed, :keymap
+	attr_reader :selection, :work_component, :work_sketch,
+	            :glview, :op_view, :has_been_changed, :keys_pressed, :keymap, :work_operator
 	def initialize( main_win, op_view, glview, asm_toolbar, prt_toolbar, sketch_toolbar, statusbar, main_vbox, op_view_controls )
 	  @main_win = main_win
 		@op_view = op_view
@@ -189,14 +189,15 @@ public
   		op_i = 1
   		increment = 1.0 / num_ops
   	  @all_parts.each do |p| 
-  	  	puts p
   	    p.displaylist = @glview.add_displaylist
+  	    p.wire_displaylist = @glview.add_displaylist
   	    p.build do |op| 
   				progress.fraction += increment
   				progress.text = "Rebuilding operator '#{op.name}' (#{op_i}/#{num_ops})" 
   				op_i += 1
   				sleep 0.5
   			end
+  			p.build_wire_displaylist
   	    p.working_planes.each do |pl| 
   	      pl.displaylist = @glview.add_displaylist
   	      pl.build_displaylists
@@ -315,13 +316,9 @@ public
       end
     # add segment
     elsif inst.is_a? Segment and @work_sketch
-      puts inst.pos1
-      puts inst.pos2
       @work_sketch.segments.push inst
       @work_sketch.build_displaylist
     end
-    puts inst
-    puts @work_sketch
     if insert and not @work_sketch
       working_level_up while @work_component.class == Part
       @work_component.components.push inst
@@ -467,6 +464,7 @@ public
 	end
 	
 	def working_level_up
+		cancel_current_tool
 		unless exit_current_mode
 			parent = @work_component.parent 
 			change_working_level( parent ) if parent
@@ -480,11 +478,12 @@ public
 	# return from drawing or operator mode
 	def exit_current_mode
 		if @work_sketch
+			@work_sketch.visible = false
 			@work_sketch.plane.visible = false
 			op = @work_sketch.op
 			op.part.build op if op
-			@glview.redraw
 			@work_sketch = nil
+			@glview.redraw
 			part_toolbar
   		activate_tool 'select'
   		@selection.deselect_all
@@ -493,7 +492,6 @@ public
 			@main_vbox.remove( @op_toolbar )
 			@work_operator = nil
 			part_toolbar
-			cancel_current_tool
 			@selection.deselect_all
 			return true
 		end
@@ -553,18 +551,44 @@ public
 	end
 	
 	def delete_op_view_selected
+		exit_current_mode
 	  sel = @op_view.selections.first
 	  if sel
-	    if sel.is_a? Operator
-	      @work_component.remove_operator sel 
-	      if sel.settings[:sketch]
-	        @all_sketches.delete sel.settings[:sketch]
-	        sel.settings[:sketch].clean_up
-        end
+	    if sel.is_a? Operator 
+	      @work_component.remove_operator sel
+	      sketch = sel.settings[:sketch]
+	      if sketch
+		    	dia = Gtk::Dialog.new("Delete Sketch?",
+		                         		 @main_win,
+		                         		 Gtk::Dialog::DESTROY_WITH_PARENT,
+		                         		 [Gtk::Stock::NO, Gtk::Dialog::RESPONSE_NO],
+		                         		 [Gtk::Stock::DELETE, Gtk::Dialog::RESPONSE_YES])
+		      dia.vbox.add Gtk::Label.new("The operator includes an associated sketch.\nDo you want to delete the it?")
+		      dia.show_all
+				  dia.run do |resp|
+						if resp == Gtk::Dialog::RESPONSE_YES
+							@all_sketches.delete sketch
+				  		sketch.clean_up	
+				  	else
+				  		@work_component.unused_sketches.push sketch
+				  		sketch.op = nil
+						end
+						dia.destroy
+					end
+		    end
       elsif sel.is_a? Instance and not sel == @op_view.base_component 
 	      sel.parent.remove_component sel 
 	      @all_part_instances.delete sel
 	      @all_assemblies.delete sel 
+      elsif sel.is_a? Sketch
+      	if sel.op
+      		sel.op.settings[:segments] = nil
+      		sel.op.settings[:sketch] = nil
+      		sel.op.part.build sel.op
+      	end
+      	sel.parent.unused_sketches.delete sel
+      	@all_sketches.delete sel
+				sel.clean_up	
       end
 	    exit_current_mode or @glview.redraw
 	    @op_view.update

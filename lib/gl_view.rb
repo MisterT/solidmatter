@@ -411,6 +411,10 @@ class GLView < Gtk::DrawingArea
   			end
   			top_comp.working_planes.each{|wp| recurse_draw( wp ) }
   			top_comp.unused_sketches.each{|sketch| recurse_draw( sketch ) }
+  			if @manager.work_operator
+  				op_sketch = @manager.work_operator.settings[:sketch] 
+  				recurse_draw op_sketch if op_sketch
+  			end
   			recurse_draw @manager.work_sketch if @manager.work_sketch
   		### ------------------------- Sketch ------------------------- ###
   		elsif top_comp.class == Sketch

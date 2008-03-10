@@ -158,7 +158,8 @@ end
 class RegionSelectionTool < SelectionTool
 	def initialize( glview, manager )
 		super( "Pick a closed region from a sketch:", glview, manager )
-		@regions = manager.work_component.unused_sketches.inject([]) do |regions, sketch|
+		@op_sketch = manager.work_operator.settings[:sketch]
+		@regions = (manager.work_component.unused_sketches + [@op_sketch]).compact.inject([]) do |regions, sketch|
 		  regions += sketch.all_chains.map do |chain|
   	    poly = Polygon.from_chain( chain )
   	    face = PlanarFace.new
@@ -167,29 +168,24 @@ class RegionSelectionTool < SelectionTool
 	    end
     end
     @regions.compact!
+    @op_sketch.visible = true if @op_sketch
+    @plane = @manager.work_component.working_planes.first
 	end
 	
 	def click_left( x,y )
 		super
-		if @plane
-      pos = pos_of( x,y )
-  	  region = @regions.select{|r| r.first.contains? Point.new( pos.x, pos.z ) }.first if pos
-  	  if pos and region 
-  		  @selection = region.last.segments  
-  		  @manager.cancel_current_tool
-  	  end
-	  else
-	    sel = @glview.select(x,y, :select_segments)
-  		@plane = sel.sketch.plane if sel
+    pos = pos_of( x,y )
+	  region = @regions.select{|r| r.first.contains? Point.new( pos.x, pos.z ) }.first if pos
+	  if pos and region 
+		  @selection = region.last.segments  
+		  @manager.cancel_current_tool
 	  end
 	end
 	
 	def mouse_move( x,y )
-	  if @plane
-      pos = pos_of( x,y )
-      @current_region = @regions.select{|r| r.first.contains? Point.new( pos.x, pos.z ) }.first if pos
-      @glview.redraw
-    end
+    pos = pos_of( x,y )
+    @current_region = @regions.select{|r| r.first.contains? Point.new( pos.x, pos.z ) }.first if pos
+    @glview.redraw
 	end
 	
 	def draw
@@ -203,6 +199,11 @@ class RegionSelectionTool < SelectionTool
 		@plane.visible = false
 		return pos
 	end
+	
+	def exit
+		@op_sketch.visible = false if @op_sketch
+		super
+	end
 end
 
 
@@ -210,6 +211,7 @@ class PlaneSelectionTool < SelectionTool
 	def initialize( glview, manager )
 		super( "Select a single plane:", glview, manager )
 		@manager.work_component.working_planes.each{|plane| plane.visible = true }
+		puts manager.work_component.working_planes
 	end
 	
 	def click_left( x,y )
