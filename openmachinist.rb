@@ -36,6 +36,8 @@ Gtk::main
 # sketch button sollte eingedrückt bleib wenn plane gewählt wird
 # sicherheitsprüfungen im server ( is_valid(projectname, client_id) schreiben)
 # immer nach glDrawable fragen um redraw probleme zu vermeiden
+# nicht selektierbare objekte sollten wie der background wirken und bei click die selection aufheben
+# in new project gl cleanup und rebuilt nach laden
 # confirm application quit
 # order of segments shouldn't be relevant for tesselation
 # wenn ein alter sketch bearbeitet wird sollten die nachfolgenden features zurückgespult werden, oder view geclippt, oder part transparent

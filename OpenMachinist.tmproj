@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>lib/geometry.rb</string>
+	<string>openmachinist.rb</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -16,7 +16,9 @@
 			<key>filename</key>
 			<string>openmachinist.rb</string>
 			<key>lastUsed</key>
-			<date>2008-03-09T01:04:02Z</date>
+			<date>2008-03-10T12:22:07Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>expanded</key>
@@ -347,6 +349,6 @@
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{212, 0}, {807, 746}}</string>
+	<string>{{295, 75}, {920, 1087}}</string>
 </dict>
 </plist>
