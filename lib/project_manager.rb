@@ -478,7 +478,7 @@ public
 	# return from drawing or operator mode
 	def exit_current_mode
 		if @work_sketch
-			@work_sketch.visible = false
+		  @work_sketch.visible = false unless @work_component.unused_sketches.include? @work_sketch
 			@work_sketch.plane.visible = false
 			op = @work_sketch.op
 			op.part.build op if op

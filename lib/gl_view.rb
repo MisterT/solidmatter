@@ -370,7 +370,7 @@ class GLView < Gtk::DrawingArea
 			# draw 3d interface stuff
 			GL.Disable(GL::LIGHTING)
 			@immediate_draw_routines.each{|r| r.call }
-			gldrawable.swap_buffers unless @selection_pass or @picking_pass
+			gldrawable.swap_buffers unless @selection_pass or @picking_pass or @restore_backbuffer
 		gldrawable.gl_end
 	end
 	
@@ -443,6 +443,12 @@ class GLView < Gtk::DrawingArea
 	  end
 	end
 	
+	def restore_backbuffer
+	  @restore_backbuffer = true
+	  redraw
+	  @restore_backbuffer = false
+	end
+	
 	def screen2world( x, y )
 		modelview  = GL.GetDoublev( GL::MODELVIEW_MATRIX )
  		projection = GL.GetDoublev( GL::PROJECTION_MATRIX )
@@ -470,6 +476,7 @@ class GLView < Gtk::DrawingArea
 		else
 		  pos = nil
 	  end
+    restore_backbuffer
 		return pos
 	end
 	
@@ -486,8 +493,6 @@ class GLView < Gtk::DrawingArea
 	def select( x, y, type=true )
 		# corect coords from gtk to GL orientation
 		y = allocation.height - y
-		# change rendering style to aliased, flat-color rendering
-		render_style :selection_pass
 		if @manager.work_sketch
 		  selectables = @manager.work_sketch.segments 
 	  else
@@ -511,6 +516,8 @@ class GLView < Gtk::DrawingArea
 			raise "maximum number of colors reached" if current_color[i] >= 1
 			i == 2 ? i = 0 : i += 1 
 		end
+		# change rendering style to aliased, flat-color rendering
+		render_style :selection_pass
 		# render scene to the back buffer
 		@selection_pass = type
 		redraw
@@ -530,9 +537,10 @@ class GLView < Gtk::DrawingArea
 				obj = inst
 			end
 		end
-		obj = nil unless best_diff < increment
 		# reset regular rendering style
 		render_style :regular
+		redraw
+		obj = nil unless best_diff < increment
 		@manager.work_component.unused_sketches.each{|sk| sk.build_displaylist } if @manager.work_component.class == Part
 		return obj
 	end
