@@ -539,7 +539,7 @@ class GLView < Gtk::DrawingArea
 		end
 		# reset regular rendering style
 		render_style :regular
-		redraw
+		restore_backbuffer
 		obj = nil unless best_diff < increment
 		@manager.work_component.unused_sketches.each{|sk| sk.build_displaylist } if @manager.work_component.class == Part
 		return obj

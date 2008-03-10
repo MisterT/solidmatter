@@ -43,3 +43,4 @@ Gtk::main
 # wenn ein alter sketch bearbeitet wird sollten die nachfolgenden features zurückgespult werden, oder view geclippt, oder part transparent
 # shortcuts über accelerators
 # befehle in pop-ups insensitive
+## nach delete von op muss sketch wieder sichtbar werden

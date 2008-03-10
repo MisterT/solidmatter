@@ -229,7 +229,7 @@ module ChainCompletion
 	  begin
 	    kette = chain( segs.first, segs )
 	    chains.push kette
-	    segs = segs - kette
+	    segs = segs - kette if kette
 	  end until segs.empty? or not kette
 	  puts "#{chains.compact.size} chains found"
 	  return chains.compact
@@ -237,18 +237,24 @@ module ChainCompletion
 	
 	def ordered_polygons
 		polygons = all_chains.map{|ch| Polygon::from_chain ch }
-		poly_tree = {}
+		contained_in = {}
+		depth = 0
+		# check each poly for in how many others it is contained
 		for poly in polygons
-			enclosed_polys = []
 			for other in polygons
 				if poly.contains? other
-					enclosed_polys.push other
+				  contained_in[other] ||= 0
+				  contained_in[other]  += 1
+				  depth += 1
 				end
 			end 
-			poly_tree[poly] = enclosed_polys
 		end
-		poly_tree.delete_if{|p,en| en.empty? }
-		return poly_tree
+		# subpolys must wind in opposite direction of parent
+    depth.times do |i|
+      polys = polygons.select{|p| contained_in[p] == i }
+      i % 2 == 0 ? polys.each{|p| p.to_cw! } : polys.each{|p| p.to_ccw! }
+    end
+		return polygons
 	end
 end
 
@@ -302,24 +308,37 @@ end
 
 class Polygon
   def Polygon::from_chain chain
+=begin
     last_points = nil
 		poly = Polygon.new( chain.map do |s| 
 			if last_points
-				new_point = ([s.pos1, s.pos2] - last_points).first
-				last_points = [new_point]
+			  seg_points = [s.pos1, s.pos2]
+			  seg_points.delete last_point
+			  puts seg_points
+				new_point = seg_points.first
+				last_point = new_point
 				new_point
 			else
-				last_points = [s.pos1, s.pos2]
-				[s.pos1, s.pos2]
+				last_point = s.pos2
+				s.pos2
 			end
 		end.flatten )
 		poly.close
-		poly
+=end
+    redundant_chain_points = chain.map{|s| [s.pos1, s.pos2] }.flatten
+    chain_points = []
+    for p in redundant_chain_points
+      chain_points.push p unless chain_points.include? p
+    end
+    poly = Polygon.new( chain_points )
+    poly.close
+		return poly
   end
   
   attr_accessor :points
   def initialize( points=[] )
     @points = points
+    @normal = Vector[0,1,0]
   end
   
   def close
@@ -338,7 +357,7 @@ class Polygon
   		point = point_or_poly
 		  # shoot a ray from the point upwards and count the number ob edges it intersects
 		  intersections = 0
-		  0.upto(@points.size - 2) do |i|
+		  0.upto( @points.size - 2 ) do |i|
 		    e1 = @points[i]
 		    e2 = @points[i+1]
 		    # check if edge intersects up-axis
@@ -351,6 +370,22 @@ class Polygon
 		  end
 		  return (intersections % 2 == 0) ? false : true
 		 end
+  end
+  
+  def to_cw!
+    @points.reverse! unless clockwise?
+    self
+  end
+  
+  def to_ccw!
+    @points.reverse! if clockwise?
+    self
+  end
+  
+  def clockwise?
+    cross = @points[0].vector_to( @points[1] ).cross_product( @points[1].vector_to( @points[2] ) )
+    dot = cross.dot_product @normal
+    return dot < 0
   end
 end
 
@@ -380,7 +415,7 @@ class Face
 			GLU::TessBeginContour tess
 				ch = chain( @segments.first )
 				if ch
-					for point in Polygon.from_chain( ch ).points
+					for point in Polygon.from_chain( ch ).to_cw!.points
 						GLU::TessVertex( tess, point.elements, point.elements )
 					end
 				else
