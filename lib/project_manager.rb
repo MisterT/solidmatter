@@ -502,9 +502,9 @@ public
 	def sketch_mode( sketch )
 		@work_sketch = sketch
 		sketch_toolbar
-		sketch.visible = true
 		sketch.plane.visible = true
 		sketch.plane.animate
+		sketch.visible = true
 		activate_tool 'select'
 	end
 	
