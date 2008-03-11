@@ -18,7 +18,7 @@ $preferences = {
 	:first_light_color => [0.5, 0.5, 1.0, 0.0],
 	:second_light_color => [1.0, 0.7, 0.5, 0.0],
 	:view_transitions => true,
-	:transition_duration => 60
+	:transition_duration => 60.0
 }
                   
 class PreferencesDialog

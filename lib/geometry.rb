@@ -123,11 +123,18 @@ class WorkingPlane < Plane
 		build_displaylists
 	end
 	
-	def animate
-		0.step(@size, 0.1) do |i|
-			@size = i
-			build_displaylist
-			@glview.redraw
+	def animate( direction=1 )
+	  if $preferences[:view_transitions]
+  	  original_size = @size
+      GC.disable if $preferences[:manage_gc]
+      start, ende = direction == 1 ? [0, @size] : [@size, 0]
+  		start.step( ende, (@size / $preferences[:transition_duration]) * direction ) do |i|
+  			@size = i
+  			build_displaylists
+  			@glview.redraw
+  		end
+  		GC.enable if $preferences[:manage_gc]
+  		@size = original_size
 		end
 	end
 	
@@ -157,7 +164,7 @@ class WorkingPlane < Plane
 		end
 		GL.NewList( @displaylist, GL::COMPILE)
 			GL.LineWidth(0.1)
-			col = [0.5,0.5,0.5]
+			col = [0.7,0.7,0.7]
 			GL.Begin( GL::LINES )
 				@verticals.each do |line| 
 					GL.Color3f( col[0], col[1], col[2] )
@@ -307,24 +314,8 @@ end
 
 
 class Polygon
+  attr_accessor :points
   def Polygon::from_chain chain
-=begin
-    last_points = nil
-		poly = Polygon.new( chain.map do |s| 
-			if last_points
-			  seg_points = [s.pos1, s.pos2]
-			  seg_points.delete last_point
-			  puts seg_points
-				new_point = seg_points.first
-				last_point = new_point
-				new_point
-			else
-				last_point = s.pos2
-				s.pos2
-			end
-		end.flatten )
-		poly.close
-=end
     redundant_chain_points = chain.map{|s| [s.pos1, s.pos2] }.flatten
     chain_points = []
     for p in redundant_chain_points
@@ -335,7 +326,6 @@ class Polygon
 		return poly
   end
   
-  attr_accessor :points
   def initialize( points=[] )
     @points = points
     @normal = Vector[0,1,0]

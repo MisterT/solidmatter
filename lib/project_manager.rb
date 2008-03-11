@@ -479,6 +479,7 @@ public
 	def exit_current_mode
 		if @work_sketch
 		  @work_sketch.visible = false unless @work_component.unused_sketches.include? @work_sketch
+		  @work_sketch.plane.animate -1
 			@work_sketch.plane.visible = false
 			op = @work_sketch.op
 			op.part.build op if op
@@ -499,11 +500,11 @@ public
 	end
 	
 	def sketch_mode( sketch )
-		sketch.visible = true
-		sketch.plane.visible = true
-		@glview.redraw
 		@work_sketch = sketch
 		sketch_toolbar
+		sketch.visible = true
+		sketch.plane.visible = true
+		sketch.plane.animate
 		activate_tool 'select'
 	end
 	
