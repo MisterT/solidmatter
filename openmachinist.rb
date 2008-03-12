@@ -43,5 +43,7 @@ Gtk::main
 # wenn ein alter sketch bearbeitet wird sollten die nachfolgenden features zurückgespult werden, oder view geclippt, oder part transparent
 # shortcuts über accelerators
 # befehle in pop-ups insensitive
+# when selecting regions, select inner regions first
 # nach delete von op muss sketch wieder sichtbar werden
-# grid in preferences
+# automatically apply operator if there is only one unused sketch region
+

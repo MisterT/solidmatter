@@ -5,6 +5,7 @@
 
 require 'gtkglext'
 require 'lib/matrix.rb'
+require 'lib/image.rb'
 require 'lib/tools.rb'
 
 class Point
@@ -625,6 +626,28 @@ class GLView < Gtk::DrawingArea
 			GL.Vertex(0,0,0)
 			GL.Vertex(0,0,0.1)
 		GL.End
+	end
+	
+	def screenshot( x=0, y=0, width=allocation.width, height=allocation.height, step=6 )
+		redraw
+		iwidth = width / step
+		iheight = height / step
+		im = Image.new( iwidth, iheight )
+		ix, iy = 0, iheight-1
+		x.step( x + width - 1, step ) do |sx|
+			y.step( y + height - 1, step ) do |sy|
+				pix = GL.ReadPixels( sx,sy, 1,1, GL::RGB, GL::FLOAT )
+				comp_size = pix.size / 3
+				r = pix[0..(comp_size-1)].unpack("f")[0]
+				g = pix[comp_size..(2*comp_size-1)].unpack("f")[0]
+				b = pix[(2*comp_size)..(3*comp_size-1)].unpack("f")[0]
+				im.set_pixel( ix, iy, Pixel.new(r,g,b) ) unless ix >= iwidth or iy >= iheight
+				iy -= 1
+			end
+			ix += 1
+			iy = iheight-1
+		end
+		return im
 	end
 end
 
