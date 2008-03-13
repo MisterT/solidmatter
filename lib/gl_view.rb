@@ -190,16 +190,9 @@ class GLView < Gtk::DrawingArea
 	
 	def double_click( x,y )
 		case @manager.current_tool
-			when CameraTool then
-			  target = screen2world( x,y )
-			  if target
-			    old = @cameras[@current_cam_index]
-				  add_view
-				  neu = @cameras[@current_cam_index]
-				  neu.look_at target
-				  view_transition( old,neu )
-				  redraw
-			  end
+			when CameraTool then 
+				target = screen2world( x,y )
+				look_at target if target
 		else
 			@manager.current_tool.double_click( x,y )
 		end
@@ -562,12 +555,44 @@ class GLView < Gtk::DrawingArea
 	end
 	
 	def look_at_selection
-	 old = @cameras[@current_cam_index]
-	 add_view
-	 neu = @cameras[@current_cam_index]
-	 neu.look_at_plane
-	 view_transition( old, neu )
-	 redraw
+		old = @cameras[@current_cam_index]
+		add_view
+		neu = @cameras[@current_cam_index]
+		neu.look_at_plane
+		view_transition( old, neu )
+		redraw
+	end
+	
+	def look_at target
+    old = @cameras[@current_cam_index]
+	  add_view
+	  neu = @cameras[@current_cam_index]
+	  neu.look_at target
+	  view_transition( old,neu )
+	  redraw
+	end
+	
+	def zoom_selection
+		unless @manager.selection.empty?
+			corners = @manager.selection.map{|e| e.bounding_box }.flatten
+			cog = corners.inject(Vector[0,0,0]){|sum,c| sum + c } / corners.size
+			look_at cog
+			cam = @cameras[@current_cam_index]
+			width = allocation.width
+			height = allocation.height
+			GC.disable if $preferences[:manage_gc]
+			# move towards objects
+			while corners.map{|c| world2screen c }.all?{|p| (0...width).include? p.x and (0...height).include? p.y }
+				cam.move_forward 0.02
+				redraw
+			end
+			# move away from objects
+			while not corners.map{|c| world2screen c }.all?{|p| (0...width).include? p.x and (0...height).include? p.y }
+				cam.move_forward -0.02
+				redraw
+			end
+			GC.enable if $preferences[:manage_gc]
+		end
 	end
 	
 	def previous_view

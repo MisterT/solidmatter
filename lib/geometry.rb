@@ -625,6 +625,22 @@ class Part < Component
   		end
 		end
 	end
+	
+	def bounding_box
+		xs = @solid.faces.map{|f| f.segments.map{|seg| [seg.pos1, seg.pos2].map{|pos| pos.x } } }.flatten
+		ys = @solid.faces.map{|f| f.segments.map{|seg| [seg.pos1, seg.pos2].map{|pos| pos.y } } }.flatten
+		zs = @solid.faces.map{|f| f.segments.map{|seg| [seg.pos1, seg.pos2].map{|pos| pos.z } } }.flatten
+		corners = [
+			Vector[xs.min, ys.min, zs.min],
+			Vector[xs.min, ys.min, zs.max],
+			Vector[xs.min, ys.max, zs.min],
+			Vector[xs.max, ys.min, zs.min],
+			Vector[xs.min, ys.max, zs.max],
+			Vector[xs.max, ys.max, zs.min],
+			Vector[xs.max, ys.min, zs.max],
+			Vector[xs.max, ys.max, zs.max]]
+		return corners
+	end
 
 	def build_displaylist( type=:normal)
 		# generate mesh and write to displaylist
@@ -738,9 +754,6 @@ class Instance
   @@used_ids = []
 	attr_reader :parent, :position, :transparent, :component_id
 	attr_accessor :visible, :real_component
-	def initialize
-
-	end
 	def initialize( component, parent=nil )
 		raise "Parts must have a parent" if component.class == Part and not parent
 		@real_component = component

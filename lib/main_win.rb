@@ -142,7 +142,7 @@ class OpenMachinistMainWin < Gtk::Window
 		toolbar.append( cam_btn, "Position the 3d viewpoint", "Toolbar/Camera" )
 		zoom_btn = Gtk::ToolButton.new( Gtk::Image.new('icons/middle/system-search_middle.png'), " Zoom selection" )
 		zoom_btn.important = true
-		zoom_btn.signal_connect("clicked"){}
+		zoom_btn.signal_connect("clicked"){ @manager.glview.zoom_selection}
 		toolbar.append( zoom_btn, "Fit all selected objects into view","Toolbar/ZoomAll" )
 		look_btn = Gtk::ToolButton.new( Gtk::Image.new('icons/middle/go-bottom_middle.png'), " Look at" )
 		look_btn.important = false
