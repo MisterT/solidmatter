@@ -19,7 +19,6 @@ Gtk::main
 # cam animation nich mehr linear
 # preferences Dialog
 # limit der selektierbaren objekte von 768 auf 16.7M hochschrauben
-# grid animation mit transparenzen vervollständigen
 # operatoren parallelisieren
 # drag and drop im op-view
 # undo/redo stack
@@ -37,13 +36,12 @@ Gtk::main
 # sicherheitsprüfungen im server ( is_valid(projectname, client_id) schreiben)
 # immer nach glDrawable fragen um redraw probleme zu vermeiden
 # nicht selektierbare objekte sollten wie der background wirken und bei click die selection aufheben
-# in new project gl cleanup und rebuilt nach laden
 # confirm application quit
-# order of segments shouldn't be relevant for tesselation
 # wenn ein alter sketch bearbeitet wird sollten die nachfolgenden features zurückgespult werden, oder view geclippt, oder part transparent
 # shortcuts über accelerators
 # befehle in pop-ups insensitive
 # when selecting regions, select inner regions first
 # nach delete von op muss sketch wieder sichtbar werden
 # automatically apply operator if there is only one unused sketch region
+# create MIME type
 

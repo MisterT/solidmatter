@@ -746,6 +746,10 @@ class Assembly < Component
 			@manager.op_view.update
 	  end
 	end
+	
+	def bounding_box
+		@components.map{|c| c.bounding_box }.flatten
+	end
 end
 
 class Instance

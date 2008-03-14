@@ -48,6 +48,7 @@ class SearchEntry < Gtk::ToolItem
   				comps_to_check = new_comps
   			end
   		end
+  		@manager.glview.zoom_selection
   		@manager.glview.redraw
 	  end
 	end
