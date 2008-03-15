@@ -39,9 +39,8 @@ Gtk::main
 # confirm application quit
 # wenn ein alter sketch bearbeitet wird sollten die nachfolgenden features zurückgespult werden, oder view geclippt, oder part transparent
 # shortcuts über accelerators
-# befehle in pop-ups insensitive
 # when selecting regions, select inner regions first
-# nach delete von op muss sketch wieder sichtbar werden
 # automatically apply operator if there is only one unused sketch region
 # create MIME type
+# segmente mit nulllänge verhindern
 

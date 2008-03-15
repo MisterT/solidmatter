@@ -123,16 +123,20 @@ class PartSelectionTool < SelectionTool
 	  super
 		click_left( x,y )
 		sel = @manager.selection.first
-		if sel
-		  menu = ComponentMenu.new(@manager, sel, :glview)
-		  menu.popup(nil, nil, 3,  time)
-	  end
+		menu = sel ? ComponentMenu.new(@manager, sel, :glview) : BackgroundMenu.new(@manager)
+		menu.popup(nil, nil, 3,  time)
 	end
 end
 
 class OperatorSelectionTool < SelectionTool
 	def initialize( glview, manager )
 		super( "Select a feature from yout model, right click for options:", glview, manager )
+	end
+	
+	def click_right( x,y, time )
+	  super
+		click_left( x,y )
+		BackgroundMenu.new(@manager).popup(nil, nil, 3,  time)
 	end
 end
 
@@ -567,6 +571,7 @@ class EditSketchTool < SketchTool
   
   def click_right( x,y, time )
 	  super
+	  click_left( x,y )
 	  menu = SketchSelectionToolMenu.new @manager
 	  menu.popup(nil, nil, 3,  time)
 	end

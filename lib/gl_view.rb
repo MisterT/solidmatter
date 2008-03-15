@@ -234,8 +234,8 @@ class GLView < Gtk::DrawingArea
 			  drag_x = (x - @last_down.x).to_f / allocation.width
 				drag_y = (y - @last_down.y).to_f / allocation.height
 				cam = @last_mouse_down_cam.clone
-				cam.move_right -drag_x * 2
-				cam.move_up drag_y * 2
+				cam.move_right -drag_x * 1.5 * cam.target.distance_to( cam.position )
+				cam.move_up drag_y * 0.8 * cam.target.distance_to( cam.position )
 				@cameras[@current_cam_index] = cam
 				redraw
 		else
@@ -249,9 +249,12 @@ class GLView < Gtk::DrawingArea
 			  drag_x = (x - @last_down.x).to_f / allocation.width
   			drag_y = (y - @last_down.y).to_f / allocation.height
 				cam = @last_mouse_down_cam.clone
-				cam.move_forward drag_x * 4
-				@cameras[@current_cam_index] = cam
-				redraw
+				zoom_amount = drag_x * 3 * cam.target.distance_to( cam.position )
+				if cam.position.vector_to( cam.target ).length > zoom_amount
+					cam.move_forward zoom_amount
+					@cameras[@current_cam_index] = cam 
+					redraw
+				end
 		else
 			@manager.current_tool.drag_middle( x,y )
 		end
@@ -263,8 +266,8 @@ class GLView < Gtk::DrawingArea
 			  drag_x = (x - @last_down.x).to_f / allocation.width
 				drag_y = (y - @last_down.y).to_f / allocation.height
 				cam = @last_mouse_down_cam.clone
-				cam.rotate_around_up -drag_x * 6
-				cam.rotate_around_right drag_y * 6
+				cam.rotate_around_up -drag_x * 5 * cam.target.distance_to( cam.position )
+				cam.rotate_around_right drag_y * 4 * cam.target.distance_to( cam.position )
 				@cameras[@current_cam_index] = cam
 				redraw
 		else
@@ -336,7 +339,7 @@ class GLView < Gtk::DrawingArea
 			GL.MatrixMode(GL::PROJECTION)
 			GL.LoadIdentity
 			aspect_ratio = allocation.width.to_f / allocation.height.to_f
-			GLU.Perspective(40.0, aspect_ratio, 0.05, 25.0)
+			GLU.Perspective(40.0, aspect_ratio, 0.02, 60.0)
 			GL.MatrixMode(GL::MODELVIEW)
 			gldrawable.gl_end
 			true
@@ -573,8 +576,9 @@ class GLView < Gtk::DrawingArea
 	end
 	
 	def zoom_selection
-		unless @manager.selection.empty?
-			corners = @manager.selection.map{|e| e.bounding_box }.flatten
+		selection = @manager.selection.empty? ? [@manager.main_assembly] : @manager.selection
+		corners = selection.map{|e| e.bounding_box }.flatten
+		unless corners.empty?
 			cog = corners.inject(Vector[0,0,0]){|sum,c| sum + c } / corners.size
 			look_at cog
 			cam = @cameras[@current_cam_index]

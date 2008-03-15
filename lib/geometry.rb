@@ -630,15 +630,18 @@ class Part < Component
 		xs = @solid.faces.map{|f| f.segments.map{|seg| [seg.pos1, seg.pos2].map{|pos| pos.x } } }.flatten
 		ys = @solid.faces.map{|f| f.segments.map{|seg| [seg.pos1, seg.pos2].map{|pos| pos.y } } }.flatten
 		zs = @solid.faces.map{|f| f.segments.map{|seg| [seg.pos1, seg.pos2].map{|pos| pos.z } } }.flatten
+		min_x = xs.min || 0 ; max_x = xs.max || 0
+		min_y = ys.min || 0 ; max_y = ys.max || 0
+		min_z = zs.min || 0 ; max_z = zs.max || 0
 		corners = [
-			Vector[xs.min, ys.min, zs.min],
-			Vector[xs.min, ys.min, zs.max],
-			Vector[xs.min, ys.max, zs.min],
-			Vector[xs.max, ys.min, zs.min],
-			Vector[xs.min, ys.max, zs.max],
-			Vector[xs.max, ys.max, zs.min],
-			Vector[xs.max, ys.min, zs.max],
-			Vector[xs.max, ys.max, zs.max]]
+			Vector[min_x, min_y, min_z],
+			Vector[min_x, min_y, max_z],
+			Vector[min_x, max_y, min_z],
+			Vector[max_x, min_y, min_z],
+			Vector[min_x, max_y, max_z],
+			Vector[max_x, max_y, min_z],
+			Vector[max_x, min_y, max_z],
+			Vector[max_x, max_y, max_z]]
 		return corners
 	end
 

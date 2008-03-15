@@ -3,6 +3,33 @@
 #  Created by Björn Breitgoff on 2007-12-26.
 #  Copyright (c) 2007. All rights reserved.
 
+
+class BackgroundMenu < Gtk::Menu
+  def initialize manager
+    super()
+    items = [
+			Gtk::ImageMenuItem.new(Gtk::Stock::PASTE),
+			Gtk::SeparatorMenuItem.new,
+			Gtk::ImageMenuItem.new("_Return").set_image( Gtk::Image.new(Gtk::Stock::UNDO, Gtk::IconSize::MENU) )
+		]
+		items[0].sensitive = manager.clipboard ? true : false
+		items[2].sensitive = (manager.work_sketch or 
+												 manager.work_operator or 
+												 manager.work_component != manager.main_assembly) ? true : false
+		# paste
+		items[0].signal_connect("activate") do
+			manager.paste_from_clipboard
+		end
+		# return
+		items[2].signal_connect("activate") do
+			manager.working_level_up
+		end
+		items.each{|i| append i }
+		show_all
+  end
+end
+
+
 class ComponentMenu < Gtk::Menu
   def initialize( manager, part, location )
     super()
@@ -17,6 +44,7 @@ class ComponentMenu < Gtk::Menu
 			Gtk::SeparatorMenuItem.new,
 			Gtk::ImageMenuItem.new(Gtk::Stock::PROPERTIES)
 		]
+		items[3].sensitive = manager.clipboard ? true : false
 		items[6].active = part.visible
 		# duplicate instance
 		items[0].signal_connect("activate") do
@@ -130,11 +158,19 @@ class SketchSelectionToolMenu < Gtk::Menu
 			Gtk::SeparatorMenuItem.new,
 			Gtk::ImageMenuItem.new(Gtk::Stock::COPY),
 			Gtk::ImageMenuItem.new(Gtk::Stock::PASTE),
-			Gtk::ImageMenuItem.new(Gtk::Stock::DELETE)
+			Gtk::ImageMenuItem.new(Gtk::Stock::DELETE),
+			Gtk::SeparatorMenuItem.new,
+			Gtk::ImageMenuItem.new("_Return").set_image( Gtk::Image.new(Gtk::Stock::UNDO, Gtk::IconSize::MENU) )
 		]
 		items[0].active = manager.point_snap
 		items[1].active = manager.grid_snap
 		items[2].active = manager.use_sketch_guides
+		items[4].sensitive = manager.selection.empty? ? false : true
+		items[5].sensitive = manager.clipboard ? true : false
+		items[6].sensitive = manager.selection.empty? ? false : true
+		items[8].sensitive = (manager.work_sketch or 
+												  manager.work_operator or 
+												  manager.work_component != manager.main_assembly) ? true : false
 		# snap points
 		items[0].signal_connect("activate") do |w|
       manager.point_snap = w.active?
@@ -158,6 +194,10 @@ class SketchSelectionToolMenu < Gtk::Menu
 		# delete
 		items[6].signal_connect("activate") do |w|
       manager.delete_selected
+		end
+		# return
+		items[8].signal_connect("activate") do |w|
+      manager.working_level_up
 		end
 		items.each{|i| append i }
 		show_all

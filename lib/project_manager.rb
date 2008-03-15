@@ -85,7 +85,7 @@ class ProjectManager
 	attr_accessor :filename, :focus_view, :materials, :save_btn, :return_btn, :previous_btn, :next_btn,
 	              :main_assembly, :all_assemblies, :all_parts, :all_instances, :all_assembly_instances, 
 	              :all_part_instances, :all_sketches, :name, :author, :server_win, :main_win,
-	              :point_snap, :grid_snap, :use_sketch_guides
+	              :point_snap, :grid_snap, :use_sketch_guides, :clipboard
 	attr_reader :selection, :work_component, :work_sketch,
 	            :glview, :op_view, :has_been_changed, :keys_pressed, :keymap, :work_operator
 	def initialize( main_win, op_view, glview, asm_toolbar, prt_toolbar, sketch_toolbar, statusbar, main_vbox, op_view_controls )
@@ -556,7 +556,6 @@ public
 	  sel = @op_view.selections.first
 	  if sel
 	    if sel.is_a? Operator 
-	      @work_component.remove_operator sel
 	      sketch = sel.settings[:sketch]
 	      if sketch
 		    	dia = Gtk::Dialog.new("Delete Sketch?",
@@ -564,7 +563,9 @@ public
 		                         		 Gtk::Dialog::DESTROY_WITH_PARENT,
 		                         		 [Gtk::Stock::NO, Gtk::Dialog::RESPONSE_NO],
 		                         		 [Gtk::Stock::DELETE, Gtk::Dialog::RESPONSE_YES])
-		      dia.vbox.add Gtk::Label.new("The operator includes an associated sketch.\nDo you want to delete the it?")
+		      label = Gtk::Label.new("The operator includes an associated sketch.\nDo you want to delete the it?")
+		      label.set_padding( 6,12 )
+		      dia.vbox.add label
 		      dia.show_all
 				  dia.run do |resp|
 						if resp == Gtk::Dialog::RESPONSE_YES
@@ -573,10 +574,12 @@ public
 				  	else
 				  		@work_component.unused_sketches.push sketch
 				  		sketch.op = nil
+				  		sketch.visible = true
 						end
 						dia.destroy
 					end
 		    end
+		    @work_component.remove_operator sel
       elsif sel.is_a? Instance and not sel == @op_view.base_component 
 	      sel.parent.remove_component sel 
 	      @all_part_instances.delete sel
@@ -668,7 +671,7 @@ public
 	end
 	
 	def copy_to_clipboard
-    @clipboard = @selection.all.map{|c| c.dup }
+    @clipboard = @selection.map{|c| c.dup } unless @selection.empty?
 	end
 	
 	def paste_from_clipboard
