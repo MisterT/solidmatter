@@ -19,10 +19,14 @@ class ExtrudeOperator < Operator
 	
 	def real_operate
 	  segments = @settings[:segments]
-		if segments
+		if segments and @solid
 		  # take the most appropriate chain from the sketch
 		  sketch = segments.first.sketch
 		  segments = sketch.all_chains.select{|ch| segments.any?{|s| ch.include? s } }.first
+		  unless segments
+		  	@solid = nil
+		  	return
+		  end
 		  @settings[:segments] = segments
 			# create face in extrusion direction for every segment
 			direction = segments.first.sketch.plane.normal_vector * @settings[:depth] * (@settings[:direction] == :up ? 1 : -1)

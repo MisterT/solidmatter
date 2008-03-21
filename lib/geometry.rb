@@ -17,6 +17,25 @@ module Selectable
 	attr_accessor :selection_pass_color, :selected
 end
 
+def bounding_box_from points
+	xs = points.map{|p| p.x }
+	ys = points.map{|p| p.y }
+	zs = points.map{|p| p.z }
+	min_x = xs.min ; max_x = xs.max
+	min_y = ys.min ; max_y = ys.max
+	min_z = zs.min ; max_z = zs.max
+	corners = [
+		Vector[min_x, min_y, min_z],
+		Vector[min_x, min_y, max_z],
+		Vector[min_x, max_y, min_z],
+		Vector[max_x, min_y, min_z],
+		Vector[min_x, max_y, max_z],
+		Vector[max_x, max_y, min_z],
+		Vector[max_x, min_y, max_z],
+		Vector[max_x, max_y, max_z]]
+	return points.empty? ? nil : corners
+end
+
 
 class Point
 	attr_accessor :x, :y
@@ -66,6 +85,10 @@ class Line < Segment
       pos.z += v.z
     end
     @sketch.build_displaylist
+	end
+	
+	def bounding_box
+		return bounding_box_from [@pos1, @pos2]
 	end
 	
 	def dup
@@ -479,7 +502,11 @@ class Operator
 	end
 	
 	def operate
-		@solid = @previous ? @previous.solid.dup : Solid.new
+		@solid = if @previous
+			@previous.solid ? @previous.solid.dup : nil
+		else
+			Solid.new
+		end
 		real_operate if @enabled 
 	end
 	
@@ -618,8 +645,8 @@ class Part < Component
   			dia = Gtk::MessageDialog.new( nil, Gtk::Dialog::DESTROY_WITH_PARENT,
   							                           Gtk::MessageDialog::WARNING,
   							                           Gtk::MessageDialog::BUTTONS_OK,
-  							                           "Part could not be built. \nPlease recheck all operator settings!"
-  			)
+  							                           "Part could not be built")
+  			dia.secondary_text = "Please recheck all operator settings and close any open sketch regions!"
   			dia.run
   			dia.destroy
   		end
@@ -627,22 +654,8 @@ class Part < Component
 	end
 	
 	def bounding_box
-		xs = @solid.faces.map{|f| f.segments.map{|seg| [seg.pos1, seg.pos2].map{|pos| pos.x } } }.flatten
-		ys = @solid.faces.map{|f| f.segments.map{|seg| [seg.pos1, seg.pos2].map{|pos| pos.y } } }.flatten
-		zs = @solid.faces.map{|f| f.segments.map{|seg| [seg.pos1, seg.pos2].map{|pos| pos.z } } }.flatten
-		min_x = xs.min || 0 ; max_x = xs.max || 0
-		min_y = ys.min || 0 ; max_y = ys.max || 0
-		min_z = zs.min || 0 ; max_z = zs.max || 0
-		corners = [
-			Vector[min_x, min_y, min_z],
-			Vector[min_x, min_y, max_z],
-			Vector[min_x, max_y, min_z],
-			Vector[max_x, min_y, min_z],
-			Vector[min_x, max_y, max_z],
-			Vector[max_x, max_y, min_z],
-			Vector[max_x, min_y, max_z],
-			Vector[max_x, max_y, max_z]]
-		return corners
+		points = @solid.faces.map{|f| f.segments.map{|seg| [seg.pos1, seg.pos2] } }.flatten
+		return bounding_box_from points
 	end
 
 	def build_displaylist( type=:normal)
@@ -751,7 +764,7 @@ class Assembly < Component
 	end
 	
 	def bounding_box
-		@components.map{|c| c.bounding_box }.flatten
+		@components.map{|c| c.bounding_box }.flatten.compact
 	end
 end
 

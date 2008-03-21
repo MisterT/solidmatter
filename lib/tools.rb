@@ -100,13 +100,17 @@ class PartSelectionTool < SelectionTool
 	end
 	
 	def click_left( x,y )
-	 super
-	 sel = @glview.select(x,y, :select_instances)
-	 if sel
-	   @manager.select sel 
-   else
-     @manager.selection.deselect_all
-   end
+		super
+		sel = @glview.select(x,y, :select_instances)
+		if sel
+			if @manager.key_pressed? :Shift
+				@manager.selection.add @manager.top_ancestor( sel ) 
+			else
+				@manager.select sel
+			end
+		else
+			@manager.selection.deselect_all
+		end
 	end
 	
 	def double_click( x,y )
@@ -140,7 +144,7 @@ class OperatorSelectionTool < SelectionTool
 	end
 end
 
-
+=begin
 class SketchSelectionTool < SelectionTool
 	def initialize( glview, manager )
 		super( "Pick a closed sketch:", glview, manager )
@@ -157,7 +161,7 @@ class SketchSelectionTool < SelectionTool
 	  end
 	end
 end
-
+=end
 
 class RegionSelectionTool < SelectionTool
 	def initialize( glview, manager )
@@ -320,7 +324,7 @@ class SketchTool < Tool
 	def initialize( text, glview, manager, sketch )
 		super( text, glview, manager )
 		@sketch = sketch
-		@snap_tolerance = 0.05
+		@snap_tolerance = 6
 		@last_reference_points = []
 		@create_reference_geometry = false
 	end
@@ -346,7 +350,7 @@ class SketchTool < Tool
 			closest_dist = 999999
 			@sketch.segments.each do |seg|
 				[seg.pos1, seg.pos2].each do |pos|
-					dist = point.distance_to pos
+					dist = @glview.world2screen(point).distance_to @glview.world2screen(pos)
 					if dist < @snap_tolerance
 						if dist < closest_dist
 							closest = pos
@@ -385,7 +389,7 @@ class SketchTool < Tool
 	def mouse_move( x,y )
 	  super
 	  point = @glview.screen2world( x, y )
-	  if point
+	  if point and @manager.use_sketch_guides
   	  # determine point(s) to draw guide through
   	  x_candidate = nil
   	  z_candidate = nil
@@ -394,7 +398,7 @@ class SketchTool < Tool
         snap_point = Vector[p.x, point.y, point.z]
         # measure out distance to that in screen coords
         screen_dist = @glview.world2screen(snap_point).distance_to @glview.world2screen(point)
-        if screen_dist < 6
+        if screen_dist < @snap_tolerance
           x_candidate ||= [p, screen_dist]
   	      x_candidate = [p, screen_dist] if screen_dist < x_candidate.last
         end
@@ -423,24 +427,26 @@ class SketchTool < Tool
       point, was_snapped = point_snapped point
       @last_reference_points.push point if was_snapped
       @last_reference_points.uniq!
-  	  @last_reference_points.shift if @last_reference_points.size > 8
+  	  @last_reference_points.shift if @last_reference_points.size > $preferences[:max_reference_points]
     end
 	end
 	
 	# draw guides as stippeled lines
 	def draw
     super
-    [@x_guide, @z_guide].compact.each do |guide|
-      GL.Enable GL::LINE_STIPPLE
-      GL.LineWidth(2)
-      GL.Enable GL::LINE_STIPPLE
-  		GL.LineStipple(5, 0x1C47)
-  		GL.Color3f(0.5,0.5,1)
-  		GL.Begin( GL::LINES )
-  			GL.Vertex( guide.first.x, guide.first.y, guide.first.z )
-  			GL.Vertex( guide.last.x, guide.last.y, guide.last.z )
-  		GL.End
-  		GL.Disable GL::LINE_STIPPLE
+    if @manager.use_sketch_guides
+		  [@x_guide, @z_guide].compact.each do |guide|
+		    GL.Enable GL::LINE_STIPPLE
+		    GL.LineWidth(2)
+		    GL.Enable GL::LINE_STIPPLE
+				GL.LineStipple(5, 0x1C47)
+				GL.Color3f(0.5,0.5,1)
+				GL.Begin( GL::LINES )
+					GL.Vertex( guide.first.x, guide.first.y, guide.first.z )
+					GL.Vertex( guide.last.x, guide.last.y, guide.last.z )
+				GL.End
+				GL.Disable GL::LINE_STIPPLE
+			end
 		end
 	end
 end
@@ -498,13 +504,14 @@ end
 class EditSketchTool < SketchTool
 	def initialize( glview, manager, sketch )
 		super( "Click left to select points, drag to move points, right click for options:", glview, manager, sketch )
+		@draw_points = []
 	end
 	
 	def click_left( x,y )
 	  super
 	  sel = @glview.select( x,y )
 	 	if sel
-	 	  if @manager.keys_pressed.include? @manager.keymap.invert[:Shift]
+	 	  if @manager.key_pressed? :Shift
 	 	    @manager.selection.add sel
 	 	    @selection.push sel
  	    else
@@ -522,29 +529,40 @@ class EditSketchTool < SketchTool
     pos = @glview.screen2world( x,y )
     new_selection = @glview.select( x,y )
     # if drag starts on an already selected segment
-    if @selection and pos and @selection.include? new_selection	    
-      @points_to_drag = @selection.map{|e| e.own_and_neighbooring_points }.flatten.uniq
-      @old_points = Marshal.load(Marshal.dump( @points_to_drag ))
-      @drag_start = pos
-    elsif new_selection
-      click_left( x,y )
-      press_left( x,y )
-    else
-      click_left( x,y )
-    end
+    if pos
+    	@drag_start = pos
+    	@old_draw_points = Marshal.load(Marshal.dump( @draw_points ))
+		  if @selection and @selection.include? new_selection	    
+		    @points_to_drag = @selection.map{|e| e.own_and_neighbooring_points }.flatten.uniq
+		    @old_points = Marshal.load(Marshal.dump( @points_to_drag ))
+		  elsif new_selection
+		    click_left( x,y )
+		    press_left( x,y )
+		  else
+		    click_left( x,y )
+		  end
+		end
   end
 	
 	def drag_left( x,y )
 	  super
 	  pos = @glview.screen2world( x,y )
-	  if @selection and pos and @drag_start
-	    move = @drag_start.vector_to pos
-	    @points_to_drag.zip( @old_points ).each do |neu, original|
-	      neu.x = original.x + move.x
-	      neu.y = original.y + move.y
-	      neu.z = original.z + move.z
-      end
-      @selection.first.sketch.build_displaylist
+	  if pos and @drag_start
+	  	move = @drag_start.vector_to pos
+	  	if @selection
+			  @points_to_drag.zip( @old_points ).each do |neu, original|
+			    neu.x = original.x + move.x
+			    neu.y = original.y + move.y
+			    neu.z = original.z + move.z
+		    end
+		  else
+			  @draw_points.zip( @old_draw_points ).each do |neu, original|
+			    neu.x = original.x + move.x
+			    neu.y = original.y + move.y
+			    neu.z = original.z + move.z
+		    end
+		  end
+		  @sketch.build_displaylist
 	    @glview.redraw
     end
 	end
@@ -552,6 +570,16 @@ class EditSketchTool < SketchTool
 	def release_left
 	  super
 	  #@selection = nil
+  end
+  
+  def mouse_move( x,y )
+  	super
+		points = @sketch.segments.map{|s| [s.pos1, s.pos2] }.flatten
+		@draw_points = points.select do |point|
+			dist = Point.new(x, @glview.allocation.height - y).distance_to @glview.world2screen(point)
+			dist < @snap_tolerance
+		end
+		@glview.redraw
   end
 	
 	def click_middle( x,y )
@@ -574,6 +602,18 @@ class EditSketchTool < SketchTool
 	  click_left( x,y )
 	  menu = SketchSelectionToolMenu.new @manager
 	  menu.popup(nil, nil, 3,  time)
+	end
+	
+	def draw
+		super
+		unless @draw_points.empty?
+			point = @draw_points.first
+			GL.Color3f(1,0.3,0.1)
+			GL::PointSize(8.0);
+			GL.Begin( GL::POINTS )
+				GL.Vertex( point.x, point.y, point.z )
+			GL.End
+		end
 	end
 end
 

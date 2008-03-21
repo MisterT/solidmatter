@@ -351,22 +351,34 @@ public
                                         [Gtk::Stock::CANCEL, Gtk::Dialog::RESPONSE_CANCEL],
                                         [Gtk::Stock::OPEN, Gtk::Dialog::RESPONSE_ACCEPT])
       if dia.run == Gtk::Dialog::RESPONSE_ACCEPT
-        @filename = dia.filename
-        dia.destroy
-  			File::open( @filename ) do |file|
-  				scene = Marshal::restore file 
-  				exchange_all_gl_components do
-						@name               = scene[0]
-						@main_assembly      = scene[1]
-						@all_assemblies     = scene[2]
-						@all_parts          = scene[3]
-						@all_part_instances = scene[4]
-						@all_sketches       = scene[5]
-						readd_non_dumpable
-  				end
+      	filename = dia.filename
+      	dia.destroy
+      	begin
+					File::open( filename ) do |file|
+						scene = Marshal::restore file 
+						exchange_all_gl_components do
+							@name               = scene[0]
+							@main_assembly      = scene[1]
+							@all_assemblies     = scene[2]
+							@all_parts          = scene[3]
+							@all_part_instances = scene[4]
+							@all_sketches       = scene[5]
+							readd_non_dumpable
+						end
+					end
+					change_working_level @main_assembly 
+					self.has_been_changed = false
+					@filename = filename
+  			rescue
+  			  dialog = Gtk::MessageDialog.new(@main_win, 
+				                                  Gtk::Dialog::DESTROY_WITH_PARENT,
+				                                  Gtk::MessageDialog::WARNING,
+				                                  Gtk::MessageDialog::BUTTONS_CLOSE,
+				                                  "Bad file format")
+				  dialog.secondary_text = "The file format is unsupported.\nMaybe this file was saved with an older version of Open Machinist"
+				  dialog.run
+				  dialog.destroy
   			end
-  			change_working_level @main_assembly 
-  			self.has_been_changed = false
   		else
   		  dia.destroy
       end
@@ -647,14 +659,19 @@ public
 			@glview.redraw
 		end
 	end
-
-	def select( comp )
+	
+	def top_ancestor comp
 		while comp
 			break if comp.parent == @work_component
 			comp = comp.parent
 		end
 		# parent now contains the topmost ancestor of comp that is directly in the work assembly.
 		# if not, the component selected is in an assembly on top of the work asm and neglected
+		return comp
+	end
+
+	def select comp
+		comp = top_ancestor comp
 		@selection.select comp if comp
 	end
 	
@@ -731,6 +748,10 @@ public
 	def key_released( key )
 		@keys_pressed.delete key
 		cancel_current_tool if @keymap[key] == :Ctrl
+	end
+	
+	def key_pressed? name
+		keys_pressed.include? @keymap.invert[name]
 	end
 	
 	def show_material_editor
