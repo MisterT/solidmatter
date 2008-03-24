@@ -195,7 +195,7 @@ public
   				progress.fraction += increment
   				progress.text = "Rebuilding operator '#{op.name}' (#{op_i}/#{num_ops})" 
   				op_i += 1
-  				sleep 0.5
+  				sleep 0.1
   			end
   			p.build_wire_displaylist
   	    p.working_planes.each do |pl| 
@@ -357,12 +357,14 @@ public
 					File::open( filename ) do |file|
 						scene = Marshal::restore file 
 						exchange_all_gl_components do
-							@name               = scene[0]
-							@main_assembly      = scene[1]
-							@all_assemblies     = scene[2]
-							@all_parts          = scene[3]
-							@all_part_instances = scene[4]
-							@all_sketches       = scene[5]
+							@name                   = scene[0]
+							@main_assembly          = scene[1]
+							@all_assemblies         = scene[2]
+							@all_parts              = scene[3]
+      				@all_instances          = scene[4]
+      				@all_part_instances     = scene[5]
+      				@all_assembly_instances = scene[6]
+							@all_sketches           = scene[7]
 							readd_non_dumpable
 						end
 					end
@@ -408,7 +410,7 @@ public
   		  @selection.deselect_all
   			File::open( @filename, "w" ) do |file|
   			  strip_non_dumpable
-  				Marshal::dump( [@name, @main_assembly, @all_assemblies,	@all_parts, @all_part_instances, @all_sketches], file )
+  				Marshal::dump( [@name, @main_assembly, @all_assemblies,	@all_parts, @all_instances, @all_part_instances, @all_assembly_instances, @all_sketches], file )
   				readd_non_dumpable  
   			end
   			self.has_been_changed = false

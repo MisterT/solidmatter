@@ -19,7 +19,8 @@ $preferences = {
 	:second_light_color => [1.0, 0.7, 0.5, 0.0],
 	:view_transitions => true,
 	:transition_duration => 60.0,
-	:max_reference_points => 8
+	:max_reference_points => 8,
+	:thumb_res => 50
 }
                   
 class PreferencesDialog

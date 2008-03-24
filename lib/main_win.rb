@@ -13,7 +13,7 @@ require 'lib/project_manager.rb'
 require 'lib/geometry.rb'
 require 'lib/about_dialog.rb'
 require 'lib/new_dialog.rb'
-require 'lib/insert_component_dialog.rb'
+require 'lib/component_browser.rb'
 require 'lib/open_project_dialog.rb'
 require 'lib/server_win.rb'
 
@@ -215,7 +215,7 @@ class OpenMachinistMainWin < Gtk::Window
 		assembly_toolbar.icon_size = Gtk::IconSize::SMALL_TOOLBAR
 		assembly_toolbar.show_arrow = true
 		@main_vbox.pack_start(assembly_toolbar, false, false)
-		assembly_toolbar.append( "Insert", "Insert an existing component","AssemblyToolbar/Insert", Gtk::Image.new('icons/middle/part_middle.png') ){ InsertComponentDialog.new @manager }
+		assembly_toolbar.append( "Insert", "Insert an existing component","AssemblyToolbar/Insert", Gtk::Image.new('icons/middle/part_middle.png') ){ ComponentBrowser.new @manager }
 		assembly_toolbar.append( "Library", "Insert a library part","AssemblyToolbar/Lib", Gtk::Image.new('icons/middle/assembly_middle.png') ){}
 		assembly_toolbar.append( Gtk::SeparatorToolItem.new )
 		assembly_toolbar.append( "Constrain", "Define a relation between two components", "AssemblyToolbar/Constrain", Gtk::Image.new('icons/middle/constrain_middle.png') ){}

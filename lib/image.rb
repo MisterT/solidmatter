@@ -12,41 +12,35 @@ end
 
 class Image
 include Enumerable
+attr_accessor :im
   def initialize( *args )
     if args.size > 1
       width, height = args
-      resize( width, height )
+      @im = Magick::Image.new( width , height ) do
+      	self.background_color = 'dimgrey'
+      end
     else
       filename = args.first
       load filename
     end
   end
   
-  def resize( width, height )
-    @buffer = Array.new width
-    for x in 0...width
-      @buffer[x] = Array.new height
-      for y in 0...height
-        @buffer[x][y] = Pixel.new
-      end
-    end
-  end
-  
   def pixel( x,y )
-    raise "BufferOverrun at x:#{x} y:#{y} for width:#{width} height:#{height}" if x >= width or y >= height
-    @buffer[x][y]
+    #raise "BufferOverrun at x:#{x} y:#{y} for width:#{width} height:#{height}" if x >= width or y >= height
+    color = @im.pixel_color( x,y )
+    return Pixel.new( color.red.to_f / Magick::MaxRGB, color.green.to_f / Magick::MaxRGB, color.blue.to_f / Magick::MaxRGB )
   end
   
   def set_pixel( x,y, value )
-  	#puts x,y
-    raise "BufferOverrun at x:#{x} y:#{y} for width:#{width} height:#{height}" if x >= width or y >= height
-    @buffer[x][y] = value
+    #raise "BufferOverrun at x:#{x} y:#{y} for width:#{width} height:#{height}" if x >= width or y >= height
+    pixel = Magick::Pixel.new( value.red * Magick::MaxRGB, value.green * Magick::MaxRGB, value.blue * Magick::MaxRGB, 0 )
+    @im.pixel_color(x,y, pixel )
   end
   
   def each
     for x in 0...width
       for y in 0...height
-        yield @buffer[x][y]
+        yield pixel( x,y )
       end
     end
   end
@@ -54,39 +48,34 @@ include Enumerable
   def each_pixel
     for x in 0...width
       for y in 0...height
-        yield x,y, @buffer[x][y]
+        yield x,y, pixel( x,y )
       end
     end
   end
   
   def load( filename )
-    im = Magick::Image.read(filename).first
-    resize( im.width, im.height )
-    for x in 0...im.width
-      for y in 0...im.height
-        color = im.pixel_color( x,y )
-        pixel = Pixel.new( color.red.to_f / Magick::MaxRGB, color.green.to_f / Magick::MaxRGB, color.blue.to_f / Magick::MaxRGB )
-        set_pixel( x,y, pixel )
-      end
-    end
+    @im = Magick::Image.read(filename).first
   end
 
   def save( filename )
-    im = Magick::Image.new( width, height )
-    each_pixel do |x,y, pix|
-      pixel = Magick::Pixel.new( pix.red * Magick::MaxRGB, pix.green * Magick::MaxRGB, pix.blue * Magick::MaxRGB, 0 )
-      im.pixel_color(x,y, pixel )
-    end
-    im.write filename
+    @im.write filename
   end
   
   def width
-    @buffer.size
+    @im.width
   end
   
   def height
-    @buffer[0].size
+    @im.height
   end
+  
+	def method_missing( method, *args )
+		args.map!{|a| (a.is_a? Image) ? a.im : a }
+		new_im = @im.send( method, *args )
+		native_im = Image.new( new_im.width, new_im.height )
+		native_im.im = new_im
+		return native_im
+	end
 end
 
 

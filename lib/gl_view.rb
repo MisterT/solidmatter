@@ -361,13 +361,13 @@ class GLView < Gtk::DrawingArea
 						     cam.up_vec.x,   cam.up_vec.y,   cam.up_vec.z)
 			# draw assembly components and sketches
 			GL.Disable(GL::LIGHTING)
-			draw_coordinate_axes
+			draw_coordinate_axes unless @do_not_swap
 			GL.LineStipple(5, 0x1C47)
 			recurse_draw( @manager.main_assembly )
 			# draw 3d interface stuff
 			GL.Disable(GL::LIGHTING)
 			@immediate_draw_routines.each{|r| r.call }
-			gldrawable.swap_buffers unless @selection_pass or @picking_pass or @restore_backbuffer
+			gldrawable.swap_buffers unless @selection_pass or @picking_pass or @do_not_swap
 		gldrawable.gl_end
 	end
 	
@@ -441,9 +441,9 @@ class GLView < Gtk::DrawingArea
 	end
 	
 	def restore_backbuffer
-	  @restore_backbuffer = true
+	  @do_not_swap = true
 	  redraw
-	  @restore_backbuffer = false
+	  @do_not_swap = false
 	end
 	
 	def screen2world( x, y )
@@ -575,10 +575,10 @@ class GLView < Gtk::DrawingArea
 	  redraw
 	end
 	
-	def zoom_selection
-		selection = @manager.selection.empty? ? [@manager.main_assembly] : @manager.selection
-		corners = selection.map{|e| e.bounding_box }.flatten
+	def zoom_onto objects
+		corners = objects.map{|e| e.bounding_box }.flatten.compact
 		unless corners.empty?
+			add_view
 			cog = corners.inject(Vector[0,0,0]){|sum,c| sum + c } / corners.size
 			look_at cog
 			cam = @cameras[@current_cam_index]
@@ -597,6 +597,11 @@ class GLView < Gtk::DrawingArea
 			end
 			GC.enable if $preferences[:manage_gc]
 		end
+	end
+	
+	def zoom_selection
+		sel = @manager.selection.empty? ? [@manager.main_assembly] : @manager.selection
+		zoom_onto sel
 	end
 	
 	def previous_view
@@ -657,7 +662,32 @@ class GLView < Gtk::DrawingArea
 		GL.End
 	end
 	
-	def screenshot( x=0, y=0, width=allocation.width, height=allocation.height, step=6 )
+	def image_of part
+		part = @manager.all_part_instances.select{|inst| inst.real_component == part }.first
+		if part
+			# make screenshot of part
+			visible = {}
+			@manager.all_part_instances.each{|p| visible[p] = p.visible ; p.visible = false }
+			part.visible = true
+			@do_not_swap = true
+			zoom_onto [part]
+			screen = screenshot
+			previous_view
+			@manager.all_part_instances.each{|p| p.visible = visible[p] }
+			@do_not_swap = false
+			# render reflection and normalize size
+			res = $preferences[:thumb_res]
+	  	back = Image.new(res, res)
+			object = screen.matte_floodfill(0,0).trim.resize_to_fit( res,res )
+			comp = back.blend( object, 0.99, 0.01, Magick::CenterGravity )
+			floor = comp.wet_floor(0.45, 0.5)
+			composite = back.blend( floor, 0.65, 0.35, Magick::SouthGravity ).blend( object, 0.99, 0.01, Magick::CenterGravity )
+			return composite
+		end
+		return nil
+	end
+	
+	def screenshot( x=0, y=0, width=allocation.width, height=allocation.height, step=4 )
 		redraw
 		iwidth = width / step
 		iheight = height / step
