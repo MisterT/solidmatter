@@ -698,8 +698,14 @@ public
 	  if @clipboard
       for obj in @clipboard
         copy = obj.dup
-        add_object copy
-        @selection.add copy
+        if copy.is_a? Segment and @work_sketch
+          copy.sketch = @work_sketch
+          add_object copy
+          @selection.add copy
+        else
+          add_object copy
+          @selection.add copy
+        end
       end
     end
 	end

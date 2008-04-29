@@ -48,8 +48,7 @@ end
 
 class Segment
   include Selectable
-  attr_reader :sketch
-	attr_accessor :reference
+	attr_accessor :reference, :sketch
   def initialize( sketch )
 		@sketch = sketch
 		@reference = false

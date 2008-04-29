@@ -11,23 +11,31 @@ class ComponentBrowser
 	  @manager = manager
 	  @glade = GladeXML.new( "glade/component_browser.glade", nil, nil, nil, GladeXML::FILE ) {|handler| method(handler)}
     @thumbs = @manager.all_parts.map{|part| native2gtk( @manager.glview.image_of part ) }.compact
-    @glade['table'].resize( (@thumbs.size / 4.0).ceil, 4 ) unless @thumbs.empty?
+    @table = @glade['table']
     @glade['combo'].active = 0
   end
   
   def combo_changed
-  	table = @glade['table']
-  	table.n_rows.times do |y|
-  			for x in (0..3)
-  				thumb = @thumbs.pop
-  				table.attach( thumb, x, x+1, y, y+1, Gtk::SHRINK, Gtk::SHRINK) if thumb
-  			end
-  	end
-  	@glade['component_browser'].show_all
+    rebuild
   end
   
 	def insert
 
+	end
+	
+	def rebuild
+	  thumbs_per_row = @glade['viewport'].allocation.width / $preferences[:thumb_res]
+	  ##puts "tpr: " + thumbs_per_row.to_s
+    @table.resize( (@thumbs.size.to_f / thumbs_per_row).ceil, thumbs_per_row ) unless @thumbs.empty?
+	  #@thumbs.each{|t| @table.remove t }
+	  thumbs = @thumbs.dup
+	 	@table.n_rows.times do |y|
+  			for x in (0...thumbs_per_row)
+  				thumb = thumbs.pop
+  				@table.attach( thumb, x, x+1, y, y+1, Gtk::SHRINK, Gtk::SHRINK) if thumb
+  			end
+  	end
+  	@glade['component_browser'].show_all
 	end
 	
   def close w 

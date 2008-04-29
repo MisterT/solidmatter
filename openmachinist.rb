@@ -42,8 +42,5 @@ Gtk::main
 # when selecting regions, select inner regions first
 # automatically apply operator if there is only one unused sketch region
 # create MIME type
-# segmente mit nulllänge verhindern
-# beim pasten von segmenten müssen die gegebenenfalls neuen sketch referenzieren
-# wenn part keine Instanz mehr besitzt crash bei screenshot
-
+# parts/operatos should communicate somehow that they could not be built correctly
 

@@ -461,7 +461,7 @@ class LineTool < SketchTool
 	def click_left( x,y )
 	  super
 		if @temp_line
-			@sketch.segments.push @temp_line
+			@sketch.segments.push @temp_line unless @temp_line.pos1 == @temp_line.pos2
 			@sketch.build_displaylist
 		end
     @last_point, dummy = snapped( x,y )
@@ -608,11 +608,13 @@ class EditSketchTool < SketchTool
 		super
 		unless @draw_points.empty?
 			point = @draw_points.first
+			GL.Disable(GL::DEPTH_TEST)
 			GL.Color3f(1,0.3,0.1)
-			GL::PointSize(8.0);
+			GL.PointSize(8.0)
 			GL.Begin( GL::POINTS )
 				GL.Vertex( point.x, point.y, point.z )
 			GL.End
+			GL.Enable(GL::DEPTH_TEST)
 		end
 	end
 end

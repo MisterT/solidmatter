@@ -151,14 +151,16 @@ class GLView < Gtk::DrawingArea
 		  release_left( e.x, e.y ) if e.button == 1
 	  end
 		signal_connect("motion_notify_event") do |widget, event|
-			if @last_button_down == :left
-				drag_left( event.x, event.y )
-			elsif @last_button_down == :middle
-  			drag_middle( event.x, event.y )
-			elsif @last_button_down == :right
-				drag_right( event.x, event.y )
-			else
-				mouse_move( event.x, event.y )
+		  unless Gtk::events_pending?
+  			if @last_button_down == :left
+  				drag_left( event.x, event.y )
+  			elsif @last_button_down == :middle
+    			drag_middle( event.x, event.y )
+  			elsif @last_button_down == :right
+  				drag_right( event.x, event.y )
+  			else
+  				mouse_move( event.x, event.y )
+  			end
 			end
 		end
 	end
@@ -180,7 +182,7 @@ class GLView < Gtk::DrawingArea
 	
 	def release_left( x,y )
 	  @manager.current_tool.release_left
-	 	click_left( x, y ) if @button_press_time and Time.now - @button_press_time < 0.5
+	 	click_left( x, y ) if @button_press_time and Time.now - @button_press_time < 1
 	end
 	
 	def click_left( x,y )
@@ -663,6 +665,7 @@ class GLView < Gtk::DrawingArea
 	end
 	
 	def image_of part
+	  # find an instance of this part for rendering
 		part = @manager.all_part_instances.select{|inst| inst.real_component == part }.first
 		if part
 			# make screenshot of part
@@ -682,12 +685,13 @@ class GLView < Gtk::DrawingArea
 			comp = back.blend( object, 0.99, 0.01, Magick::CenterGravity )
 			floor = comp.wet_floor(0.45, 0.5)
 			composite = back.blend( floor, 0.65, 0.35, Magick::SouthGravity ).blend( object, 0.99, 0.01, Magick::CenterGravity )
+			redraw
 			return composite
 		end
 		return nil
 	end
 	
-	def screenshot( x=0, y=0, width=allocation.width, height=allocation.height, step=4 )
+	def screenshot( x=0, y=0, width=allocation.width, height=allocation.height, step=8 )
 		redraw
 		iwidth = width / step
 		iheight = height / step
