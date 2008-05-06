@@ -428,7 +428,7 @@ public
 	    p.operators.each do |op|
 	      op.manager = nil
 	      op.toolbar = nil
-	      op.settings[:sketch].glview = nil
+	      op.settings[:sketch].glview = nil if op.settings[:sketch]
       end
 	  end
 	  @all_assemblies.each{|a| a.manager = nil }

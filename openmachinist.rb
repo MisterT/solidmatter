@@ -40,5 +40,6 @@ Gtk::main
 # automatically apply operator if there is only one unused sketch region
 # create MIME type
 # parts/operatos should communicate somehow that they could not be built correctly
-# snapping im neuen coord system
 # region select von vertikalen planes
+# cannot select region if more than one unused sketch
+# drag in Editsketchtool does not move points exactly above guide

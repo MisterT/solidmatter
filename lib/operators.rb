@@ -53,13 +53,13 @@ class ExtrudeOperator < Operator
 			lower_cap.plane.u_vec = segments.first.sketch.plane.u_vec
 			lower_cap.plane.v_vec = segments.first.sketch.plane.v_vec
 			lower_cap.segments = segments.map{|s| Line.new(s.pos1 + origin, s.pos2 + origin) }
-			lower_cap.plane.origin = segments[0].pos1
+			lower_cap.plane.origin = lower_cap.segments[0].pos1
 			@solid.faces.push( lower_cap )
 			upper_cap = PlanarFace.new
 			upper_cap.plane.u_vec = segments.first.sketch.plane.u_vec.invert
 			upper_cap.plane.v_vec = segments.first.sketch.plane.v_vec
 			upper_cap.segments = segments.map{|s| Line.new(s.pos1 + origin + direction, s.pos2 + origin + direction) }
-			upper_cap.plane.origin = segments[0].pos1
+			upper_cap.plane.origin = upper_cap.segments[0].pos1
 			@solid.faces.push( upper_cap )
 		end
 	end

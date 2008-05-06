@@ -329,16 +329,21 @@ class SketchTool < Tool
 		@snap_tolerance = 6
 		@last_reference_points = []
 		@create_reference_geometry = false
+		@does_snap = true
 	end
 	
 	# snap points to guides, then to other points, then to grid
-	def snapped( x,y )
+	def snapped( x,y, excluded=[] )
     guide = [@x_guide,@z_guide].compact.first
-    point = (guide and @manager.use_sketch_guides) ? guide.last : @glview.screen2world( x, y )
+    point = if guide and @manager.use_sketch_guides
+              guide.last
+            else
+              point = @glview.screen2world( x, y ) 
+              point ? world2sketch(point) : nil
+            end
     if point
-      point = world2sketch( point )
       was_point_snapped = false
-      point, was_point_snapped = point_snapped point if @manager.point_snap
+      point, was_point_snapped = point_snapped( point, excluded ) if @manager.point_snap
       point = grid_snapped point unless was_point_snapped or guide or not @manager.grid_snap
       return point, was_point_snapped
     else
@@ -347,18 +352,20 @@ class SketchTool < Tool
 	end
 	
 	# snap to surrounding points
-	def point_snapped point 
+	def point_snapped( point, excluded=[] )
 		closest = nil
-		if @manager.point_snap and not @sketch.segments.empty?
+		unless @sketch.segments.empty?
 			closest_dist = 999999
 			@sketch.segments.each do |seg|
 				[seg.pos1, seg.pos2].each do |pos|
-					dist = @glview.world2screen(point).distance_to @glview.world2screen(pos)
-					if dist < @snap_tolerance
-						if dist < closest_dist
-							closest = pos
-							closest_dist = dist
-						end
+				  unless excluded.include? pos
+  					dist = @glview.world2screen(sketch2world(point)).distance_to @glview.world2screen(sketch2world(pos))
+  					if dist < @snap_tolerance
+  						if dist < closest_dist
+  							closest = pos
+  							closest_dist = dist
+  						end
+  					end
 					end
 				end
 			end
@@ -389,66 +396,73 @@ class SketchTool < Tool
     end
 	end
 		
-	def mouse_move( x,y )
-	  super
-	  point = @glview.screen2world( x, y )
-	  if point and @manager.use_sketch_guides
-  	  # determine point(s) to draw guide through
-  	  x_candidate = nil
-  	  z_candidate = nil
-      @last_reference_points.each do |p|
-        # construct a point with our height, but exactly above or below reference point (z axis)
-        snap_point = Vector[p.x, point.y, point.z]
-        # measure out distance to that in screen coords
-        screen_dist = @glview.world2screen(snap_point).distance_to @glview.world2screen(point)
-        if screen_dist < @snap_tolerance
-          x_candidate ||= [p, screen_dist]
-  	      x_candidate = [p, screen_dist] if screen_dist < x_candidate.last
+	def mouse_move( x,y, excluded=[] )
+	  super( x,y )
+	  if @does_snap
+  	  point = @glview.screen2world( x, y )
+  	  if point and @manager.use_sketch_guides
+  	    point = world2sketch( point )
+    	  # determine point(s) to draw guide through
+    	  x_candidate = nil
+    	  z_candidate = nil
+        (@last_reference_points - excluded).each do |p|
+          # construct a point with our height, but exactly above or below reference point (z axis)
+          snap_point = Vector[p.x, point.y, point.z]
+          # measure out distance to that in screen coords
+          screen_dist = @glview.world2screen(sketch2world(snap_point)).distance_to @glview.world2screen(sketch2world(point))
+          if screen_dist < @snap_tolerance
+            x_candidate ||= [p, screen_dist]
+    	      x_candidate = [p, screen_dist] if screen_dist < x_candidate.last
+          end
+          # now for y direction (x axis)
+          snap_point = Vector[point.x, point.y, p.z]
+          screen_dist = @glview.world2screen(sketch2world(snap_point)).distance_to @glview.world2screen(sketch2world(point))
+          if screen_dist < 6
+            z_candidate ||= [p, screen_dist]
+    	      z_candidate = [p, screen_dist] if screen_dist < z_candidate.last
+          end
         end
-        # now for y direction (x axis)
-        snap_point = Vector[point.x, point.y, p.z]
-        screen_dist = @glview.world2screen(snap_point).distance_to @glview.world2screen(point)
-        if screen_dist < 6
-          z_candidate ||= [p, screen_dist]
-  	      z_candidate = [p, screen_dist] if screen_dist < z_candidate.last
-        end
+        # snap cursor point to guide(s)
+        # point on axis schould be calculated from workplane instead of world coordinates
+        cursor_point = if x_candidate and z_candidate
+          		           Vector[x_candidate.first.x, point.y, z_candidate.first.z]
+          		         elsif x_candidate
+          		           Vector[x_candidate.first.x, point.y, point.z] 
+          		         elsif z_candidate
+          		           Vector[point.x, point.y, z_candidate.first.z]
+          	           else
+          	             point
+          	           end
+        @x_guide = z_candidate ? [z_candidate.first, cursor_point] : nil 
+        @z_guide = x_candidate ? [x_candidate.first, cursor_point] : nil
+        # if we are near a snap point, use it as reference in the next run
+        point, was_snapped = point_snapped( point, excluded )
+        @last_reference_points.push point if was_snapped
+        @last_reference_points.uniq!
+    	  @last_reference_points.shift if @last_reference_points.size > $preferences[:max_reference_points]
       end
-      # snap cursor point to guide(s)
-      # point on axis schould be calculated from workplane instead of world coordinates
-      cursor_point = if x_candidate and z_candidate
-        		           Vector[x_candidate.first.x, point.y, z_candidate.first.z]
-        		         elsif x_candidate
-        		           Vector[x_candidate.first.x, point.y, point.z] 
-        		         elsif z_candidate
-        		           Vector[point.x, point.y, z_candidate.first.z]
-        	           else
-        	             point
-        	           end
-      @x_guide = z_candidate ? [z_candidate.first, cursor_point] : nil 
-      @z_guide = x_candidate ? [x_candidate.first, cursor_point] : nil
-      # if we are near a snap point, use it as reference in the next run
-      point, was_snapped = point_snapped point
-      @last_reference_points.push point if was_snapped
-      @last_reference_points.uniq!
-  	  @last_reference_points.shift if @last_reference_points.size > $preferences[:max_reference_points]
     end
 	end
 	
 	# draw guides as stippeled lines
 	def draw
     super
-    if @manager.use_sketch_guides
+    if @manager.use_sketch_guides and @does_snap
+      #GL.Disable(GL::DEPTH_TEST)
 		  [@x_guide, @z_guide].compact.each do |guide|
+		    first = sketch2world(guide.first)
+		    last = sketch2world( guide.last )
 		    GL.Enable GL::LINE_STIPPLE
 		    GL.LineWidth(2)
 		    GL.Enable GL::LINE_STIPPLE
 				GL.LineStipple(5, 0x1C47)
 				GL.Color3f(0.5,0.5,1)
 				GL.Begin( GL::LINES )
-					GL.Vertex( guide.first.x, guide.first.y, guide.first.z )
-					GL.Vertex( guide.last.x, guide.last.y, guide.last.z )
+					GL.Vertex( first.x, first.y, first.z )
+					GL.Vertex( last.x, last.y, last.z )
 				GL.End
 				GL.Disable GL::LINE_STIPPLE
+				#GL.Enable(GL::DEPTH_TEST)
 			end
 		end
 	end
@@ -487,9 +501,7 @@ class LineTool < SketchTool
 		if @last_point
 			new_point, was_snapped = snapped( x,y )
 		 	@temp_line = Line.new( @last_point, new_point, @sketch) if new_point
-		end
-		if was_snapped
-			#XXX create temp dot at snap location
+		 	@draw_dot = was_snapped
 		end
 		@glview.redraw
 	end
@@ -503,6 +515,7 @@ class LineTool < SketchTool
 	def draw
 	  super
 		if @temp_line
+		  # draw line segment
 			GL.LineWidth(2)
 			GL.Color3f(1,1,1)
 			GL.Begin( GL::LINES )
@@ -511,6 +524,16 @@ class LineTool < SketchTool
 				GL.Vertex( pos1.x, pos1.y, pos1.z )
 				GL.Vertex( pos2.x, pos2.y, pos2.z )
 			GL.End
+			if @draw_dot
+  			# draw dot at snap location
+  			GL.Disable(GL::DEPTH_TEST)
+    		GL.Color3f(1,0.3,0.1)
+    		GL.PointSize(8.0)
+    		GL.Begin( GL::POINTS )
+    			GL.Vertex( pos2.x, pos2.y, pos2.z )
+    		GL.End
+    		GL.Enable(GL::DEPTH_TEST)
+  		end
 		end
 	end
 end
@@ -520,6 +543,8 @@ class EditSketchTool < SketchTool
 	def initialize( glview, manager, sketch )
 		super( "Click left to select points, drag to move points, right click for options:", glview, manager, sketch )
 		@draw_points = []
+		@does_snap = false
+		@points_to_drag = []
 	end
 	
 	def click_left( x,y )
@@ -541,10 +566,12 @@ class EditSketchTool < SketchTool
 	
   def press_left( x,y )
     super
+    @does_snap = true
     pos = @glview.screen2world( x,y )
     new_selection = @glview.select( x,y )
     # if drag starts on an already selected segment
     if pos
+      pos = world2sketch(pos)
     	@drag_start = pos
     	@old_draw_points = Marshal.load(Marshal.dump( @draw_points ))
 		  if @selection and @selection.include? new_selection	    
@@ -561,7 +588,8 @@ class EditSketchTool < SketchTool
 	
 	def drag_left( x,y )
 	  super
-	  pos = @glview.screen2world( x,y )
+	  mouse_move( x,y, true, @draw_points )
+	  pos, dummy = snapped( x,y, @draw_points )
 	  if pos and @drag_start
 	  	move = @drag_start.vector_to pos
 	  	if @selection
@@ -584,17 +612,19 @@ class EditSketchTool < SketchTool
 	
 	def release_left
 	  super
-	  #@selection = nil
+	  @does_snap = false
   end
   
-  def mouse_move( x,y )
-  	super
-		points = @sketch.segments.map{|s| [s.pos1, s.pos2] }.flatten
-		@draw_points = points.select do |point|
-			dist = Point.new(x, @glview.allocation.height - y).distance_to @glview.world2screen(sketch2world(point))
-			dist < @snap_tolerance
+  def mouse_move( x,y, only_super=false, excluded=[] )
+  	super( x,y, excluded )
+  	unless only_super
+  		points = @sketch.segments.map{|s| [s.pos1, s.pos2] }.flatten
+  		@draw_points = points.select do |point|
+  			dist = Point.new(x, @glview.allocation.height - y).distance_to @glview.world2screen(sketch2world(point))
+  			dist < @snap_tolerance
+  		end
+  		@glview.redraw
 		end
-		@glview.redraw
   end
 	
 	def click_middle( x,y )
