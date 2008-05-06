@@ -215,6 +215,14 @@ class WorkingPlane < Plane
 		GL.EndList
 	end
 	
+	def dup
+	  copy = super
+	  copy.displaylist = glview.add_displaylist
+		copy.pick_displaylist = glview.add_displaylist
+		copy.build_displaylists
+		copy
+	end
+	
 	def clean_up
 		GL.DeleteLists( @displaylist, 1 )
 		GL.DeleteLists( @pick_displaylist, 1 )

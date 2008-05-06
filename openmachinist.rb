@@ -17,21 +17,18 @@ Gtk::main
 # select features groups
 # select other half of constraint
 # cam animation nich mehr linear
-# preferences Dialog
 # limit der selektierbaren objekte von 768 auf 16.7M hochschrauben
 # operatoren parallelisieren
 # drag and drop im op-view
 # undo/redo stack
 # vererbung von parts
 # use gtkuimanager for the menu
-# point selection im sketcher
 # shading modes
 # Gtk::FileFilter - A filter for selecting a file subset
 # extrusion toolbar wird nicht auf aktuellen depthwert gesetzt
 # op_view klappzustand speichern
 # direkt die iters manipulieren in server_win damit beim update scrollstand erhalten belibt
 # checken ob clean_up von workplane und sketch richtig erfolgt
-# insert und library palette
 # sketch button sollte eingedrückt bleib wenn plane gewählt wird
 # sicherheitsprüfungen im server ( is_valid(projectname, client_id) schreiben)
 # immer nach glDrawable fragen um redraw probleme zu vermeiden
@@ -43,4 +40,5 @@ Gtk::main
 # automatically apply operator if there is only one unused sketch region
 # create MIME type
 # parts/operatos should communicate somehow that they could not be built correctly
-
+# snapping im neuen coord system
+# region select von vertikalen planes

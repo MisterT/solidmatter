@@ -162,48 +162,50 @@ class SketchSelectionTool < SelectionTool
 	end
 end
 =end
-
+Region = Struct.new(:chain, :poly, :face)
 class RegionSelectionTool < SelectionTool
 	def initialize( glview, manager )
 		super( "Pick a closed region from a sketch:", glview, manager )
 		@op_sketch = manager.work_operator.settings[:sketch]
+		@plane = @op_sketch ? @op_sketch.plane : manager.work_component.unused_sketches.first.plane
+		@plane.build_displaylists
 		@regions = (manager.work_component.unused_sketches + [@op_sketch]).compact.inject([]) do |regions, sketch|
 		  regions += sketch.all_chains.map do |chain|
   	    poly = Polygon.from_chain( chain )
   	    face = PlanarFace.new
-  	    face.segments = chain
-  	    chain ? [poly, face] : nil
+  	    face.segments = chain.map{|seg| Line.new(seg.pos1 + @plane.origin, seg.pos2 + @plane.origin, seg.sketch)  }
+  	    Region.new(chain, poly, face)
 	    end
     end
     @regions.compact!
     @op_sketch.visible = true if @op_sketch
-    @plane = @manager.work_component.working_planes.first
 	end
 	
 	def click_left( x,y )
 		super
     pos = pos_of( x,y )
-	  region = @regions.select{|r| r.first.contains? Point.new( pos.x, pos.z ) }.first if pos
+	  region = @regions.select{|r| r.poly.contains? Point.new( pos.x, pos.z ) }.first if pos
 	  if pos and region 
-		  @selection = region.last.segments  
+		  @selection = region.chain
 		  @manager.cancel_current_tool
 	  end
 	end
 	
 	def mouse_move( x,y )
     pos = pos_of( x,y )
-    @current_region = @regions.select{|r| r.first.contains? Point.new( pos.x, pos.z ) }.first if pos
+    @current_region = @regions.select{|r| r.poly.contains? Point.new( pos.x, pos.z ) }.first if pos
     @glview.redraw
 	end
 	
 	def draw
 	  GL.Color3f( 0.9, 0.2, 0 )
-    @current_region.last.draw if @current_region
+    @current_region.face.draw if @current_region
 	end
 	
 	def pos_of( x,y )
 	 	@plane.visible = true
 		pos = @glview.screen2world( x,y )
+		pos -= @plane.origin if pos
 		@plane.visible = false
 		return pos
 	end
@@ -334,6 +336,7 @@ class SketchTool < Tool
     guide = [@x_guide,@z_guide].compact.first
     point = (guide and @manager.use_sketch_guides) ? guide.last : @glview.screen2world( x, y )
     if point
+      point = world2sketch( point )
       was_point_snapped = false
       point, was_point_snapped = point_snapped point if @manager.point_snap
       point = grid_snapped point unless was_point_snapped or guide or not @manager.grid_snap
@@ -449,6 +452,16 @@ class SketchTool < Tool
 			end
 		end
 	end
+	
+	def world2sketch( v )
+	  o = @sketch.plane.origin
+	  v - o
+	end
+	
+	def sketch2world( v )
+	  o = @sketch.plane.origin
+	  v + o
+	end
 end
 
 
@@ -493,8 +506,10 @@ class LineTool < SketchTool
 			GL.LineWidth(2)
 			GL.Color3f(1,1,1)
 			GL.Begin( GL::LINES )
-				GL.Vertex( @temp_line.pos1.x, @temp_line.pos1.y, @temp_line.pos1.z )
-				GL.Vertex( @temp_line.pos2.x, @temp_line.pos2.y, @temp_line.pos2.z )
+			  pos1 = sketch2world( @temp_line.pos1 )
+			  pos2 = sketch2world( @temp_line.pos2 )
+				GL.Vertex( pos1.x, pos1.y, pos1.z )
+				GL.Vertex( pos2.x, pos2.y, pos2.z )
 			GL.End
 		end
 	end
@@ -576,7 +591,7 @@ class EditSketchTool < SketchTool
   	super
 		points = @sketch.segments.map{|s| [s.pos1, s.pos2] }.flatten
 		@draw_points = points.select do |point|
-			dist = Point.new(x, @glview.allocation.height - y).distance_to @glview.world2screen(point)
+			dist = Point.new(x, @glview.allocation.height - y).distance_to @glview.world2screen(sketch2world(point))
 			dist < @snap_tolerance
 		end
 		@glview.redraw
@@ -607,7 +622,7 @@ class EditSketchTool < SketchTool
 	def draw
 		super
 		unless @draw_points.empty?
-			point = @draw_points.first
+			point = sketch2world(@draw_points.first)
 			GL.Disable(GL::DEPTH_TEST)
 			GL.Color3f(1,0.3,0.1)
 			GL.PointSize(8.0)
