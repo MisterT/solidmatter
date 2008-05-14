@@ -34,12 +34,10 @@ Gtk::main
 # immer nach glDrawable fragen um redraw probleme zu vermeiden
 # nicht selektierbare objekte sollten wie der background wirken und bei click die selection aufheben
 # confirm application quit
-# wenn ein alter sketch bearbeitet wird sollten die nachfolgenden features zurückgespult werden, oder view geclippt, oder part transparent
 # shortcuts über accelerators
 # when selecting regions, select inner regions first
 # automatically apply operator if there is only one unused sketch region
 # create MIME type
 # parts/operatos should communicate somehow that they could not be built correctly
 # region select von vertikalen planes
-# cannot select region if more than one unused sketch
 # drag in Editsketchtool does not move points exactly above guide

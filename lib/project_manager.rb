@@ -118,6 +118,13 @@ class ProjectManager
                 65307 => :Esc,
                 65288 => :Backspace,
                 65535 => :Del}
+    Gtk.quit_add(0) do
+      CloseProjectConfirmation.new self do |response|
+        case response
+        when :save then save_file
+        end
+      end
+    end   
 	  new_project
 	end
 	
@@ -331,6 +338,9 @@ public
 	  obj = (obj_or_id.is_a? Integer) ? @all_instances.select{|inst| inst.instance_id == obj_or_id }.first : obj_or_id
 	  if obj.is_a? Instance and obj.parent
       obj.parent.remove_component obj
+      @all_instances.delete obj
+      @all_assembly_instances.delete obj
+      @all_part_instances.delete obj
     elsif obj.is_a? Segment
       obj.sketch.segments.delete obj
       obj.sketch.build_displaylist
@@ -513,7 +523,15 @@ public
 		return false
 	end
 	
-	def sketch_mode( sketch )
+	def sketch_mode sketch
+	  op = sketch.op
+	  if op
+  	  i = op.part.operators.index op
+  	  old_limit = op.part.history_limit
+  	  op.part.history_limit = i
+  	  op.previous ? op.part.build(op.previous) : op.part.build
+  	  op.part.history_limit = old_limit
+	  end
 		@work_sketch = sketch
 		sketch_toolbar
 		sketch.plane.visible = true
@@ -522,7 +540,7 @@ public
 		activate_tool 'select'
 	end
 	
-	def operator_mode( op )
+	def operator_mode op
 		@op_toolbar = op.show_toolbar
 		@main_vbox.pack_start( @op_toolbar, false, true )
 		@main_vbox.show_all

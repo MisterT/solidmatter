@@ -75,6 +75,10 @@ class ExtrudeOperator < Operator
   			  if segments
     				@settings[:segments] = segments
     				sketch = segments.first.sketch
+    				if @settings[:sketch]
+    				  @part.unused_sketches.push @settings[:sketch]
+    				  @settings[:sketch].op = nil
+  				  end
     				@settings[:sketch] = sketch
     				sketch.op = self
     				@part.unused_sketches.delete sketch

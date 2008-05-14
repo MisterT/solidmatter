@@ -584,7 +584,7 @@ end
 
 
 class Part < Component
-  attr_accessor :manager, :displaylist, :wire_displaylist
+  attr_accessor :manager, :displaylist, :wire_displaylist, :history_limit
 	attr_reader :component_id, :operators, :working_planes, :unused_sketches, :solid
 	def initialize(name, manager, disp_num, wire_disp_num )
 		super()
@@ -641,22 +641,25 @@ class Part < Component
 	end
 
 	def build( from_op=@operators.first )
-	  if from_op
-  		@operators.index( from_op ).upto( @history_limit - 1 ){|i| op = @operators[i] ; yield op if block_given? ; op.operate  } # update progressbar
-  		solid = @operators[@history_limit - 1].solid
-  		if solid
-  			@solid = solid
-  			build_displaylist
-  			@manager.component_changed self
-  		else
-  			dia = Gtk::MessageDialog.new( nil, Gtk::Dialog::DESTROY_WITH_PARENT,
-  							                           Gtk::MessageDialog::WARNING,
-  							                           Gtk::MessageDialog::BUTTONS_OK,
-  							                           "Part could not be built")
-  			dia.secondary_text = "Please recheck all operator settings and close any open sketch regions!"
-  			dia.run
-  			dia.destroy
-  		end
+    if @history_limit >= 1
+      raise "Operator must come before history limit" unless @operators.index(from_op) < @history_limit
+		  @operators.index( from_op ).upto( @history_limit - 1 ){|i| op = @operators[i] ; yield op if block_given? ; op.operate  } # update progressbar
+		  solid = @operators[@history_limit - 1].solid
+	  else
+	    solid = Solid.new
+    end
+		if solid
+			@solid = solid
+			build_displaylist
+			@manager.component_changed self
+		else
+			dia = Gtk::MessageDialog.new( nil, Gtk::Dialog::DESTROY_WITH_PARENT,
+							                           Gtk::MessageDialog::WARNING,
+							                           Gtk::MessageDialog::BUTTONS_OK,
+							                           "Part could not be built")
+			dia.secondary_text = "Please recheck all operator settings and close any open sketch regions!"
+			dia.run
+			dia.destroy
 		end
 	end
 	
@@ -665,7 +668,7 @@ class Part < Component
 		return bounding_box_from points
 	end
 
-	def build_displaylist( type=:normal)
+	def build_displaylist( type=:normal )
 		# generate mesh and write to displaylist
 	  GL.NewList( @displaylist, GL::COMPILE)
 	    # draw shaded faces

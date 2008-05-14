@@ -14,6 +14,16 @@ class Tool
 		resume
 	end
 public
+  def self.world2sketch( v, plane )
+	  o = plane.origin
+	  v - o
+	end
+	
+	def self.sketch2world( v, plane )
+	  o = plane.origin
+	  v + o
+	end
+
 	def click_left( x,y )
 	  @manager.has_been_changed = true
 	end
@@ -167,34 +177,43 @@ class RegionSelectionTool < SelectionTool
 	def initialize( glview, manager )
 		super( "Pick a closed region from a sketch:", glview, manager )
 		@op_sketch = manager.work_operator.settings[:sketch]
-		@plane = @op_sketch ? @op_sketch.plane : manager.work_component.unused_sketches.first.plane
-		@plane.build_displaylists
-		@regions = (manager.work_component.unused_sketches + [@op_sketch]).compact.inject([]) do |regions, sketch|
+		@all_sketches = (manager.work_component.unused_sketches + [@op_sketch]).compact
+		@regions = @all_sketches.inject([]) do |regions, sketch|
 		  regions += sketch.all_chains.map do |chain|
-  	    poly = Polygon.from_chain( chain )
+  	    poly = Polygon.from_chain chain
   	    face = PlanarFace.new
-  	    face.segments = chain.map{|seg| Line.new(seg.pos1 + @plane.origin, seg.pos2 + @plane.origin, seg.sketch)  }
+  	    face.plane = sketch.plane
+  	    face.plane.build_displaylists
+  	    face.segments = chain.map{|seg| Line.new(Tool.sketch2world(seg.pos1, sketch.plane), Tool.sketch2world(seg.pos2, sketch.plane), sketch)  }
   	    Region.new(chain, poly, face)
 	    end
     end
     @regions.compact!
     @op_sketch.visible = true if @op_sketch
+    @glview.redraw
 	end
 	
 	def click_left( x,y )
 		super
-    pos = pos_of( x,y )
-	  region = @regions.select{|r| r.poly.contains? Point.new( pos.x, pos.z ) }.first if pos
-	  if pos and region 
-		  @selection = region.chain
+		mouse_move( x,y )
+	  if @current_region
+		  @selection = @current_region.chain
 		  @manager.cancel_current_tool
 	  end
 	end
 	
 	def mouse_move( x,y )
-    pos = pos_of( x,y )
-    @current_region = @regions.select{|r| r.poly.contains? Point.new( pos.x, pos.z ) }.first if pos
-    @glview.redraw
+	  for sketch in @all_sketches
+	    sketch.plane.visible = true
+	    sel = @glview.select(x,y, :select_faces)
+	    sketch.plane.visible = false
+	    if sel.is_a? WorkingPlane
+        pos = pos_of( x,y, sel )
+        @current_region = @regions.select{|r| r.face.plane == sel and r.poly.contains? Point.new( pos.x, pos.z ) }.first
+        @glview.redraw
+        break if @current_region
+      end
+    end
 	end
 	
 	def draw
@@ -202,16 +221,17 @@ class RegionSelectionTool < SelectionTool
     @current_region.face.draw if @current_region
 	end
 	
-	def pos_of( x,y )
-	 	@plane.visible = true
+	def pos_of( x,y, plane )
+	  planestate = plane.visible
+	 	plane.visible = true
 		pos = @glview.screen2world( x,y )
-		pos -= @plane.origin if pos
-		@plane.visible = false
+		pos = Tool.world2sketch( pos, plane ) if pos
+		plane.visible = planestate
 		return pos
 	end
 	
 	def exit
-		@op_sketch.visible = false if @op_sketch
+		@all_sketches.each { |s| s.plane.visible = false }
 		super
 	end
 end
@@ -221,7 +241,6 @@ class PlaneSelectionTool < SelectionTool
 	def initialize( glview, manager )
 		super( "Select a single plane:", glview, manager )
 		@manager.work_component.working_planes.each{|plane| plane.visible = true }
-		puts manager.work_component.working_planes
 	end
 	
 	def click_left( x,y )
@@ -468,13 +487,11 @@ class SketchTool < Tool
 	end
 	
 	def world2sketch( v )
-	  o = @sketch.plane.origin
-	  v - o
+	  Tool.world2sketch( v, @sketch.plane)
 	end
 	
 	def sketch2world( v )
-	  o = @sketch.plane.origin
-	  v + o
+    Tool.sketch2world( v, @sketch.plane)
 	end
 end
 
