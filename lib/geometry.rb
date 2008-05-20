@@ -6,11 +6,11 @@
 require 'gtk2'
 require 'gtkglext'
 require 'opengl'
-require 'lib/matrix.rb'
-require 'lib/material_editor.rb'
-require 'lib/part_dialog.rb'
-require 'lib/assembly_dialog.rb'
-require 'lib/progress_dialog.rb'
+require 'matrix.rb'
+require 'material_editor.rb'
+require 'part_dialog.rb'
+require 'assembly_dialog.rb'
+require 'progress_dialog.rb'
 
 
 module Selectable

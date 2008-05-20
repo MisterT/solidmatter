@@ -9,7 +9,7 @@ require 'libglade2'
 class ProjectInformationDialog
 	def initialize manager 
     @manager = manager
-	  @glade = GladeXML.new( "glade/project_dialog.glade", nil, nil, nil, GladeXML::FILE ) {|handler| method(handler)}
+	  @glade = GladeXML.new( "../data/glade/project_dialog.glade", nil, 'openmachinist' ) {|handler| method(handler)}
 	  @glade['name_entry'].text   = @manager.name  
 	  @glade['author_entry'].text = @manager.author
   end

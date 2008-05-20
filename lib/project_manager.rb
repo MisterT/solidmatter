@@ -4,15 +4,15 @@
 #  Copyright (c) 2008. All rights reserved.
 
 require 'gtk2'
-require 'lib/geometry.rb'
-require 'lib/operators.rb'
-require 'lib/tools.rb'
-require 'lib/multi_user.rb'
-require 'lib/material_editor.rb'
-require 'lib/project_dialog.rb'
-require 'lib/make_public_dialog.rb'
-require 'lib/close_project_confirmation.rb'
-require 'lib/simulation_settings.rb'
+require 'geometry.rb'
+require 'operators.rb'
+require 'tools.rb'
+require 'multi_user.rb'
+require 'material_editor.rb'
+require 'project_dialog.rb'
+require 'make_public_dialog.rb'
+require 'close_project_confirmation.rb'
+require 'simulation_settings.rb'
 
 class Selection
 	def initialize

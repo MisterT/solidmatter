@@ -10,7 +10,7 @@ class MakePublicDialog
 	def initialize manager
 	  @block = Proc.new if block_given?
 	  @manager = manager
-	  @glade = GladeXML.new( "glade/make_public_dialog.glade", nil, nil, nil, GladeXML::FILE ) {|handler| method(handler)}
+	  @glade = GladeXML.new( "../data/glade/make_public_dialog.glade", nil, 'openmachinist' ) {|handler| method(handler)}
 	  update_combo
   end
   

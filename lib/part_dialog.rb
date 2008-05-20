@@ -11,7 +11,7 @@ class PartInformationDialog
 	  @info = information
     @manager = manager
 	  @return_handler = Proc.new
-	  @glade = GladeXML.new( "glade/part_dialog.glade", nil, nil, nil, GladeXML::FILE ) {|handler| method(handler)}
+	  @glade = GladeXML.new( "../data/glade/part_dialog.glade", nil, 'openmachinist' ) {|handler| method(handler)}
 	  # feed entries with part information
 	  @glade['name_entry'].text     = @info[:name]
 	  @glade['author_entry'].text   = @info[:author]

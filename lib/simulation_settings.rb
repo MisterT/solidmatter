@@ -10,7 +10,7 @@ class SimulationSettingsDialog
   def initialize( all_parts, colliding_parts )
     @all_parts = all_parts
     @colliding_parts = colliding_parts
-    @glade = GladeXML.new( "glade/simulation_settings.glade", nil, nil, nil, GladeXML::FILE ) {|handler| method(handler)}
+    @glade = GladeXML.new( "../data/glade/simulation_settings.glade", nil, 'openmachinist' ) {|handler| method(handler)}
     # ------- create unused parts view ------- #
     pix = Gtk::CellRendererPixbuf.new
 		text = Gtk::CellRendererText.new
@@ -75,7 +75,7 @@ class SimulationSettingsDialog
   def update
     # all parts view
     model = Gtk::ListStore.new(Gdk::Pixbuf, String)
-    im = Gtk::Image.new('icons/small/part_small.png').pixbuf
+    im = Gtk::Image.new('../data/icons/small/part_small.png').pixbuf
     for part in (@all_parts - @colliding_parts)
 		  iter = model.append
   		iter[0] = im

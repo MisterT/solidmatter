@@ -2,15 +2,45 @@
 #
 #  Created by Björn Breitgoff on unknown date.
 #  Copyright (c) 2008. All rights reserved.
-require 'lib/main_win.rb'
-require 'lib/preferences.rb'
+require 'thread'
+require 'main_win.rb'
+require 'preferences.rb'
 
+GetText.bindtextdomain 'openmachinist'
+
+module Gtk
+  GTK_PENDING_BLOCKS = []
+  GTK_PENDING_BLOCKS_LOCK = Mutex.new
+
+  def Gtk.queue &block
+    if Thread.current == Thread.main
+      block.call
+    else
+      GTK_PENDING_BLOCKS_LOCK.synchronize do
+        GTK_PENDING_BLOCKS << block
+      end
+    end
+  end
+
+  def Gtk.main_with_queue timeout
+    Gtk.timeout_add timeout do
+      GTK_PENDING_BLOCKS_LOCK.synchronize do
+        for block in GTK_PENDING_BLOCKS
+          block.call
+        end
+        GTK_PENDING_BLOCKS.clear
+      end
+      true
+    end
+    Gtk.main
+  end
+end
 
 Gtk.init
 Gtk::GL.init
 win = OpenMachinistMainWin.new
 win.show_all
-Gtk::main
+Gtk.main_with_queue 100
 
 
 # TODO :
@@ -40,4 +70,4 @@ Gtk::main
 # create MIME type
 # parts/operatos should communicate somehow that they could not be built correctly
 # region select von vertikalen planes
-# drag in Editsketchtool does not move points exactly above guide
+# drag in Editsketchtool does not move points exactly above client_ids_to_servede

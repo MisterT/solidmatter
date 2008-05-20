@@ -7,7 +7,7 @@ require 'libglade2'
 
 class ProgressDialog
   def initialize
-    @glade = GladeXML.new( "glade/progress.glade", nil, nil, nil, GladeXML::FILE ) {|handler| method(handler)}
+    @glade = GladeXML.new( "../data/glade/progress.glade", nil, 'openmachinist' ) {|handler| method(handler)}
     self.fraction = 0.0
   end
   

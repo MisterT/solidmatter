@@ -4,9 +4,9 @@
 #  Copyright (c) 2008. All rights reserved.
 
 require 'gtkglext'
-require 'lib/matrix.rb'
-require 'lib/image.rb'
-require 'lib/tools.rb'
+require 'matrix.rb'
+require 'image.rb'
+require 'tools.rb'
 
 class Point
   attr_accessor :x, :y

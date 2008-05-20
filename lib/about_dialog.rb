@@ -7,7 +7,7 @@ require 'libglade2'
 
 class AboutDialog
   def initialize
-    @glade = GladeXML.new( "glade/about.glade", nil, nil, nil, GladeXML::FILE ) {|handler| method(handler)}
+    @glade = GladeXML.new( "../data/glade/about.glade", nil, 'openmachinist' ) {|handler| method(handler)}
   end
   
   def close

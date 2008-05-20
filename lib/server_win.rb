@@ -4,12 +4,12 @@
 #  Copyright (c) 2008. All rights reserved.
 
 require 'libglade2'
-require 'lib/multi_user.rb'
+require 'multi_user.rb'
 
 class ServerWin
   attr_accessor :server
   def initialize( server=nil )
-    @glade = GladeXML.new( "glade/server_win.glade", nil, nil, nil, GladeXML::FILE ) {|handler| method(handler)}
+    @glade = GladeXML.new( "../data/glade/server_win.glade", nil, 'openmachinist' ) {|handler| method(handler)}
     unless server
       @server = ProjectServer.new self
       @glade['server_win'].signal_connect('destroy'){Gtk.main_quit}
@@ -91,7 +91,7 @@ class ServerWin
   def update
     # projects view
     model = Gtk::ListStore.new(Gdk::Pixbuf, String)
-    im = Gtk::Image.new('icons/middle/user-home_middle.png').pixbuf
+    im = Gtk::Image.new('../data/icons/middle/user-home_middle.png').pixbuf
     for project in @server.projects
 		  iter = model.append
   		iter[0] = im
@@ -100,7 +100,7 @@ class ServerWin
 		@pview.model = model
 		# users view
 		model = Gtk::ListStore.new(Gdk::Pixbuf, String)
-    im = Gtk::Image.new('icons/middle/system-users_middle.png').pixbuf
+    im = Gtk::Image.new('../data/icons/middle/system-users_middle.png').pixbuf
     for acc in @server.accounts
 		  iter = model.append
   		iter[0] = im

@@ -3,13 +3,13 @@
 #  Created by Björn Breitgoff on unknown date.
 #  Copyright (c) 2008. All rights reserved.
 
-require 'lib/operators.rb'
-require 'lib/pop_ups.rb'
+require 'operators.rb'
+require 'pop_ups.rb'
 
 def icon_for_op( op )
 	klass = op.class
 	case klass
-		when ExtrudeOperator then return  'icons/extrude.png'
+		when ExtrudeOperator then return  '../data/icons/extrude.png'
 	end
 	return nil
 end
@@ -91,23 +91,23 @@ class OpView < Gtk::ScrolledWindow
 				@column.title = 'Operators'
 				model = Gtk::TreeStore.new(Gdk::Pixbuf, String)
 				base_iter = model.append(nil)
-				base_iter[0] = Gtk::Image.new('icons/small/part_small.png').pixbuf
+				base_iter[0] = Gtk::Image.new('../data/icons/small/part_small.png').pixbuf
 				base_iter[1] = @base_component.information[:name]
 				@base_component.operators.each do |op|
 					op_iter = model.append( base_iter )
-					op_iter[0] = Gtk::Image.new('icons/small/wheel_small.png').pixbuf
+					op_iter[0] = Gtk::Image.new('../data/icons/small/wheel_small.png').pixbuf
 					op_iter[1] = op.name
 					sketch = op.settings[:sketch]
 					if sketch
 					  sketch_iter = model.append op_iter
-					  sketch_iter[0] = Gtk::Image.new('icons/small/sketch_small.png').pixbuf
+					  sketch_iter[0] = Gtk::Image.new('../data/icons/small/sketch_small.png').pixbuf
 					  sketch_iter[1] = sketch.name
 				  end
 				#	sketch_iter[0] = render_icon(Gtk::Stock::NEW, Gtk::IconSize::MENU, "icon1")
 				end
 				@base_component.unused_sketches.each do |sketch|
 					sketch_iter = model.append( base_iter )
-					sketch_iter[0] = Gtk::Image.new('icons/small/sketch_small.png').pixbuf
+					sketch_iter[0] = Gtk::Image.new('../data/icons/small/sketch_small.png').pixbuf
 					sketch_iter[1] = sketch.name
 				end
 				@tv.model = model
@@ -117,7 +117,7 @@ class OpView < Gtk::ScrolledWindow
 				@column.title = 'Parts'
 				model = Gtk::TreeStore.new(Gdk::Pixbuf, String)
 				base_iter = model.append(nil)
-				base_iter[0] = Gtk::Image.new('icons/small/assembly_small.png').pixbuf
+				base_iter[0] = Gtk::Image.new('../data/icons/small/assembly_small.png').pixbuf
 				base_iter[1] = @base_component.information[:name]
 				recurse_visualize( model, base_iter, @base_component.components )
 				@tv.model = model
@@ -130,11 +130,11 @@ class OpView < Gtk::ScrolledWindow
 		comps.each do |comp|
 			iter = model.append( base_iter )
 			if comp.class == Assembly
-				iter[0] = Gtk::Image.new('icons/small/assembly_small.png').pixbuf
+				iter[0] = Gtk::Image.new('../data/icons/small/assembly_small.png').pixbuf
 				iter[1] = comp.information[:name]
 				recurse_visualize( model, iter, comp.components )
 			else
-				iter[0] = Gtk::Image.new('icons/small/part_small.png').pixbuf
+				iter[0] = Gtk::Image.new('../data/icons/small/part_small.png').pixbuf
 				iter[1] = comp.information[:name]
 			end
 		end

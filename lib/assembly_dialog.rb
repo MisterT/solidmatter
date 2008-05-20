@@ -11,7 +11,7 @@ class AssemblyInformationDialog
 	  @info = information
     @manager = manager
 	  @return_handler = Proc.new
-	  @glade = GladeXML.new( "glade/assembly_dialog.glade", nil, nil, nil, GladeXML::FILE ) {|handler| method(handler)}
+	  @glade = GladeXML.new( "../data/glade/assembly_dialog.glade", nil, 'openmachinist' ) {|handler| method(handler)}
 	  @glade['name_entry'].text     = @info[:name]
 	  @glade['author_entry'].text   = @info[:author]
 	  @glade['approved_entry'].text = @info[:approved]

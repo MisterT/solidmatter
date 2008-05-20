@@ -4,12 +4,12 @@
 #  Copyright (c) 2008. All rights reserved.
 
 require 'libglade2'
-require 'lib/multi_user.rb'
+require 'multi_user.rb'
 
 class AccountEditor
   def initialize account
     @account = account
-    @glade = GladeXML.new( "glade/account_editor.glade", nil, nil, nil, GladeXML::FILE ) {|handler| method(handler)}
+    @glade = GladeXML.new( "../data/glade/account_editor.glade", nil, 'openmachinist' ) {|handler| method(handler)}
     @glade['login_entry'].text    = @account.login 
     @glade['password_entry'].text = @account.password
     # ------- create server view ------- #
@@ -80,7 +80,7 @@ class AccountEditor
     server_projects = @account.server.projects - @account.registered_projects
     # projects view
     model = Gtk::ListStore.new(Gdk::Pixbuf, String)
-    im = Gtk::Image.new('icons/middle/user-home_middle.png').pixbuf
+    im = Gtk::Image.new('../data/icons/middle/user-home_middle.png').pixbuf
     for project in server_projects
 		  iter = model.append
   		iter[0] = im

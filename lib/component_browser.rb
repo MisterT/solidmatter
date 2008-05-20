@@ -9,7 +9,7 @@ require 'libglade2'
 class ComponentBrowser
 	def initialize manager
 	  @manager = manager
-	  @glade = GladeXML.new( "glade/component_browser.glade", nil, nil, nil, GladeXML::FILE ) {|handler| method(handler)}
+	  @glade = GladeXML.new( "../data/glade/component_browser.glade", nil, 'openmachinist' ) {|handler| method(handler)}
 	  #XXX this allows only selection of instances in project, not parts
 	  @parts = {}
     @thumbs = @manager.all_parts.map do |part| 

@@ -1,0 +1,691 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2008-05-19 19:44+0200\n"
+"PO-Revision-Date: 2008-05-19 19:44+0200\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: glade/about.glade:9
+msgid "About Glade"
+msgstr ""
+
+#: glade/about.glade:20
+msgid "Copyright (c) 2008, Björn Breitgoff\n"
+msgstr ""
+
+#: glade/about.glade:22
+msgid "A parametrical, 3d, mechanical design application"
+msgstr ""
+
+#: glade/about.glade:24
+msgid "http://openmachinist.sourceforge.net"
+msgstr ""
+
+#: glade/about.glade:25
+msgid "Open Machinist is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.\n\nOpen Machinist is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License along with Open Machinist; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA."
+msgstr ""
+
+#: glade/account_editor.glade:9 glade/assembly_dialog.glade:9
+#: glade/close_project_confirmation.glade:8 glade/component_browser.glade:9 glade/join_project.glade:9
+#: glade/make_public_dialog.glade:9 glade/material_editor.glade:9 glade/new_project.glade:9
+#: glade/open_project.glade:9 glade/part_dialog.glade:9 glade/preferences.glade:233
+#: glade/preferences.glade:264 glade/progress.glade:8 glade/progress.glade:96
+#: glade/project_dialog.glade:9 glade/save_request.glade:9 glade/simulation_settings.glade:9
+msgid " "
+msgstr ""
+
+#: glade/account_editor.glade:43
+msgid "\n<b> User account properties</b>\n"
+msgstr ""
+
+#: glade/account_editor.glade:91 glade/make_public_dialog.glade:261
+msgid "Login:"
+msgstr ""
+
+#: glade/account_editor.glade:101 glade/join_project.glade:105 glade/make_public_dialog.glade:272
+msgid "Password:"
+msgstr ""
+
+#: glade/account_editor.glade:168
+msgid "<b>Information</b>"
+msgstr ""
+
+#: glade/account_editor.glade:229 glade/simulation_settings.glade:118
+msgid "Move to user's projects"
+msgstr ""
+
+#: glade/account_editor.glade:251 glade/simulation_settings.glade:140
+msgid "Remove project from user"
+msgstr ""
+
+#: glade/account_editor.glade:306
+msgid "<b>Projects</b>"
+msgstr ""
+
+#: glade/assembly_dialog.glade:44
+msgid "\n<b>Assembly properties</b>\n"
+msgstr ""
+
+#: glade/assembly_dialog.glade:92 glade/part_dialog.glade:93 glade/project_dialog.glade:92
+msgid "Name:"
+msgstr ""
+
+#: glade/assembly_dialog.glade:102 glade/part_dialog.glade:103 glade/project_dialog.glade:102
+msgid "Author:"
+msgstr ""
+
+#: glade/assembly_dialog.glade:113 glade/part_dialog.glade:114 glade/project_dialog.glade:113
+msgid "Approved by:"
+msgstr ""
+
+#: glade/assembly_dialog.glade:124 glade/part_dialog.glade:125 glade/project_dialog.glade:124
+msgid "Version:"
+msgstr ""
+
+#: glade/assembly_dialog.glade:243 glade/part_dialog.glade:355
+msgid "Area:"
+msgstr ""
+
+#: glade/assembly_dialog.glade:253 glade/part_dialog.glade:365
+msgid "Volume:"
+msgstr ""
+
+#: glade/assembly_dialog.glade:264 glade/part_dialog.glade:376
+msgid "Mass:"
+msgstr ""
+
+#: glade/assembly_dialog.glade:286 glade/assembly_dialog.glade:296 glade/assembly_dialog.glade:307
+#: glade/part_dialog.glade:398 glade/part_dialog.glade:408 glade/part_dialog.glade:419
+msgid "n/a"
+msgstr ""
+
+#: glade/assembly_dialog.glade:330 glade/part_dialog.glade:442
+msgid "Update"
+msgstr ""
+
+#: glade/close_project_confirmation.glade:47
+msgid "<b>Save changes to 'Untitled project'?</b>"
+msgstr ""
+
+#: glade/close_project_confirmation.glade:60
+msgid "Your changes will be lost if you don't save them"
+msgstr ""
+
+#: glade/close_project_confirmation.glade:90
+msgid "_Close without saving"
+msgstr ""
+
+#: glade/close_project_confirmation.glade:102
+msgid "gtk-cancel"
+msgstr ""
+
+#: glade/close_project_confirmation.glade:117
+msgid "gtk-save"
+msgstr ""
+
+#: glade/component_browser.glade:44
+msgid "\n<b>Insert component</b>\n"
+msgstr ""
+
+#: glade/component_browser.glade:78
+msgid "Parts\nAssemblies"
+msgstr ""
+
+#: glade/component_browser.glade:132
+msgid "gtk-refresh"
+msgstr ""
+
+#: glade/join_project.glade:46
+msgid "\n<b>Join multi-user project</b>\n"
+msgstr ""
+
+#: glade/join_project.glade:98
+msgid "Username:"
+msgstr ""
+
+#: glade/join_project.glade:156
+msgid "<b>Login data</b>"
+msgstr ""
+
+#: glade/join_project.glade:195 glade/make_public_dialog.glade:232
+msgid "Bookmarks:"
+msgstr ""
+
+#: glade/join_project.glade:202 glade/make_public_dialog.glade:239
+msgid "Adress:"
+msgstr ""
+
+#: glade/join_project.glade:213 glade/make_public_dialog.glade:250
+msgid "Port:"
+msgstr ""
+
+#: glade/join_project.glade:331
+msgid "gtk-connect"
+msgstr ""
+
+#: glade/join_project.glade:345
+msgid "<b>Server information</b>"
+msgstr ""
+
+#: glade/join_project.glade:374
+msgid "<b>Projects on server</b>"
+msgstr ""
+
+#: glade/join_project.glade:440
+msgid "_Join project"
+msgstr ""
+
+#: glade/make_public_dialog.glade:52
+msgid "\n<b>Make project public</b>\n"
+msgstr ""
+
+#: glade/make_public_dialog.glade:111
+msgid "<b>Host project locally</b>"
+msgstr ""
+
+#: glade/make_public_dialog.glade:136
+msgid "This allows other machines\n to connect to your computer\nand take part in your project"
+msgstr ""
+
+#: glade/make_public_dialog.glade:178
+msgid "<b>Upload to remote server</b>"
+msgstr ""
+
+#: glade/make_public_dialog.glade:207
+msgid "This uploads the project to\na central server and joins it"
+msgstr ""
+
+#: glade/make_public_dialog.glade:299 glade/make_public_dialog.glade:353
+msgid "localhost"
+msgstr ""
+
+#: glade/make_public_dialog.glade:365
+msgid "2222"
+msgstr ""
+
+#: glade/make_public_dialog.glade:461
+msgid "_Make public"
+msgstr ""
+
+#: glade/material_editor.glade:44
+msgid "\n<b> Create and edit materials</b>\n"
+msgstr ""
+
+#: glade/material_editor.glade:79
+msgid "Material:          "
+msgstr ""
+
+#: glade/material_editor.glade:155
+msgid "Name:              "
+msgstr ""
+
+#: glade/material_editor.glade:188
+msgid "Color:               "
+msgstr ""
+
+#: glade/material_editor.glade:224
+msgid "Smoothness: "
+msgstr ""
+
+#: glade/material_editor.glade:258
+msgid "Specularity:    "
+msgstr ""
+
+#: glade/material_editor.glade:292
+msgid "Reflectivity:    "
+msgstr ""
+
+#: glade/material_editor.glade:326
+msgid "Density:                                 "
+msgstr ""
+
+#: glade/material_editor.glade:353
+msgid "g/cm³"
+msgstr ""
+
+#: glade/new_dialog.glade:8
+msgid "Create new..."
+msgstr ""
+
+#: glade/new_dialog.glade:43
+msgid "Create new project, assembly or part..."
+msgstr ""
+
+#: glade/new_dialog.glade:74
+msgid "Create new project..."
+msgstr ""
+
+#: glade/new_dialog.glade:93
+msgid "Create new assembly"
+msgstr ""
+
+#: glade/new_dialog.glade:116
+msgid "Create new Part"
+msgstr ""
+
+#: glade/new_dialog.glade:138 glade/preferences.glade:1625
+msgid "gtk-close"
+msgstr ""
+
+#: glade/new_project.glade:46
+msgid "\n<b>New project</b>\n"
+msgstr ""
+
+#: glade/new_project.glade:105
+msgid "<b>Create new local project</b>"
+msgstr ""
+
+#: glade/new_project.glade:126
+msgid "This creates a regular project \nfile on your local hard-drive"
+msgstr ""
+
+#: glade/new_project.glade:165
+msgid "<b>Create new multi-user project...</b>"
+msgstr ""
+
+#: glade/new_project.glade:194
+msgid "This creates a project file\non your hard-drive and makes\nit accessible to other users on \nthe network"
+msgstr ""
+
+#: glade/open_project.glade:47
+msgid "\n<b>Open project</b>\n"
+msgstr ""
+
+#: glade/open_project.glade:106
+msgid "<b>Open local project...</b>"
+msgstr ""
+
+#: glade/open_project.glade:127
+msgid "This opens a regular project \nfile on your local hard-drive"
+msgstr ""
+
+#: glade/open_project.glade:167
+msgid "<b>Join a multi-user project...</b>"
+msgstr ""
+
+#: glade/open_project.glade:196
+msgid "This allows you to specify a network\nserver hosting an Open Machinist \nmulti-user session. You need a login\nfor that server to make edits"
+msgstr ""
+
+#: glade/part_dialog.glade:45
+msgid "\n<b>Part properties</b>\n"
+msgstr ""
+
+#: glade/part_dialog.glade:227
+msgid "Material:            "
+msgstr ""
+
+#: glade/part_dialog.glade:240
+msgid "\n"
+msgstr ""
+
+#: glade/part_dialog.glade:262
+msgid "Currently in use by:"
+msgstr ""
+
+#: glade/part_dialog.glade:274
+msgid "nobody"
+msgstr ""
+
+#: glade/part_dialog.glade:309
+msgid "Mark as used"
+msgstr ""
+
+#: glade/part_dialog.glade:458
+msgid "<b>Solid properties</b>"
+msgstr ""
+
+#: glade/preferences.glade:9
+msgid "Preferences"
+msgstr ""
+
+#: glade/preferences.glade:53
+msgid "Save projects here:  "
+msgstr ""
+
+#: glade/preferences.glade:64
+msgid "Choose project directory"
+msgstr ""
+
+#: glade/preferences.glade:78
+msgid "_Create part automatically"
+msgstr ""
+
+#: glade/preferences.glade:96
+msgid "<b>New Projects</b>"
+msgstr ""
+
+#: glade/preferences.glade:134
+msgid "Mouse sensitivity"
+msgstr ""
+
+#: glade/preferences.glade:164
+msgid "<b>View handling</b>"
+msgstr ""
+
+#: glade/preferences.glade:187
+msgid "Behaviour"
+msgstr ""
+
+#: glade/preferences.glade:223
+msgid "Unit system:  "
+msgstr ""
+
+#: glade/preferences.glade:254
+msgid "Default unit:  "
+msgstr ""
+
+#: glade/preferences.glade:286
+msgid "Digits:  "
+msgstr ""
+
+#: glade/preferences.glade:315
+msgid "_Show units"
+msgstr ""
+
+#: glade/preferences.glade:333
+msgid "<b>Units</b>"
+msgstr ""
+
+#: glade/preferences.glade:371
+msgid "Major grid spacing:  "
+msgstr ""
+
+#: glade/preferences.glade:404
+msgid "Minor grid spacing:  "
+msgstr ""
+
+#: glade/preferences.glade:434
+msgid "_Show minor lines"
+msgstr ""
+
+#: glade/preferences.glade:452
+msgid "<b>Grid</b>"
+msgstr ""
+
+#: glade/preferences.glade:475
+msgid "Units"
+msgstr ""
+
+#: glade/preferences.glade:531
+msgid "Light two"
+msgstr ""
+
+#: glade/preferences.glade:571
+msgid "Light one"
+msgstr ""
+
+#: glade/preferences.glade:609
+msgid "Background"
+msgstr ""
+
+#: glade/preferences.glade:645
+msgid "Selection"
+msgstr ""
+
+#: glade/preferences.glade:683
+msgid "Edges"
+msgstr ""
+
+#: glade/preferences.glade:720
+msgid "Viewport controls"
+msgstr ""
+
+#: glade/preferences.glade:743
+msgid "<b>Viewport</b>"
+msgstr ""
+
+#: glade/preferences.glade:804
+msgid "Reference geometry"
+msgstr ""
+
+#: glade/preferences.glade:854
+msgid "Guides"
+msgstr ""
+
+#: glade/preferences.glade:902
+msgid "Temporary"
+msgstr ""
+
+#: glade/preferences.glade:948
+msgid "Under-defined"
+msgstr ""
+
+#: glade/preferences.glade:996
+msgid "Completely defined"
+msgstr ""
+
+#: glade/preferences.glade:1044
+msgid "Over-defined"
+msgstr ""
+
+#: glade/preferences.glade:1071
+msgid "<b>Sketch</b>"
+msgstr ""
+
+#: glade/preferences.glade:1095
+msgid "Colors"
+msgstr ""
+
+#: glade/preferences.glade:1128
+msgid "Managed _garbage collection"
+msgstr ""
+
+#: glade/preferences.glade:1144
+msgid "(much faster, but higher peak memory usage)"
+msgstr ""
+
+#: glade/preferences.glade:1159
+msgid "<b>Internal</b>"
+msgstr ""
+
+#: glade/preferences.glade:1192
+msgid "Memory"
+msgstr ""
+
+#: glade/preferences.glade:1221 glade/preferences.glade:1261
+msgid "Performance"
+msgstr ""
+
+#: glade/preferences.glade:1237
+msgid "<b>Optimize for</b>"
+msgstr ""
+
+#: glade/preferences.glade:1293
+msgid "Use line _antialiasing"
+msgstr ""
+
+#: glade/preferences.glade:1309
+msgid "Use _stencil transparency"
+msgstr ""
+
+#: glade/preferences.glade:1328
+msgid "<b>Open GL</b>"
+msgstr ""
+
+#: glade/preferences.glade:1365
+msgid "Surface resolution"
+msgstr ""
+
+#: glade/preferences.glade:1398
+msgid "_Dynamic level of detail"
+msgstr ""
+
+#: glade/preferences.glade:1417
+msgid "<b>Tesselation</b>"
+msgstr ""
+
+#: glade/preferences.glade:1451
+msgid "Use _view transitions"
+msgstr ""
+
+#: glade/preferences.glade:1473
+msgid "Transition duration"
+msgstr ""
+
+#: glade/preferences.glade:1506
+msgid "Use _working plane animations"
+msgstr ""
+
+#: glade/preferences.glade:1531
+msgid "Animation duration"
+msgstr ""
+
+#: glade/preferences.glade:1567
+msgid "<b>Animations</b>"
+msgstr ""
+
+#: glade/preferences.glade:1590
+msgid "Display"
+msgstr ""
+
+#: glade/preferences.glade:1614
+msgid "gtk-help"
+msgstr ""
+
+#: glade/progress.glade:44
+msgid "\n<b>The model is being rebuilt...</b>\n"
+msgstr ""
+
+#: glade/project_dialog.glade:44
+msgid "\n<b>Project Information</b>\n"
+msgstr ""
+
+#: glade/project_dialog.glade:205
+msgid "<b>General</b>"
+msgstr ""
+
+#: glade/project_dialog.glade:244
+msgid "Total number of parts:"
+msgstr ""
+
+#: glade/project_dialog.glade:260
+msgid "Number of unique parts:"
+msgstr ""
+
+#: glade/project_dialog.glade:279
+msgid "Total number of subassemblies:"
+msgstr ""
+
+#: glade/project_dialog.glade:298
+msgid "Number of unique subassemblies:"
+msgstr ""
+
+#: glade/project_dialog.glade:337
+msgid "<b>Bill of Materials</b>"
+msgstr ""
+
+#: glade/save_request.glade:45
+msgid "\n<b>Save request</b>\n"
+msgstr ""
+
+#: glade/save_request.glade:83
+msgid "<b>Somebody wants to save the project to the server</b>"
+msgstr ""
+
+#: glade/save_request.glade:96
+msgid "You can delay the request for a minute to clean up changes\nthat you made to the project, before choosing \n'File -> Save project' from the menu.\n\nChoose \"Cancel request\" if you left a part in dysfunctional state \nor don't otherwise feel ready to save just now."
+msgstr ""
+
+#: glade/save_request.glade:150
+msgid "Delay save"
+msgstr ""
+
+#: glade/save_request.glade:187
+msgid "Cancel request"
+msgstr ""
+
+#: glade/save_request.glade:223
+msgid "Save now"
+msgstr ""
+
+#: glade/server_win.glade:9
+msgid "Project Manager"
+msgstr ""
+
+#: glade/server_win.glade:36
+msgid "\n<b>Manage multi-user projects</b>\n"
+msgstr ""
+
+#: glade/server_win.glade:93
+msgid "Add new project to the pool"
+msgstr ""
+
+#: glade/server_win.glade:114
+msgid "Remove selected project from the pool"
+msgstr ""
+
+#: glade/server_win.glade:136
+msgid "Edit selected project"
+msgstr ""
+
+#: glade/server_win.glade:190
+msgid "<b>Hosted Projects</b>"
+msgstr ""
+
+#: glade/server_win.glade:228
+msgid "Add new user account"
+msgstr ""
+
+#: glade/server_win.glade:249
+msgid "Delete selected user account"
+msgstr ""
+
+#: glade/server_win.glade:271
+msgid "Edit selected user account"
+msgstr ""
+
+#: glade/server_win.glade:324
+msgid "<b>User Accounts</b>"
+msgstr ""
+
+#: glade/simulation_settings.glade:44
+msgid "\n<b>Simulation settings</b>\n"
+msgstr ""
+
+#: glade/simulation_settings.glade:195
+msgid "<b>Colliding parts</b>"
+msgstr ""
+
+#: glade/simulation_settings.glade:230
+msgid "Samples / second:"
+msgstr ""
+
+#: glade/simulation_settings.glade:240
+msgid "Accuracy:"
+msgstr ""
+
+#: glade/simulation_settings.glade:252
+msgid "Friction:"
+msgstr ""
+
+#: glade/simulation_settings.glade:263
+msgid "Interactive:"
+msgstr ""
+
+#: glade/simulation_settings.glade:354
+msgid "<b>Solver parameters</b>"
+msgstr ""
+
+#: glade/wait_for_save.glade:8
+msgid "Save request"
+msgstr ""
+
+#: glade/wait_for_save.glade:44
+msgid "\n<b>Waiting for other clients...</b>\n"
+msgstr ""
+
+#: glade/wait_for_save.glade:73
+msgid "Please wait while other users take their time to get the project\nready for saving. If this takes way too long, you can still cancel the\nrequest and retry at a later time."
+msgstr ""

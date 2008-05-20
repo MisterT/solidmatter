@@ -26,7 +26,7 @@ $preferences = {
 class PreferencesDialog
 	def initialize manager
 	  @manager = manager
-	  @glade = GladeXML.new( "glade/preferences.glade", nil, nil, nil, GladeXML::FILE ) {|handler| method(handler)}
+	  @glade = GladeXML.new( "../data/glade/preferences.glade", nil, 'openmachinist' ) {|handler| method(handler)}
 	  @react_to_changes = false
 	  @glade['antialiasing_check'].active=	$preferences[:anti_aliasing]
 		@glade['stencil_check'].active= $preferences[:stencil_transparency]

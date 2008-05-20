@@ -59,7 +59,7 @@ class MeasureEntry < Gtk::VBox
 		super false
 		@entry = Gtk::SpinButton.new( 0, 10, 0.05 )
 		@btn = Gtk::Button.new
-		@btn.image = Gtk::Image.new('icons/small/preferences-system_small.png')
+		@btn.image = Gtk::Image.new('../data/icons/small/preferences-system_small.png')
 		@btn.relief = Gtk::RELIEF_NONE
 		@entry.set_size_request( 60, -1 )
 		@btn.set_size_request( 30, 30 )

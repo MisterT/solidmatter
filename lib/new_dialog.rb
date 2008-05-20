@@ -4,12 +4,12 @@
 #  Copyright (c) 2007. All rights reserved.
 
 require 'libglade2'
-require 'lib/new_project_dialog.rb'
+require 'new_project_dialog.rb'
 
 class NewDialog
   def initialize( manager )
     @manager = manager
-    @glade = GladeXML.new( "glade/new_dialog.glade", nil, nil, nil, GladeXML::FILE ) {|handler| method(handler)}
+    @glade = GladeXML.new( "../data/glade/new_dialog.glade", nil, 'openmachinist' ) {|handler| method(handler)}
   end
   
   def new_project

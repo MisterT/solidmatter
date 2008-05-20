@@ -3,7 +3,7 @@
 #  Created by Björn Breitgoff on 13-10-06.
 #  Copyright (c) 2008. All rights reserved.
 
-require 'lib/pop_ups.rb'
+require 'pop_ups.rb'
 
 
 class Tool

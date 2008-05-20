@@ -3,9 +3,9 @@
 #  Created by Björn Breitgoff on unknown date.
 #  Copyright (c) 2008. All rights reserved.
 
-require 'lib/geometry.rb'
-require 'lib/vector.rb'
-require 'lib/widgets.rb'
+require 'geometry.rb'
+require 'vector.rb'
+require 'widgets.rb'
 
 class ExtrudeOperator < Operator
 	def initialize( part, manager )
@@ -67,7 +67,7 @@ class ExtrudeOperator < Operator
 	def fill_toolbar 
 		# sketch selection
 		sketch_button = Gtk::ToggleToolButton.new
-		sketch_button.icon_widget = Gtk::Image.new('icons/middle/sketch_middle.png').show
+		sketch_button.icon_widget = Gtk::Image.new('../data/icons/middle/sketch_middle.png').show
 		sketch_button.label = "Sketch"
 		sketch_button.signal_connect("clicked") do |b| 
 		  if sketch_button.active?
@@ -92,28 +92,28 @@ class ExtrudeOperator < Operator
 		@toolbar.append( sketch_button )
 		@toolbar.append( Gtk::SeparatorToolItem.new )
 		# type button
-		type_button = Gtk::ToolButton.new( Gtk::Image.new('icons/tools.png'), "Type" )
+		type_button = Gtk::ToolButton.new( Gtk::Image.new('../data/icons/tools.png'), "Type" )
 		@toolbar.append( type_button )
 		type_button.signal_connect("clicked") do |b| 
 			if @settings[:type] == :add
 				@settings[:type] = :subtract
-				type_button.icon_widget = Gtk::Image.new('icons/zoom.png').show
+				type_button.icon_widget = Gtk::Image.new('../data/icons/zoom.png').show
 			elsif @settings[:type] == :subtract
 				@settings[:type] = :add
-				type_button.icon_widget = Gtk::Image.new('icons/return.png').show
+				type_button.icon_widget = Gtk::Image.new('../data/icons/return.png').show
 			end
 			show_changes
 		end
 		# direction button
-		direction_button = Gtk::ToolButton.new( Gtk::Image.new('icons/up.png'), "Direction" )
+		direction_button = Gtk::ToolButton.new( Gtk::Image.new('../data/icons/up.png'), "Direction" )
 		@toolbar.append( direction_button )
 		direction_button.signal_connect("clicked") do |b| 
 			if @settings[:direction] == :up
 				@settings[:direction] = :down
-				direction_button.icon_widget = Gtk::Image.new('icons/down.png').show
+				direction_button.icon_widget = Gtk::Image.new('../data/icons/down.png').show
 			elsif @settings[:direction] == :down
 				@settings[:direction] = :up
-				direction_button.icon_widget = Gtk::Image.new('icons/up.png').show
+				direction_button.icon_widget = Gtk::Image.new('../data/icons/up.png').show
 			end
 			show_changes
 		end

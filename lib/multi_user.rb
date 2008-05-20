@@ -4,10 +4,10 @@
 #  Copyright (c) 2008. All rights reserved.
 
 require 'drb'
-require 'lib/project_manager.rb'
-require 'lib/account_editor.rb'
-require 'lib/save_request_dialog.rb'
-require 'lib/wait_for_save_dialog.rb'
+require 'project_manager.rb'
+require 'account_editor.rb'
+require 'save_request_dialog.rb'
+require 'wait_for_save_dialog.rb'
 
 
 class UserAccount
