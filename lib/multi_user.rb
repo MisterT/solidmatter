@@ -221,8 +221,8 @@ class ProjectClient
                                       Gtk::Dialog::DESTROY_WITH_PARENT,
                                       Gtk::MessageDialog::WARNING,
                                       Gtk::MessageDialog::BUTTONS_CLOSE,
-                                      "Connection error")
-      dialog.secondary_text = "Could not connect to the requested server"
+                                      GetText._("Connection error"))
+      dialog.secondary_text = GetText._("Could not connect to the requested server")
       dialog.run
       dialog.destroy
       @working = false
@@ -258,8 +258,8 @@ class ProjectClient
                                       Gtk::Dialog::DESTROY_WITH_PARENT,
                                       Gtk::MessageDialog::WARNING,
                                       Gtk::MessageDialog::BUTTONS_CLOSE,
-                                      "Login failed")
-      dialog.secondary_text = "Please make sure that your login information is correct"
+                                      GetText._("Login failed"))
+      dialog.secondary_text = GetText._("Please make sure that your login information is correct")
       dialog.run
       dialog.destroy
       return false
@@ -296,8 +296,8 @@ class ProjectClient
                                             Gtk::Dialog::DESTROY_WITH_PARENT,
                                             Gtk::MessageDialog::INFO,
                                             Gtk::MessageDialog::BUTTONS_CLOSE,
-                                            "Request canceled")
-            dialog.secondary_text = "The save request was cancelled by another user"
+                                            GetText._("Request canceled"))
+            dialog.secondary_text = GetText._("The save request was cancelled by another user")
             dialog.run
             dialog.destroy
           when :accepted 

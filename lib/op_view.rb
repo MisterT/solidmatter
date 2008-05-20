@@ -24,7 +24,7 @@ class OpView < Gtk::ScrolledWindow
 		# set up view
 		pix = Gtk::CellRendererPixbuf.new
 		text = Gtk::CellRendererText.new
-		@column = Gtk::TreeViewColumn.new('Operators')
+		@column = Gtk::TreeViewColumn.new(GetText._('Operators'))
 		@column.reorderable = true
 		@column.pack_start(pix,false)
 		@column.set_cell_data_func(pix) do |column, cell, model, iter|
@@ -88,7 +88,7 @@ class OpView < Gtk::ScrolledWindow
 	def update
 		if @base_component
 			if @base_component.class == Part
-				@column.title = 'Operators'
+				@column.title = GetText._('Operators')
 				model = Gtk::TreeStore.new(Gdk::Pixbuf, String)
 				base_iter = model.append(nil)
 				base_iter[0] = Gtk::Image.new('../data/icons/small/part_small.png').pixbuf

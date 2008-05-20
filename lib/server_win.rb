@@ -13,12 +13,12 @@ class ServerWin
     unless server
       @server = ProjectServer.new self
       @glade['server_win'].signal_connect('destroy'){Gtk.main_quit}
-      @glade['server_win'].title = "Open Machinist dedicated server"
+      @glade['server_win'].title = GetText._("Open Machinist dedicated server")
     end
     # ------- create projects view ------- #
     pix = Gtk::CellRendererPixbuf.new
 		text = Gtk::CellRendererText.new
-		column = Gtk::TreeViewColumn.new('Projects')
+		column = Gtk::TreeViewColumn.new GetText._('Projects')
 		column.pack_start(pix,false)
 		column.set_cell_data_func(pix) do |col, cell, model, iter|
 			cell.pixbuf = iter.get_value(0)
@@ -30,7 +30,7 @@ class ServerWin
 		@pview = @glade['projects_view']
 		@pview.append_column( column )
 		# ------- create users view ------- #
-		column = Gtk::TreeViewColumn.new('Users')
+		column = Gtk::TreeViewColumn.new GetText._('Users')
 		column.pack_start(pix,false)
 		column.set_cell_data_func(pix) do |col, cell, model, iter|
 			cell.pixbuf = iter.get_value(0)

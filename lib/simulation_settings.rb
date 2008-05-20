@@ -14,7 +14,7 @@ class SimulationSettingsDialog
     # ------- create unused parts view ------- #
     pix = Gtk::CellRendererPixbuf.new
 		text = Gtk::CellRendererText.new
-		column = Gtk::TreeViewColumn.new 'All part instances'
+		column = Gtk::TreeViewColumn.new GetText._("All part instances")
 		column.pack_start(pix,false)
 		column.set_cell_data_func(pix) do |col, cell, model, iter|
 			cell.pixbuf = iter.get_value(0)
@@ -26,7 +26,7 @@ class SimulationSettingsDialog
 		@all_view = @glade['all_parts_view']
 		@all_view.append_column( column )
 		# ------- create colliding parts view ------- #
-		column = Gtk::TreeViewColumn.new "Parts checked for collisions"
+		column = Gtk::TreeViewColumn.new GetText._("Parts checked for collisions")
 		column.pack_start(pix,false)
 		column.set_cell_data_func(pix) do |col, cell, model, iter|
 			cell.pixbuf = iter.get_value(0)

@@ -105,26 +105,19 @@ class ProjectManager
 		@grid_snap = true
 		@use_sketch_guides = true
 		@server_win = nil
-		@materials = [ Material.new("Aluminum"),
-                   Material.new("Steel"),
-                   Material.new("Copper"),
-                   Material.new("Carbon"),
-                   Material.new("Glass"),
-                   Material.new("Polystyrol"),
-                   Material.new("Poly-acryl") ]
+		@materials = [ Material.new( GetText._("Aluminum")),
+                   Material.new( GetText._("Steel")),
+                   Material.new( GetText._("Copper")),
+                   Material.new( GetText._("Carbon")),
+                   Material.new( GetText._("Glass")),
+                   Material.new( GetText._("Polystyrol")),
+                   Material.new( GetText._("Poly-acryl")) ]
     @keymap = { 65505 => :Shift,
                 65507 => :Ctrl,
                 65406 => :Alt,
                 65307 => :Esc,
                 65288 => :Backspace,
-                65535 => :Del}
-    Gtk.quit_add(0) do
-      CloseProjectConfirmation.new self do |response|
-        case response
-        when :save then save_file
-        end
-      end
-    end   
+                65535 => :Del}  
 	  new_project
 	end
 	
@@ -138,7 +131,7 @@ public
   end
   
   def correct_title
-    file = @filename ? "(#{@filename})" : "<not saved>"
+    file = @filename ? "(#{@filename})" : GetText._("<not saved>")
     previous_dir = Dir.pwd
     Dir.chdir
     file.gsub!( Dir.pwd, '~')
@@ -157,9 +150,9 @@ public
 	    save_file if response == :save
       @client.exit if @client
       @client = nil
-    	@name = "Untitled project"
+    	@name = GetText._("Untitled project")
     	@author = ""
-    	@main_assembly = Instance.new( Assembly.new( "Untitled assembly", self ) )
+    	@main_assembly = Instance.new( Assembly.new( GetText._("Untitled assembly"), self ) )
     	@selection = Selection.new
     	@work_component = @main_assembly
     	@work_sketch = nil
@@ -200,7 +193,7 @@ public
   	    p.wire_displaylist = @glview.add_displaylist
   	    p.build do |op| 
   				progress.fraction += increment
-  				progress.text = "Rebuilding operator '#{op.name}' (#{op_i}/#{num_ops})" 
+  				progress.text = GetText._("Rebuilding operator") + "'#{op.name}' (#{op_i}/#{num_ops})" 
   				op_i += 1
   				sleep 0.1
   			end
@@ -277,7 +270,7 @@ public
 	
 	def new_assembly
 		# create assembly and make it the work assembly
-		assembly = Assembly.new( unique_name("assembly"), self )
+		assembly = Assembly.new( unique_name(GetText._("assembly")), self )
 		@all_assemblies.push assembly
 		new_instance( assembly )
 	end
@@ -287,7 +280,7 @@ public
 	  activate_tool('plane_select', true) do |plane|
 	    if plane
     		# create sketch and make it the work sketch
-    		sketch = Sketch.new( unique_name( "sketch" ), @work_component, plane, @glview )
+    		sketch = Sketch.new( unique_name( GetText._("sketch") ), @work_component, plane, @glview )
     		@all_sketches.push sketch
     		@work_component.unused_sketches.push( sketch )
     		@op_view.update
@@ -354,7 +347,7 @@ public
 	def open_file
 	  CloseProjectConfirmation.new self do |response|
 	    save_file if response == :save
-  		dia = Gtk::FileChooserDialog.new("Choose project file",
+  		dia = Gtk::FileChooserDialog.new( GetText._("Choose project file"),
                                         nil,
                                         Gtk::FileChooser::ACTION_OPEN,
                                         nil,
@@ -386,8 +379,8 @@ public
 				                                  Gtk::Dialog::DESTROY_WITH_PARENT,
 				                                  Gtk::MessageDialog::WARNING,
 				                                  Gtk::MessageDialog::BUTTONS_CLOSE,
-				                                  "Bad file format")
-				  dialog.secondary_text = "The file format is unsupported.\nMaybe this file was saved with an older version of Open Machinist"
+				                                  GetText._("Bad file format"))
+				  dialog.secondary_text = GetText._("The file format is unsupported.\nMaybe this file was saved with an older version of Open Machinist")
 				  dialog.run
 				  dialog.destroy
   			end
@@ -398,7 +391,7 @@ public
 	end
 	
 	def save_file_as
-	  dia = Gtk::FileChooserDialog.new("Save project as..",
+	  dia = Gtk::FileChooserDialog.new( GetText._("Save project as.."),
                                       nil,
                                       Gtk::FileChooser::ACTION_SAVE,
                                       nil,
@@ -408,8 +401,11 @@ public
     if dia.run == Gtk::Dialog::RESPONSE_ACCEPT
       @filename = dia.filename
 			save_file
+			dia.destroy
+			return true
     end
     dia.destroy
+    return false
 	end
 	
 	def save_file
@@ -424,6 +420,7 @@ public
   				readd_non_dumpable  
   			end
   			self.has_been_changed = false
+  			return true
   		else
   			save_file_as
   		end
@@ -590,12 +587,12 @@ public
 	    if sel.is_a? Operator 
 	      sketch = sel.settings[:sketch]
 	      if sketch
-		    	dia = Gtk::Dialog.new("Delete Sketch?",
+		    	dia = Gtk::Dialog.new( GetText._("Delete Sketch?"),
 		                         		 @main_win,
 		                         		 Gtk::Dialog::DESTROY_WITH_PARENT,
 		                         		 [Gtk::Stock::NO, Gtk::Dialog::RESPONSE_NO],
 		                         		 [Gtk::Stock::DELETE, Gtk::Dialog::RESPONSE_YES])
-		      label = Gtk::Label.new("The operator includes an associated sketch.\nDo you want to delete the it?")
+		      label = Gtk::Label.new( GetText._("The operator includes an associated sketch.\nDo you want to delete the it?") )
 		      label.set_padding( 6,12 )
 		      dia.vbox.add label
 		      dia.show_all
@@ -791,8 +788,8 @@ private
 
 	def unique_name base
 		num = 1
-		num += 1 while [@all_parts, @all_assemblies, @all_sketches].flatten.map{|e| e.name }.include? "Untitled #{base} #{num}"
-		return "Untitled #{base} #{num}"
+		num += 1 while [@all_parts, @all_assemblies, @all_sketches].flatten.map{|e| e.name }.include? GetText._("Untitled") + " #{base} #{num}"
+		return GetText._("Untitled") + " #{base} #{num}"
 	end
 end
 

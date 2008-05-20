@@ -68,7 +68,7 @@ class ExtrudeOperator < Operator
 		# sketch selection
 		sketch_button = Gtk::ToggleToolButton.new
 		sketch_button.icon_widget = Gtk::Image.new('../data/icons/middle/sketch_middle.png').show
-		sketch_button.label = "Sketch"
+		sketch_button.label = GetText._("Sketch")
 		sketch_button.signal_connect("clicked") do |b| 
 		  if sketch_button.active?
   			@manager.activate_tool("region_select", true) do |segments|
@@ -92,7 +92,7 @@ class ExtrudeOperator < Operator
 		@toolbar.append( sketch_button )
 		@toolbar.append( Gtk::SeparatorToolItem.new )
 		# type button
-		type_button = Gtk::ToolButton.new( Gtk::Image.new('../data/icons/tools.png'), "Type" )
+		type_button = Gtk::ToolButton.new( Gtk::Image.new('../data/icons/tools.png'), GetText._("Type") )
 		@toolbar.append( type_button )
 		type_button.signal_connect("clicked") do |b| 
 			if @settings[:type] == :add
@@ -105,7 +105,7 @@ class ExtrudeOperator < Operator
 			show_changes
 		end
 		# direction button
-		direction_button = Gtk::ToolButton.new( Gtk::Image.new('../data/icons/up.png'), "Direction" )
+		direction_button = Gtk::ToolButton.new( Gtk::Image.new('../data/icons/up.png'), GetText._("Direction") )
 		@toolbar.append( direction_button )
 		direction_button.signal_connect("clicked") do |b| 
 			if @settings[:direction] == :up
@@ -122,15 +122,15 @@ class ExtrudeOperator < Operator
 		vbox = Gtk::VBox.new 
 		mode_combo = Gtk::ComboBox.new
 		mode_combo.focus_on_click = false
-		mode_combo.append_text "Constant depth"
-		mode_combo.append_text "Up to selection"
+		mode_combo.append_text GetText._("Constant depth")
+		mode_combo.append_text GetText._("Up to selection")
 		mode_combo.active = 0
 		vbox.pack_start( mode_combo, true, false )
-		vbox.add Gtk::Label.new "Extrusion limit"
+		vbox.add Gtk::Label.new GetText._("Extrusion limit")
 		@toolbar.append( vbox )
 		@toolbar.append( Gtk::SeparatorToolItem.new )
 		# constant depth
-		entry = MeasureEntry.new "Depth"
+		entry = MeasureEntry.new GetText._("Depth")
 		entry.value = @settings[:depth]
 		entry.on_change_value{|val| @settings[:depth] = val; show_changes}
 		@toolbar.append entry

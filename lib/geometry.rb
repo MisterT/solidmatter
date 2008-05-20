@@ -547,8 +547,8 @@ class Operator
 		@toolbar.icon_size = Gtk::IconSize::SMALL_TOOLBAR
 		fill_toolbar 
 		toolbar.append( Gtk::SeparatorToolItem.new){}
-		@toolbar.append( Gtk::Stock::CANCEL, "Exit operator without saving changes","Operator/Cancel"){ cancel }
-		@toolbar.append( Gtk::Stock::OK, "Save changes and exit operator","Operator/Ok"){ ok }
+		@toolbar.append( Gtk::Stock::CANCEL, GetText._("Exit operator without saving changes"),"Operator/Cancel"){ cancel }
+		@toolbar.append( Gtk::Stock::OK, GetText._("Save changes and exit operator"),"Operator/Ok"){ ok }
 	end
 private
 	def fill_toolbar 
@@ -656,8 +656,8 @@ class Part < Component
 			dia = Gtk::MessageDialog.new( nil, Gtk::Dialog::DESTROY_WITH_PARENT,
 							                           Gtk::MessageDialog::WARNING,
 							                           Gtk::MessageDialog::BUTTONS_OK,
-							                           "Part could not be built")
-			dia.secondary_text = "Please recheck all operator settings and close any open sketch regions!"
+							                           GetText._("Part could not be built"))
+			dia.secondary_text = GetText._("Please recheck all operator settings and close any open sketch regions!")
 			dia.run
 			dia.destroy
 		end

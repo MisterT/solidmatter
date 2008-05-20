@@ -12,7 +12,7 @@ class SearchEntry < Gtk::ToolItem
 		@manager = manager
 		@icon = Gtk::Image.new( Gtk::Stock::FIND, Gtk::IconSize::SMALL_TOOLBAR )
 		@entry = Gtk::ComboBoxEntry.new
-		@label = Gtk::Label.new("Search") 
+		@label = Gtk::Label.new GetText._("Search") 
 		entry_box = Gtk::HBox.new false
 		entry_box.pack_start( @icon, false, false, 6 )
 		entry_box.pack_start( @entry, false )
@@ -71,8 +71,8 @@ class MeasureEntry < Gtk::VBox
 		add @label
 		# create popup menu
 		menu = Gtk::Menu.new
-		[Gtk::MenuItem.new("Measure value"),
-		 Gtk::MenuItem.new("Bind to measured value")
+		[Gtk::MenuItem.new(GetText._("Measure value")),
+		 Gtk::MenuItem.new(GetText._("Bind to measured value"))
 		].each{|i| menu.append(i)}
 		menu.show_all
 		@btn.signal_connect("button_press_event"){|w,e| menu.popup(nil, nil, 3, e.time)}

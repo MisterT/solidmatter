@@ -63,11 +63,10 @@ Gtk.main_with_queue 100
 # sicherheitsprüfungen im server ( is_valid(projectname, client_id) schreiben)
 # immer nach glDrawable fragen um redraw probleme zu vermeiden
 # nicht selektierbare objekte sollten wie der background wirken und bei click die selection aufheben
-# confirm application quit
 # shortcuts über accelerators
 # when selecting regions, select inner regions first
 # automatically apply operator if there is only one unused sketch region
-# create MIME type
 # parts/operatos should communicate somehow that they could not be built correctly
 # region select von vertikalen planes
 # drag in Editsketchtool does not move points exactly above client_ids_to_servede
+# "Also delete sketch?" dialog needs question icon

@@ -10,7 +10,7 @@ class BackgroundMenu < Gtk::Menu
     items = [
 			Gtk::ImageMenuItem.new(Gtk::Stock::PASTE),
 			Gtk::SeparatorMenuItem.new,
-			Gtk::ImageMenuItem.new("_Return").set_image( Gtk::Image.new(Gtk::Stock::UNDO, Gtk::IconSize::MENU) )
+			Gtk::ImageMenuItem.new(GetText._("_Return")).set_image( Gtk::Image.new(Gtk::Stock::UNDO, Gtk::IconSize::MENU) )
 		]
 		items[0].sensitive = manager.clipboard ? true : false
 		items[2].sensitive = (manager.work_sketch or 
@@ -34,13 +34,13 @@ class ComponentMenu < Gtk::Menu
   def initialize( manager, part, location )
     super()
     items = [
-			Gtk::MenuItem.new("Duplicate instance"),
-			Gtk::MenuItem.new("Duplicate original"),
+			Gtk::MenuItem.new( GetText._("Duplicate instance")),
+			Gtk::MenuItem.new( GetText._("Duplicate original")),
 			Gtk::ImageMenuItem.new(Gtk::Stock::COPY),
 			Gtk::ImageMenuItem.new(Gtk::Stock::PASTE),
 			Gtk::ImageMenuItem.new(Gtk::Stock::DELETE),
 			Gtk::SeparatorMenuItem.new,
-			Gtk::CheckMenuItem.new("Visible"),
+			Gtk::CheckMenuItem.new( GetText._("Visible")),
 			Gtk::SeparatorMenuItem.new,
 			Gtk::ImageMenuItem.new(Gtk::Stock::PROPERTIES)
 		]
@@ -85,9 +85,9 @@ class OperatorMenu < Gtk::Menu
   def initialize( manager, operator )
     super()
     items = [
-			Gtk::CheckMenuItem.new("Enabled"),
+			Gtk::CheckMenuItem.new( GetText._("Enabled")),
 			Gtk::SeparatorMenuItem.new,
-			Gtk::MenuItem.new("Edit dimensions"),
+			Gtk::MenuItem.new( GetText._("Edit dimensions")),
 			Gtk::ImageMenuItem.new(Gtk::Stock::DELETE)
 		]
 		items[0].active = operator.enabled
@@ -112,10 +112,10 @@ class SketchToolMenu < Gtk::Menu
   def initialize( manager, tool )
     super()
     items = [
-			Gtk::CheckMenuItem.new("Snap to points"),
-			Gtk::CheckMenuItem.new("Snap to grid"),
-			Gtk::CheckMenuItem.new("Use guides"),
-			Gtk::CheckMenuItem.new("Create reference geometry"),
+			Gtk::CheckMenuItem.new( GetText._("Snap to points")),
+			Gtk::CheckMenuItem.new( GetText._("Snap to grid")),
+			Gtk::CheckMenuItem.new( GetText._("Use guides")),
+			Gtk::CheckMenuItem.new( GetText._("Create reference geometry")),
 			Gtk::SeparatorMenuItem.new,
 			Gtk::ImageMenuItem.new(Gtk::Stock::STOP)
 		]
@@ -152,15 +152,15 @@ class SketchSelectionToolMenu < Gtk::Menu
   def initialize manager
     super()
     items = [
-			Gtk::CheckMenuItem.new("Snap to points"),
-			Gtk::CheckMenuItem.new("Snap to grid"),
-			Gtk::CheckMenuItem.new("Use guides"),
+			Gtk::CheckMenuItem.new( GetText._("Snap to points")),
+			Gtk::CheckMenuItem.new( GetText._("Snap to grid")),
+			Gtk::CheckMenuItem.new( GetText._("Use guides")),
 			Gtk::SeparatorMenuItem.new,
 			Gtk::ImageMenuItem.new(Gtk::Stock::COPY),
 			Gtk::ImageMenuItem.new(Gtk::Stock::PASTE),
 			Gtk::ImageMenuItem.new(Gtk::Stock::DELETE),
 			Gtk::SeparatorMenuItem.new,
-			Gtk::ImageMenuItem.new("_Return").set_image( Gtk::Image.new(Gtk::Stock::UNDO, Gtk::IconSize::MENU) )
+			Gtk::ImageMenuItem.new(GetText._("_Return")).set_image( Gtk::Image.new(Gtk::Stock::UNDO, Gtk::IconSize::MENU) )
 		]
 		items[0].active = manager.point_snap
 		items[1].active = manager.grid_snap

@@ -79,6 +79,7 @@ public
 	
 	def exit
 		@glview.immediate_draw_routines.pop
+		@manager.glview.window.cursor = nil
 	end
 private
 	def draw
@@ -106,7 +107,7 @@ end
 
 class PartSelectionTool < SelectionTool
 	def initialize( glview, manager )
-		super( "Drag a part to move it around, right click for options:", glview, manager )
+		super( GetText._("Drag a part to move it around, right click for options:"), glview, manager )
 	end
 	
 	def click_left( x,y )
@@ -144,7 +145,7 @@ end
 
 class OperatorSelectionTool < SelectionTool
 	def initialize( glview, manager )
-		super( "Select a feature from yout model, right click for options:", glview, manager )
+		super( GetText._("Select a feature from yout model, right click for options:"), glview, manager )
 	end
 	
 	def click_right( x,y, time )
@@ -175,7 +176,7 @@ end
 Region = Struct.new(:chain, :poly, :face)
 class RegionSelectionTool < SelectionTool
 	def initialize( glview, manager )
-		super( "Pick a closed region from a sketch:", glview, manager )
+		super( GetText._("Pick a closed region from a sketch:"), glview, manager )
 		@op_sketch = manager.work_operator.settings[:sketch]
 		@all_sketches = (manager.work_component.unused_sketches + [@op_sketch]).compact
 		@regions = @all_sketches.inject([]) do |regions, sketch|
@@ -214,6 +215,7 @@ class RegionSelectionTool < SelectionTool
         break if @current_region
       end
     end
+    @manager.glview.window.cursor = @current_region ? Gdk::Cursor.new(Gdk::Cursor::HAND2) : nil
 	end
 	
 	def draw
@@ -239,7 +241,7 @@ end
 
 class PlaneSelectionTool < SelectionTool
 	def initialize( glview, manager )
-		super( "Select a single plane:", glview, manager )
+		super( GetText._("Select a single plane:"), glview, manager )
 		@manager.work_component.working_planes.each{|plane| plane.visible = true }
 	end
 	
@@ -268,7 +270,7 @@ end
 
 class CameraTool < Tool
 	def initialize( glview, manager )
-		super( "Drag left to pan, drag right to rotate the camera, middle drag for zoom:", glview, manager )
+		super( GetText._("Drag left to pan, drag right to rotate the camera, middle drag for zoom:"), glview, manager )
 	end
 	
 	def click_left( x,y )
@@ -283,7 +285,7 @@ end
 
 class MeasureDistanceTool < Tool
 	def initialize( glview, manager )
-		super( "Pick a series of points to display the lenght of the path along them:", glview, manager )
+		super( GetText._("Pick a series of points to display the lenght of the path along them:"), glview, manager )
 		@points = []
 	end
 	
@@ -306,7 +308,7 @@ private
 			previous = p
 		end
 		# lenght should be displayed even when tool was paused
-		@status_text = "Distance: #{dist}"
+		@status_text = GetText._("Distance:") + " #{dist}"
 		@manager.set_status_text @status_text
 	end
 	
@@ -498,7 +500,8 @@ end
 
 class LineTool < SketchTool
 	def initialize( glview, manager, sketch )
-		super( "Click left to create a point, middle click to move points:", glview, manager, sketch )
+		super( GetText._("Click left to create a point, middle click to move points:"), glview, manager, sketch )
+		@manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if @manager.glview.window
 	end
 	
 	# add temporary line to sketch and add a new one
@@ -558,7 +561,7 @@ end
 
 class EditSketchTool < SketchTool
 	def initialize( glview, manager, sketch )
-		super( "Click left to select points, drag to move points, right click for options:", glview, manager, sketch )
+		super( GetText._("Click left to select points, drag to move points, right click for options:"), glview, manager, sketch )
 		@draw_points = []
 		@does_snap = false
 		@points_to_drag = []

@@ -15,7 +15,7 @@ class AccountEditor
     # ------- create server view ------- #
     pix = Gtk::CellRendererPixbuf.new
 		text = Gtk::CellRendererText.new
-		column = Gtk::TreeViewColumn.new 'Projects on server'
+		column = Gtk::TreeViewColumn.new GetText._('Projects on server')
 		column.pack_start(pix,false)
 		column.set_cell_data_func(pix) do |col, cell, model, iter|
 			cell.pixbuf = iter.get_value(0)
@@ -27,7 +27,7 @@ class AccountEditor
 		@sview = @glade['server_view']
 		@sview.append_column( column )
 		# ------- create user view ------- #
-		column = Gtk::TreeViewColumn.new "User's projects"
+		column = Gtk::TreeViewColumn.new GetText._("User's projects")
 		column.pack_start(pix,false)
 		column.set_cell_data_func(pix) do |col, cell, model, iter|
 			cell.pixbuf = iter.get_value(0)
