@@ -60,7 +60,15 @@ public
 	 
 	end
 	
+	def press_right( x,y )
+	  
+	end
+	
 	def release_left
+	 
+	end
+	
+	def release_right
 	 
 	end
 	
@@ -271,10 +279,31 @@ end
 class CameraTool < Tool
 	def initialize( glview, manager )
 		super( GetText._("Drag left to pan, drag right to rotate the camera, middle drag for zoom:"), glview, manager )
+		@manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::FLEUR
 	end
 	
 	def click_left( x,y )
 		# is already handled by GLView
+	end
+	
+	def press_left( x,y )
+	  super
+	  @manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::FLEUR
+	end
+	
+	def click_middle( x,y )
+	  super
+	  @manager.glview.window.cursor =Gdk::Cursor.new Gdk::Cursor::SB_V_DOUBLE_ARROW
+	end
+	
+	def press_right( x,y )
+	  super
+	  @manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::EXCHANGE
+	end
+	
+	def button_release
+	  super
+	  @manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::FLEUR
 	end
 	
 	def draw

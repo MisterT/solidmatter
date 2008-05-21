@@ -140,15 +140,16 @@ class GLView < Gtk::DrawingArea
 				@last_down = Point.new( event.x, event.y )
 				click_middle( event.x, event.y )
 			elsif event.button == 3
-				@last_button_down = :right
-				@last_down = Point.new( event.x, event.y )
-				click_right( event.x, event.y, event.time )
+				press_right( event.x, event.y )
 			end
 			redraw
 		end
 		signal_connect("button_release_event") do |w,e| 
 		  button_release( e.x, e.y ) 
-		  release_left( e.x, e.y ) if e.button == 1
+		  case e.button
+	      when 1 then release_left( e.x, e.y )
+		    when 3 then release_right( e.x, e.y, e.time )
+	    end
 	  end
 		signal_connect("motion_notify_event") do |widget, event|
 		  unless Gtk::events_pending?
@@ -167,6 +168,15 @@ class GLView < Gtk::DrawingArea
 	
 	def mouse_move( x,y )
 		@manager.current_tool.mouse_move( x,y )
+	end
+	
+	def button_release( x,y )
+	  @last_button_down = nil
+	  @manager.current_tool.button_release
+	  if $preferences[:manage_gc]
+	  	GC.enable
+	  	GC.start
+	  end
 	end
 	
 	def press_left( x,y )
@@ -200,34 +210,32 @@ class GLView < Gtk::DrawingArea
 		end
 	end
 	
-	def button_release( x,y )
-	  @last_button_down = nil
-	  @manager.current_tool.button_release
-	  if $preferences[:manage_gc]
-	  	GC.enable
-	  	GC.start
-	  end
+	def click_middle( x,y )
+		if @manager.current_tool.is_a? CameraTool
+			add_view
+			@last_mouse_down_cam = @cameras[@current_cam_index].clone
+		end
+		@manager.current_tool.click_middle( x,y )
 	end
 	
-	def click_middle( x,y )
-		case @manager.current_tool
-			when CameraTool then
-				add_view
-				@last_mouse_down_cam = @cameras[@current_cam_index].clone
-		else
-			@manager.current_tool.click_middle( x,y )
+	def press_right( x,y )
+	  @last_button_down = :right
+		@last_down = Point.new( x, y )
+		if @manager.current_tool.is_a? CameraTool
+			add_view
+			@last_mouse_down_cam = @cameras[@current_cam_index].clone
 		end
+		@manager.current_tool.press_right( x,y )
+    @button_press_time = Time.now
+	end
+	
+	def release_right( x,y, time )
+	  @manager.current_tool.release_right
+	 	click_right( x, y, time ) if @button_press_time and Time.now - @button_press_time < 1
 	end
 	
 	def click_right( x,y, time )
-		case @manager.current_tool
-			when CameraTool then
-				add_view
-				@last_mouse_down_cam = @cameras[@current_cam_index].clone
-		else
-			@manager.current_tool.click_right( x,y, time )
-			button_release( x,y ) # btn does not get released when pop-up is open
-		end
+		@manager.current_tool.click_right( x,y, time )
 	end
 	
 	def drag_left( x,y )
