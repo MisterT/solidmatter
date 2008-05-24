@@ -6,5 +6,5 @@
 require 'gettext/rmsgfmt'
 require 'gettext/utils'
 
-GetText.update_pofiles("openmachinist", Dir.glob("{lib,bin}/**/*.{rb,rhtml,glade}"), "openmachinist 0.0.2")
+#GetText.update_pofiles("openmachinist", Dir.glob("{lib,bin,data/glade}/**/*.{rb,rhtml,glade}"), "openmachinist 0.0.2")
 GetText.create_mofiles
