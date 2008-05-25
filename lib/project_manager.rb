@@ -315,6 +315,7 @@ public
           inst.components.each{|c| add_object( c, false ) }
         end
       end
+      @all_instances.push inst
     # add segment
     elsif inst.is_a? Segment and @work_sketch
       @work_sketch.segments.push inst
@@ -339,7 +340,7 @@ public
       obj.sketch.segments.delete obj
       obj.sketch.build_displaylist
     elsif obj.is_a? Component
-    	@all_instances.each{|inst| delete_object inst if inst.real_component == obj }
+    	@all_instances.dup.each{|inst| delete_object inst if inst.real_component == obj }
     	@all_parts.delete obj
     end
     @op_view.update
@@ -591,15 +592,14 @@ public
 	    if sel.is_a? Operator 
 	      sketch = sel.settings[:sketch]
 	      if sketch
-		    	dia = Gtk::Dialog.new( GetText._("Delete Sketch?"),
-		                         		 @main_win,
-		                         		 Gtk::Dialog::DESTROY_WITH_PARENT,
-		                         		 [Gtk::Stock::NO, Gtk::Dialog::RESPONSE_NO],
-		                         		 [Gtk::Stock::DELETE, Gtk::Dialog::RESPONSE_YES])
-		      label = Gtk::Label.new( GetText._("The operator includes an associated sketch.\nDo you want to delete the it?") )
-		      label.set_padding( 6,12 )
-		      dia.vbox.add label
-		      dia.show_all
+       	  dia = Gtk::MessageDialog.new(@main_win, 
+                                       Gtk::Dialog::DESTROY_WITH_PARENT,
+                                       Gtk::MessageDialog::QUESTION,
+                                       Gtk::MessageDialog::BUTTONS_NONE,
+                                       GetText._("Delete Sketch?"))
+          dia.add_buttons( [Gtk::Stock::NO, Gtk::Dialog::RESPONSE_NO],
+           		             [Gtk::Stock::DELETE, Gtk::Dialog::RESPONSE_YES] )
+		      dia.secondary_text = GetText._("The operator includes an associated sketch.\nDo you want to delete it?")
 				  dia.run do |resp|
 						if resp == Gtk::Dialog::RESPONSE_YES
 							@all_sketches.delete sketch

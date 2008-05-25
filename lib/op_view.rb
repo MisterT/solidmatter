@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #
-#  Created by Björn Breitgoff on unknown date.
+#  Created by BjÃ¶rn Breitgoff on unknown date.
 #  Copyright (c) 2008. All rights reserved.
 
 require 'operators.rb'
@@ -135,7 +135,7 @@ class OpView < Gtk::ScrolledWindow
 				recurse_visualize( model, iter, comp.components )
 			else
 				iter[0] = Gtk::Image.new('../data/icons/small/part_small.png').pixbuf
-				iter[1] = comp.real_component.object_id.to_s #comp.information[:name]
+				iter[1] = comp.information[:name]
 			end
 		end
 	end

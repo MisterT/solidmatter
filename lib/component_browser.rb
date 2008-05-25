@@ -16,7 +16,8 @@ class ComponentBrowser
     build_buttons
     @table = @glade['table']
     @glade['combo'].active = 0
-    @timeout = Gtk.timeout_add(500){ rebuild; puts @manager.all_parts.size; true }
+    @timeout = Gtk.timeout_add(500){ rebuild ; true }
+    @glade['component_browser'].signal_connect("destroy"){ Gtk.timeout_remove @timeout }
   end
   
   def build_buttons
@@ -58,7 +59,6 @@ class ComponentBrowser
   def remove_selected
   	btn = @buttons.select{|b| b.active? }.first
   	@manager.delete_object @parts[btn] if btn
-  	puts @parts[btn].class
   	build_buttons
   end
   
@@ -88,7 +88,6 @@ class ComponentBrowser
 	end
 	
   def close w=nil
-  	Gtk.timeout_remove @timeout
     @glade['component_browser'].destroy
   end
 end

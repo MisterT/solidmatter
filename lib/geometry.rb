@@ -564,12 +564,24 @@ end
 
 class Component
   @@used_ids = []
-	attr_reader :information
+	attr_reader :information, :component_id
 	attr_accessor :thumbnail
+	
+	def self.new_id
+	  id = rand 99999999999999999999999999999999999999999 while @@used_ids.include? id
+    @@used_ids.push id
+    id
+  end
+  
 	def initialize
-		@component_id = rand 99999999999999999999999999999999999999999 while @@used_ids.include? @component_id
-    @@used_ids.push @component_id
+    @component_id = Component.new_id
     @thumbnail = nil
+	end
+	
+	def dup
+	  copy = super
+	  copy.component_id = new_id
+	  copy
 	end
 	
 	def name
@@ -587,7 +599,7 @@ end
 
 class Part < Component
   attr_accessor :manager, :displaylist, :wire_displaylist, :history_limit
-	attr_reader :component_id, :operators, :working_planes, :unused_sketches, :solid
+	attr_reader :operators, :working_planes, :unused_sketches, :solid
 	def initialize(name, manager, disp_num, wire_disp_num )
 		super()
 		@manager = manager
@@ -727,7 +739,7 @@ end
 
 
 class Assembly < Component
-	attr_accessor :component_id, :components, :manager
+	attr_accessor :components, :manager
 	def initialize( name, manager )
 		super()
 		@component_id = component_id() 
