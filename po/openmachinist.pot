@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: openmachinist 0.0.2\n"
-"POT-Creation-Date: 2008-05-24 21:44+0200\n"
-"PO-Revision-Date: 2008-05-24 21:44+0200\n"
+"POT-Creation-Date: 2008-05-25 17:35+0200\n"
+"PO-Revision-Date: 2008-05-25 17:35+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -24,11 +24,11 @@ msgstr ""
 msgid "Save changes and exit operator"
 msgstr ""
 
-#: lib/geometry.rb:659
+#: lib/geometry.rb:661
 msgid "Part could not be built"
 msgstr ""
 
-#: lib/geometry.rb:660
+#: lib/geometry.rb:662
 msgid "Please recheck all operator settings and close any open sketch regions!"
 msgstr ""
 
@@ -514,6 +514,10 @@ msgstr ""
 
 #: lib/project_manager.rb:196
 msgid "Rebuilding operator"
+msgstr ""
+
+#: lib/project_manager.rb:266
+msgid "part"
 msgstr ""
 
 #: lib/project_manager.rb:273

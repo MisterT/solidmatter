@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.2.2 on Sun Dec 23 03:13:56 2007 by synthetic@localhost-->
+<!--Generated with glade3 3.4.5 on Sun May 25 19:58:21 2008 -->
 <glade-interface>
   <widget class="GtkWindow" id="new_dialog">
     <property name="visible">True</property>
@@ -33,7 +33,7 @@
               </widget>
               <packing>
                 <property name="expand">False</property>
-                <property name="padding">23</property>
+                <property name="padding">10</property>
               </packing>
             </child>
             <child>

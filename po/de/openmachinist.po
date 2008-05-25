@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: openmachinist 0.0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-05-24 21:44+0200\n"
-"PO-Revision-Date: 2008-05-24 22:07+0200\n"
+"POT-Creation-Date: 2008-05-25 17:35+0200\n"
+"PO-Revision-Date: 2008-05-25 17:37+0200\n"
 "Last-Translator: Björn Breitgoff <>\n"
 "Language-Team: German\n"
 "MIME-Version: 1.0\n"
@@ -26,11 +26,11 @@ msgstr "Operator verlassen ohne zu speichern"
 msgid "Save changes and exit operator"
 msgstr "Änderungen speichern und Operator verlassen"
 
-#: lib/geometry.rb:659
+#: lib/geometry.rb:661
 msgid "Part could not be built"
 msgstr "Bauteil konnte nicht errechnet werden"
 
-#: lib/geometry.rb:660
+#: lib/geometry.rb:662
 msgid "Please recheck all operator settings and close any open sketch regions!"
 msgstr ""
 "Bitte überprüfen Sie alle Operatoreinstellungen und schliessen Sie offene "
@@ -520,6 +520,10 @@ msgstr "Unbenannte Baugruppe"
 msgid "Rebuilding operator"
 msgstr "Operator wird ausgeführt"
 
+#: lib/project_manager.rb:266
+msgid "part"
+msgstr "Bauteil"
+
 #: lib/project_manager.rb:273
 msgid "assembly"
 msgstr "Baugruppe"
@@ -571,7 +575,7 @@ msgstr "Alle Bauteile"
 
 #: lib/simulation_settings.rb:29
 msgid "Parts checked for collisions"
-msgstr "Bauteile die auf Kollision geprüft werden"
+msgstr "Auf Kollisionen geprüft"
 
 #: lib/account_editor.rb:18
 msgid "Projects on server"

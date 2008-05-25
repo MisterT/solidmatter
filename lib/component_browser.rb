@@ -10,24 +10,56 @@ class ComponentBrowser
 	def initialize manager
 	  @manager = manager
 	  @glade = GladeXML.new( "../data/glade/component_browser.glade", nil, 'openmachinist' ) {|handler| method(handler)}
-	  #XXX this allows only selection of instances in project, not parts
 	  @parts = {}
-    @thumbs = @manager.all_parts.map do |part| 
-      im = @manager.glview.image_of part
-      if im 
-        gtkim = native2gtk(im)
-        @parts[gtkim] = part
-        gtkim
-      else
-        nil 
-      end
-    end.compact
+    # generate Radiobuttons for thumbnails
+    @btn_width = $preferences[:thumb_res] + 65.0
+    build_buttons
     @table = @glade['table']
     @glade['combo'].active = 0
+    @timeout = Gtk.timeout_add(500){ rebuild; puts @manager.all_parts.size; true }
+  end
+  
+  def build_buttons
+	  # generate Gtk::Images for all parts
+    @thumbs = @manager.all_parts.dup.map do |part|
+    	im = part.thumbnail ? part.thumbnail : @manager.glview.image_of( part )
+    	part.thumbnail = im
+      gtkim = native2gtk(im)
+      @parts[gtkim] = part
+      gtkim
+    end
+	  prev_btn = nil    
+	  @buttons = @thumbs.map do |t| 
+	    b = prev_btn ? Gtk::RadioButton.new( prev_btn ) : Gtk::RadioButton.new
+	    prev_btn = b
+	    vbox = Gtk::VBox.new
+	    t.parent.remove t if t.parent
+	    vbox.add t
+	    name = @parts[t].name
+	    vbox.add Gtk::Label.new(name.size > 13 ? name[0...10] + "..." : name)
+	    b.add vbox
+	    b.set_size_request( @btn_width, 75 )
+	    b.draw_indicator = false
+	    @parts[b] = @parts[t]
+	    b
+    end
+    rebuild
   end
   
   def combo_changed
     rebuild
+  end
+  
+  def add_selected
+  	btn = @buttons.select{|b| b.active? }.first
+  	insert @parts[btn]
+  end
+  
+  def remove_selected
+  	btn = @buttons.select{|b| b.active? }.first
+  	@manager.delete_object @parts[btn] if btn
+  	puts @parts[btn].class
+  	build_buttons
   end
   
 	def insert part
@@ -36,26 +68,18 @@ class ComponentBrowser
 	end
 	
 	def rebuild
-	  thumbs_per_row = (@glade['viewport'].allocation.width / ($preferences[:thumb_res] * 1.8)).to_i
-	  num_rows = (@thumbs.size.to_f / thumbs_per_row).ceil    
-	  buttons = @thumbs.map do |t| 
-	    t.parent.remove t if t.parent
-	    b = Gtk::Button.new
-	    vbox = Gtk::VBox.new
-	    vbox.add t
-	    vbox.add Gtk::Label.new(@parts[t].name.ljust 17)
-	    b.add vbox
-	    b.signal_connect("clicked"){ insert @parts[t] }
-	    b
-    end
+	  thumbs_per_row = (@glade['viewport'].allocation.width / @btn_width).to_i
+	  num_rows = (@thumbs.size.to_f / thumbs_per_row).ceil
+	  buttons = @buttons.dup
     vbox = Gtk::VBox.new
 	 	num_rows.times do |y|
-	 	    hbox = Gtk::HBox.new
-	 	    vbox.pack_start( hbox, false )
-  			for x in (0...thumbs_per_row)
-  				b = buttons.pop
-  				hbox.pack_start( (b ? b : Gtk::Label.new("")), false )
-  			end
+ 	    hbox = Gtk::HBox.new
+ 	    vbox.pack_start( hbox, false )
+			for x in (0...thumbs_per_row)
+				b = buttons.pop
+			 	b.parent.remove b if b and b.parent
+				hbox.pack_start( (b ? b : Gtk::Label.new("")), false )
+			end
   	end
   	@glade['viewport'].remove @old_vbox if @old_vbox
   	@glade['viewport'].add vbox
@@ -64,6 +88,7 @@ class ComponentBrowser
 	end
 	
   def close w=nil
+  	Gtk.timeout_remove @timeout
     @glade['component_browser'].destroy
   end
 end

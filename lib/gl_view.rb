@@ -674,29 +674,32 @@ class GLView < Gtk::DrawingArea
 	
 	def image_of part
 	  # find an instance of this part for rendering
-		part = @manager.all_part_instances.select{|inst| inst.real_component == part }.first
-		if part
-			# make screenshot of part
-			visible = {}
-			@manager.all_part_instances.each{|p| visible[p] = p.visible ; p.visible = false }
-			part.visible = true
-			@do_not_swap = true
-			zoom_onto [part]
-			screen = screenshot
-			previous_view
-			@manager.all_part_instances.each{|p| p.visible = visible[p] }
-			@do_not_swap = false
-			# render reflection and normalize size
-			res = $preferences[:thumb_res]
-	  	back = Image.new(res, res)
-			object = screen.matte_floodfill(0,0).trim.resize_to_fit( res,res )
-			comp = back.blend( object, 0.99, 0.01, Magick::CenterGravity )
-			floor = comp.wet_floor(0.45, 0.5)
-			composite = back.blend( floor, 0.65, 0.35, Magick::SouthGravity ).blend( object, 0.99, 0.01, Magick::CenterGravity )
-			redraw
-			return composite
+		inst = @manager.all_part_instances.select{|inst| inst.real_component == part }.first
+		temp = false
+		unless inst
+			inst = @manager.new_instance( part, false )
+			temp = true
 		end
-		return nil
+		# make screenshot of part
+		visible = {}
+		@manager.all_part_instances.each{|p| visible[p] = p.visible ; p.visible = false }
+		inst.visible = true
+		@do_not_swap = true
+		zoom_onto [inst]
+		screen = screenshot
+		previous_view
+		@manager.all_part_instances.each{|p| p.visible = visible[p] }
+		@do_not_swap = false
+		# render reflection and normalize size
+		res = $preferences[:thumb_res]
+  	back = Image.new(res, res)
+		object = screen.matte_floodfill(0,0).trim.resize_to_fit( res,res )
+		comp = back.blend( object, 0.99, 0.01, Magick::CenterGravity )
+		floor = comp.wet_floor(0.45, 0.5)
+		composite = back.blend( floor, 0.65, 0.35, Magick::SouthGravity ).blend( object, 0.99, 0.01, Magick::CenterGravity )
+		@manager.delete_object inst if temp
+		redraw
+		return composite
 	end
 	
 	def screenshot( x=0, y=0, width=allocation.width, height=allocation.height, step=8 )

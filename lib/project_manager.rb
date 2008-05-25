@@ -248,7 +248,7 @@ public
   ###                                                                              ###
   ######---------------------- Creation of new components ----------------------######
   ###             	                                                               ###
-	def new_instance( component )
+	def new_instance( component, show_properties=true )
 	  # make sure we are inserting into an assembly
 		working_level_up while @work_component.class == Part
 		# make component instance the work component
@@ -258,12 +258,13 @@ public
 		@all_part_instances.push instance if instance.class == Part
 		@all_assembly_instances.push instance if instance.class == Assembly
 		change_working_level instance 
-		instance.display_properties
+		instance.display_properties if show_properties
+		instance
 	end
 	
 	def new_part
 		# create part and make its instance the work part
-		part = Part.new( unique_name( "part" ), self, @glview.add_displaylist, @glview.add_displaylist )
+		part = Part.new( unique_name( GetText._("part") ), self, @glview.add_displaylist, @glview.add_displaylist )
 		@all_parts.push part
 		new_instance( part )
 	end
@@ -337,6 +338,9 @@ public
     elsif obj.is_a? Segment
       obj.sketch.segments.delete obj
       obj.sketch.build_displaylist
+    elsif obj.is_a? Component
+    	@all_instances.each{|inst| delete_object inst if inst.real_component == obj }
+    	@all_parts.delete obj
     end
     @op_view.update
     @glview.redraw

@@ -135,7 +135,7 @@ class OpView < Gtk::ScrolledWindow
 				recurse_visualize( model, iter, comp.components )
 			else
 				iter[0] = Gtk::Image.new('../data/icons/small/part_small.png').pixbuf
-				iter[1] = comp.information[:name]
+				iter[1] = comp.real_component.object_id.to_s #comp.information[:name]
 			end
 		end
 	end

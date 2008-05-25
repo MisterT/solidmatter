@@ -537,8 +537,8 @@ class Operator
 	end
 	
 	def cancel
-	 @settings = @save_settings
-	 ok
+		@settings = @save_settings
+		ok
 	end
 
 	def create_toolbar
@@ -556,8 +556,8 @@ private
 	end
 	
 	def show_changes
-	 @part.build self
-	 @manager.glview.redraw 
+		@part.build self
+		@manager.glview.redraw 
 	end
 end
 
@@ -565,9 +565,11 @@ end
 class Component
   @@used_ids = []
 	attr_reader :information
+	attr_accessor :thumbnail
 	def initialize
 		@component_id = rand 99999999999999999999999999999999999999999 while @@used_ids.include? @component_id
-    @@used_ids.push @component_id 
+    @@used_ids.push @component_id
+    @thumbnail = nil
 	end
 	
 	def name
@@ -794,6 +796,12 @@ class Instance
 		@selection_pass_color = [1.0, 1.0, 1.0]
 		@instance_id = rand 99999999999999999999999999999999999999999 while @@used_ids.include? @instance_id
     @@used_ids.push @instance_id
+	end
+	
+	def dup
+		copy = super
+		copy.real_component = @real_component
+		copy
 	end
 	
 	def class
