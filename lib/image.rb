@@ -69,6 +69,10 @@ attr_accessor :im
     @im.height
   end
   
+  def to_tiny
+    TinyImage.new self
+  end
+  
 	def method_missing( method, *args )
 		args.map!{|a| (a.is_a? Image) ? a.im : a }
 		new_im = @im.send( method, *args )
@@ -76,6 +80,28 @@ attr_accessor :im
 		native_im.im = new_im
 		return native_im
 	end
+end
+
+class TinyImage
+  def initialize image
+    @im = Array.new image.width
+    for x in 0...image.width
+      @im[x] = []
+      for y in 0...image.height
+        @im[x].push image.pixel( x,y )
+      end
+    end
+  end
+  
+  def to_native
+    native = Image.new( @im.size, @im[0].size )
+    for x in 0...native.width
+      for y in 0...native.height
+        native.set_pixel( x,y, @im[x][y])
+      end
+    end
+    return native
+  end
 end
 
 

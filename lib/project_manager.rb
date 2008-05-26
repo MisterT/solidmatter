@@ -13,6 +13,7 @@ require 'project_dialog.rb'
 require 'make_public_dialog.rb'
 require 'close_project_confirmation.rb'
 require 'simulation_settings.rb'
+require 'file_open_dialog.rb'
 
 class Selection
 	def initialize
@@ -352,12 +353,7 @@ public
 	def open_file
 	  CloseProjectConfirmation.new self do |response|
 	    save_file if response == :save
-  		dia = Gtk::FileChooserDialog.new( GetText._("Choose project file"),
-                                        nil,
-                                        Gtk::FileChooser::ACTION_OPEN,
-                                        nil,
-                                        [Gtk::Stock::CANCEL, Gtk::Dialog::RESPONSE_CANCEL],
-                                        [Gtk::Stock::OPEN, Gtk::Dialog::RESPONSE_ACCEPT])
+	    dia = FileOpenDialog.new
       if dia.run == Gtk::Dialog::RESPONSE_ACCEPT
       	filename = dia.filename
       	dia.destroy
@@ -365,14 +361,15 @@ public
 					File::open( filename ) do |file|
 						scene = Marshal::restore file 
 						exchange_all_gl_components do
-							@name                   = scene[0]
-							@main_assembly          = scene[1]
-							@all_assemblies         = scene[2]
-							@all_parts              = scene[3]
-      				@all_instances          = scene[4]
-      				@all_part_instances     = scene[5]
-      				@all_assembly_instances = scene[6]
-							@all_sketches           = scene[7]
+						  thumbnail               = scene[0]
+							@name                   = scene[1]
+							@main_assembly          = scene[2]
+							@all_assemblies         = scene[3]
+							@all_parts              = scene[4]
+      				@all_instances          = scene[5]
+      				@all_part_instances     = scene[6]
+      				@all_assembly_instances = scene[7]
+							@all_sketches           = scene[8]
 							readd_non_dumpable
 						end
 					end
@@ -403,8 +400,13 @@ public
                                       [Gtk::Stock::CANCEL, Gtk::Dialog::RESPONSE_CANCEL],
                                       [Gtk::Stock::SAVE, Gtk::Dialog::RESPONSE_ACCEPT])
 		dia.set_property('do-overwrite-confirmation', true)  
+		filter = Gtk::FileFilter.new
+    filter.name = GetText._("Open Machinst project")
+    filter.add_pattern("*.omp")
+    dia.add_filter filter
     if dia.run == Gtk::Dialog::RESPONSE_ACCEPT
       @filename = dia.filename
+      @filename += '.omp' unless @filename =~ /.omp/
 			save_file
 			dia.destroy
 			return true
@@ -421,7 +423,7 @@ public
   		  @selection.deselect_all
   			File::open( @filename, "w" ) do |file|
   			  strip_non_dumpable
-  				Marshal::dump( [@name, @main_assembly, @all_assemblies,	@all_parts, @all_instances, @all_part_instances, @all_assembly_instances, @all_sketches], file )
+  				Marshal::dump( [@glview.image_of_instances(@all_part_instances,4,100).to_tiny, @name, @main_assembly, @all_assemblies,	@all_parts, @all_instances, @all_part_instances, @all_assembly_instances, @all_sketches], file )
   				readd_non_dumpable  
   			end
   			self.has_been_changed = false

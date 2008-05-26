@@ -69,7 +69,6 @@ Gtk.main_with_queue 100
 # parts/operatos should communicate somehow that they could not be built correctly
 # region select von vertikalen planes
 # drag in Editsketchtool does not move points exactly above guides
-# "Also delete sketch?" dialog needs question icon
 # refactor delete_op_view_selected code into delete_object
-
+# clear solids before saving
 

@@ -672,37 +672,49 @@ class GLView < Gtk::DrawingArea
 		GL.End
 	end
 	
-	def image_of part
-	  # find an instance of this part for rendering
-		inst = @manager.all_part_instances.select{|inst| inst.real_component == part }.first
-		temp = false
-		unless inst
-			inst = @manager.new_instance( part, false )
-			temp = true
-		end
-		# make screenshot of part
+	def image_of_parts parts
+	  parts = [parts] unless parts.is_a? Array
+	  # find an instance of each part for rendering
+	  temp = []
+	  instances = parts.map do |part|
+		  inst = @manager.all_part_instances.select{|inst| inst.real_component == part }.first
+		  if inst
+		    inst
+	    else
+	      temp_inst = @manager.new_instance( part, false )
+	      temp.push temp_inst
+	      temp_inst
+      end
+	  end
+	  im = image_of_instances instances
+		temp.each{|t| @manager.delete_object t }
+		redraw
+		return im
+	end
+	
+	def image_of_instances( instances, step=8, res=nil )
+	 	# make screenshot of parts
 		visible = {}
 		@manager.all_part_instances.each{|p| visible[p] = p.visible ; p.visible = false }
-		inst.visible = true
+		instances.each{|i| i.visible = true }
 		@do_not_swap = true
-		zoom_onto [inst]
-		screen = screenshot
+		zoom_onto instances
+		screen = screenshot step
 		previous_view
 		@manager.all_part_instances.each{|p| p.visible = visible[p] }
 		@do_not_swap = false
 		# render reflection and normalize size
-		res = $preferences[:thumb_res]
+		res ||= $preferences[:thumb_res]
   	back = Image.new(res, res)
 		object = screen.matte_floodfill(0,0).trim.resize_to_fit( res,res )
 		comp = back.blend( object, 0.99, 0.01, Magick::CenterGravity )
 		floor = comp.wet_floor(0.45, 0.5)
 		composite = back.blend( floor, 0.65, 0.35, Magick::SouthGravity ).blend( object, 0.99, 0.01, Magick::CenterGravity )
-		@manager.delete_object inst if temp
 		redraw
 		return composite
 	end
 	
-	def screenshot( x=0, y=0, width=allocation.width, height=allocation.height, step=8 )
+	def screenshot( step=8, x=0, y=0, width=allocation.width, height=allocation.height )
 		redraw
 		iwidth = width / step
 		iheight = height / step
