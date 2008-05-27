@@ -54,6 +54,52 @@ class SearchEntry < Gtk::ToolItem
 	end
 end
 
+
+class ShadingButton < Gtk::MenuToolButton
+  def initialize manager
+    icon = Gtk::Image.new( '../data/icons/middle/shaded.png' )
+    super( icon, GetText._('Shading') )
+    menu = Gtk::Menu.new
+    items = [
+			Gtk::ImageMenuItem.new( GetText._("Shaded") ).set_image(      Gtk::Image.new('../data/icons/small/shaded.png') ),
+			Gtk::ImageMenuItem.new( GetText._("Overlay") ).set_image(     Gtk::Image.new('../data/icons/small/overlay.png') ),
+			Gtk::ImageMenuItem.new( GetText._("Wireframe") ).set_image(   Gtk::Image.new('../data/icons/small/wireframe.png') ),
+			Gtk::ImageMenuItem.new( GetText._("Hidden Lines") ).set_image(Gtk::Image.new('../data/icons/small/hidden_lines.png') )
+		]
+		items[0].signal_connect("activate") do
+		  @previous = manager.glview.displaymode
+		  manager.glview.set_displaymode :shaded
+		  icon.file = '../data/icons/middle/shaded.png'
+		end
+		items[1].signal_connect("activate") do
+		  @previous = manager.glview.displaymode
+		  manager.glview.set_displaymode :overlay
+		  icon.file = '../data/icons/middle/overlay.png'
+		end
+		items[2].signal_connect("activate") do
+		  @previous = manager.glview.displaymode
+		  manager.glview.set_displaymode :wireframe
+		  icon.file = '../data/icons/middle/wireframe.png'
+		end
+		items[3].signal_connect("activate") do
+		  @previous = manager.glview.displaymode
+		  manager.glview.set_displaymode :hidden_lines
+		  icon.file = '../data/icons/middle/hidden_lines.png'
+		end
+		items.each{|i| menu.append i }
+		menu.show_all
+		self.menu = menu
+		signal_connect("clicked") do
+		  prev = manager.glview.displaymode
+		  manager.glview.set_displaymode @previous
+		  icon.file = "../data/icons/middle/#{@previous.to_s}.png"
+		  @previous = prev
+	  end
+	  @previous = :wireframe
+  end
+end
+
+
 class MeasureEntry < Gtk::VBox
 	def initialize( label )
 		super false
@@ -90,8 +136,5 @@ class MeasureEntry < Gtk::VBox
 	 @entry.signal_connect('value_changed'){|w| yield w.value }
 	end
 end
-
-
-
 
 

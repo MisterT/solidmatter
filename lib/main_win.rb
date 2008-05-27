@@ -166,7 +166,7 @@ class OpenMachinistMainWin < Gtk::Window
 		toolbar.append( next_btn, GetText._("Next camera location"),"Toolbar/Next" )
 		@manager.next_btn = next_btn
 		toolbar.append( Gtk::SeparatorToolItem.new ){}
-		toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/middle/information_middle.png' ), GetText._('Shading') ), GetText._("Select shading mode for the viewport") ){}
+		toolbar.append( ShadingButton.new(@manager), GetText._("Select shading mode for the viewport") )
 		focus_btn = Gtk::ToggleToolButton.new
 		focus_btn.icon_widget = Gtk::Image.new('../data/icons/middle/emblem-important_middle.png').show
 		focus_btn.label = GetText._("Focus")

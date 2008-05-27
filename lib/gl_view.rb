@@ -94,10 +94,12 @@ end
 
 class GLView < Gtk::DrawingArea
 	attr_accessor :num_callists, :immediate_draw_routines, :manager, :selection_color
+	attr_reader :displaymode
 	def initialize
 		super
 		@manager = nil
 		@selection_color = [1,0,1]
+		@displaymode = :overlay
 		# these are called for immediate mode drawing
 		@immediate_draw_routines = []
 		# camera handling stuff
@@ -341,6 +343,16 @@ class GLView < Gtk::DrawingArea
 		end
 	end
 	
+	def set_displaymode mode
+	  @displaymode = mode
+	  if mode == :shaded
+	    GL.Disable(GL::POLYGON_OFFSET_FILL)
+    else
+      GL.Enable(GL::POLYGON_OFFSET_FILL)
+    end
+	  redraw
+	end
+	
 	def configure
 		glcontext = self.gl_context
 		gldrawable = self.gl_drawable
@@ -381,7 +393,7 @@ class GLView < Gtk::DrawingArea
 		gldrawable.gl_end
 	end
 	
-	def recurse_draw( top_comp )
+	def recurse_draw top_comp
 	  if top_comp.visible
   		GL.PushMatrix
   		#XXX rotate 
@@ -402,7 +414,7 @@ class GLView < Gtk::DrawingArea
   				  top_comp.build_displaylist # XXX kann man evtl weglassen
 				  end
   			else
-  				GL.Enable GL::LIGHTING
+  				[:shaded,  :overlay].any?{|e| e == @displaymode} ? (GL.Enable GL::LIGHTING) : (GL.Disable GL::LIGHTING)
   				if top_comp.transparent and $preferences[:stencil_transparency]
   				  GL.Enable GL::POLYGON_STIPPLE
   				  GL.Enable GL::LINE_STIPPLE
@@ -410,14 +422,14 @@ class GLView < Gtk::DrawingArea
     		  end
   				top_comp.selected ? GL.Color3f(1,0,0) : GL.Color3f(1,1,1)
   			  unless @picking_pass and @manager.work_sketch
-  			    GL.CallList top_comp.displaylist 
-  			    GL.CallList top_comp.wire_displaylist
+  			    GL.CallList top_comp.displaylist      if [:shaded,  :overlay  ].any?{|e| e == @displaymode}
+  			    GL.CallList top_comp.wire_displaylist if [:overlay, :wireframe].any?{|e| e == @displaymode}
 			    end
   			  GL.Disable GL::POLYGON_STIPPLE
   			  GL.Disable GL::LINE_STIPPLE
   			end
-  			top_comp.working_planes.each{|wp| recurse_draw( wp ) }
-  			top_comp.unused_sketches.each{|sketch| recurse_draw( sketch ) }
+  			top_comp.working_planes.each{|wp| recurse_draw wp }
+  			top_comp.unused_sketches.each{|sketch| recurse_draw sketch }
   			if @manager.work_operator
   				op_sketch = @manager.work_operator.settings[:sketch] 
   				recurse_draw op_sketch if op_sketch

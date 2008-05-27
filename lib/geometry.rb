@@ -578,6 +578,14 @@ class Component
     @thumbnail = nil
 	end
 	
+	def thumbnail
+	  @thumbnail ? @thumbnail.to_native : nil
+	end
+	
+	def thumbnail= im
+	 @thumbnail = im.to_tiny
+	end
+	
 	def dup
 	  copy = super
 	  copy.component_id = new_id
