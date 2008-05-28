@@ -5,6 +5,11 @@
 
 require 'libglade2'
 
+class String
+  def shorten length
+    size > length ? self[0...(length-3)] + "..." : self
+  end
+end
                   
 class ComponentBrowser
 	def initialize manager
@@ -13,10 +18,11 @@ class ComponentBrowser
 	  @parts = {}
     # generate Radiobuttons for thumbnails
     @btn_width = $preferences[:thumb_res] + 65.0
+    @old_width = nil
     build_buttons
     @table = @glade['table']
     @glade['combo'].active = 0
-    @timeout = Gtk.timeout_add(500){ rebuild ; true }
+    @timeout = Gtk.timeout_add(1000){ rebuild ; true }
     @glade['component_browser'].signal_connect("destroy"){ Gtk.timeout_remove @timeout }
   end
   
@@ -37,10 +43,10 @@ class ComponentBrowser
 	    t.parent.remove t if t.parent
 	    vbox.add t
 	    name = @parts[t].name
-	    vbox.add Gtk::Label.new(name.size > 13 ? name[0...10] + "..." : name)
+	    vbox.add Gtk::Label.new(name.shorten 13)
 	    b.add vbox
 	    b.set_size_request( @btn_width, 75 )
-	    b.draw_indicator = false
+	    b.draw_indicator = true
 	    @parts[b] = @parts[t]
 	    b
     end
@@ -68,23 +74,27 @@ class ComponentBrowser
 	end
 	
 	def rebuild
-	  thumbs_per_row = (@glade['viewport'].allocation.width / @btn_width).to_i
-	  num_rows = (@thumbs.size.to_f / thumbs_per_row).ceil
-	  buttons = @buttons.dup
-    vbox = Gtk::VBox.new
-	 	num_rows.times do |y|
- 	    hbox = Gtk::HBox.new
- 	    vbox.pack_start( hbox, false )
-			for x in (0...thumbs_per_row)
-				b = buttons.pop
-			 	b.parent.remove b if b and b.parent
-				hbox.pack_start( (b ? b : Gtk::Label.new("")), false )
-			end
+	  width = @glade['viewport'].allocation.width
+	  if width != @old_width
+  	  @old_width = width
+  	  thumbs_per_row = (width / @btn_width).to_i
+  	  num_rows = (@thumbs.size.to_f / thumbs_per_row).ceil
+  	  buttons = @buttons.dup
+      vbox = Gtk::VBox.new
+  	 	num_rows.times do |y|
+   	    hbox = Gtk::HBox.new
+   	    vbox.pack_start( hbox, false )
+  			for x in (0...thumbs_per_row)
+  				b = buttons.pop
+  			 	b.parent.remove b if b and b.parent
+  				hbox.pack_start( (b ? b : Gtk::Label.new("")), false )
+  			end
+    	end
+    	@glade['viewport'].remove @old_vbox if @old_vbox
+    	@glade['viewport'].add vbox
+    	@old_vbox = vbox
+    	@glade['component_browser'].show_all
   	end
-  	@glade['viewport'].remove @old_vbox if @old_vbox
-  	@glade['viewport'].add vbox
-  	@old_vbox = vbox
-  	@glade['component_browser'].show_all
 	end
 	
   def close w=nil

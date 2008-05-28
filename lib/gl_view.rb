@@ -423,7 +423,7 @@ class GLView < Gtk::DrawingArea
   				top_comp.selected ? GL.Color3f(1,0,0) : GL.Color3f(1,1,1)
   			  unless @picking_pass and @manager.work_sketch
   			    GL.CallList top_comp.displaylist      if [:shaded,  :overlay  ].any?{|e| e == @displaymode}
-  			    GL.CallList top_comp.wire_displaylist if [:overlay, :wireframe].any?{|e| e == @displaymode}
+  			    GL.CallList top_comp.wire_displaylist if [:overlay, :wireframe].any?{|e| e == @displaymode} or top_comp.selected
 			    end
   			  GL.Disable GL::POLYGON_STIPPLE
   			  GL.Disable GL::LINE_STIPPLE
@@ -704,7 +704,8 @@ class GLView < Gtk::DrawingArea
 		return im
 	end
 	
-	def image_of_instances( instances, step=8, res=nil )
+	def image_of_instances( instances, step=8, res=nil, name=nil )
+	  name = name ? name.shorten(16) : (instances.size == 1 ? instances.first.name.shorten(16) : "")
 	 	# make screenshot of parts
 		visible = {}
 		@manager.all_part_instances.each{|p| visible[p] = p.visible ; p.visible = false }
@@ -722,12 +723,15 @@ class GLView < Gtk::DrawingArea
 		comp = back.blend( object, 0.99, 0.01, Magick::CenterGravity )
 		floor = comp.wet_floor(0.45, 0.5)
 		composite = back.blend( floor, 0.65, 0.35, Magick::SouthGravity ).blend( object, 0.99, 0.01, Magick::CenterGravity )
+		composite[:caption] = name
+		composite = composite.polaroid
 		redraw
 		return composite
 	end
 	
 	def screenshot( step=8, x=0, y=0, width=allocation.width, height=allocation.height )
-		redraw
+	  old_mode = @displaymode
+	  set_displaymode :shaded
 		iwidth = width / step
 		iheight = height / step
 		im = Image.new( iwidth, iheight )
@@ -745,6 +749,7 @@ class GLView < Gtk::DrawingArea
 			ix += 1
 			iy = iheight-1
 		end
+		set_displaymode old_mode
 		return im
 	end
 end

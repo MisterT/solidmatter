@@ -606,7 +606,7 @@ end
 
 
 class Part < Component
-  attr_accessor :manager, :displaylist, :wire_displaylist, :history_limit
+  attr_accessor :manager, :displaylist, :wire_displaylist, :history_limit, :solid
 	attr_reader :operators, :working_planes, :unused_sketches, :solid
 	def initialize(name, manager, disp_num, wire_disp_num )
 		super()

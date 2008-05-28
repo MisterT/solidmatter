@@ -28,12 +28,12 @@ attr_accessor :im
   def pixel( x,y )
     #raise "BufferOverrun at x:#{x} y:#{y} for width:#{width} height:#{height}" if x >= width or y >= height
     color = @im.pixel_color( x,y )
-    return Pixel.new( color.red.to_f / Magick::MaxRGB, color.green.to_f / Magick::MaxRGB, color.blue.to_f / Magick::MaxRGB )
+    return Pixel.new( color.red.to_f / Magick::MaxRGB, color.green.to_f / Magick::MaxRGB, color.blue.to_f / Magick::MaxRGB, color.opacity.to_f / Magick::MaxRGB )
   end
   
   def set_pixel( x,y, value )
     #raise "BufferOverrun at x:#{x} y:#{y} for width:#{width} height:#{height}" if x >= width or y >= height
-    pixel = Magick::Pixel.new( value.red * Magick::MaxRGB, value.green * Magick::MaxRGB, value.blue * Magick::MaxRGB, 0 )
+    pixel = Magick::Pixel.new( value.red * Magick::MaxRGB, value.green * Magick::MaxRGB, value.blue * Magick::MaxRGB, value.alpha * Magick::MaxRGB )
     @im.pixel_color(x,y, pixel )
   end
   
@@ -76,14 +76,19 @@ attr_accessor :im
 	def method_missing( method, *args )
 		args.map!{|a| (a.is_a? Image) ? a.im : a }
 		new_im = @im.send( method, *args )
-		native_im = Image.new( new_im.width, new_im.height )
-		native_im.im = new_im
-		return native_im
+		if new_im.is_a? Magick::Image
+		  native_im = Image.new( new_im.width, new_im.height )
+		  native_im.im = new_im
+		  return native_im
+	  else
+	    return new_im
+    end
 	end
 end
 
 class TinyImage
   def initialize image
+=begin
     @im = Array.new image.width
     for x in 0...image.width
       @im[x] = []
@@ -91,15 +96,23 @@ class TinyImage
         @im[x].push image.pixel( x,y )
       end
     end
+=end
+    @width = image.columns
+    @height = image.rows
+    @im = image.export_pixels_to_str( 0, 0, @width, @height, "RGBA" )
   end
   
   def to_native
+=begin
     native = Image.new( @im.size, @im[0].size )
     for x in 0...native.width
       for y in 0...native.height
         native.set_pixel( x,y, @im[x][y])
       end
     end
+=end
+    native = Image.new @width, @height
+    native.import_pixels( 0, 0, @width, @height, "RGBA", @im )
     return native
   end
 end

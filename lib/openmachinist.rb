@@ -2,6 +2,7 @@
 #
 #  Created by Björn Breitgoff on unknown date.
 #  Copyright (c) 2008. All rights reserved.
+
 require 'thread'
 require 'main_win.rb'
 require 'preferences.rb'
@@ -70,5 +71,4 @@ Gtk.main_with_queue 100
 # region select von vertikalen planes
 # drag in Editsketchtool does not move points exactly above guides
 # refactor delete_op_view_selected code into delete_object
-# clear solids before saving
 

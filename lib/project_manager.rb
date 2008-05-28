@@ -422,9 +422,12 @@ public
   		if @filename
   		  @selection.deselect_all
   			File::open( @filename, "w" ) do |file|
+  			  @all_parts.each{|p| p.solid = Solid.new }
   			  strip_non_dumpable
-  				Marshal::dump( [@glview.image_of_instances(@all_part_instances,4,100).to_tiny, @name, @main_assembly, @all_assemblies,	@all_parts, @all_instances, @all_part_instances, @all_assembly_instances, @all_sketches], file )
-  				readd_non_dumpable  
+  			  puts "projectname: " + project_name
+  				Marshal::dump( [@glview.image_of_instances(@all_part_instances,8,100,project_name).to_tiny, @name, @main_assembly, @all_assemblies,	@all_parts, @all_instances, @all_part_instances, @all_assembly_instances, @all_sketches], file )
+  				readd_non_dumpable 
+  				@all_parts.each{|p| p.build } 
   			end
   			self.has_been_changed = false
   			return true
@@ -456,7 +459,7 @@ public
 	    p.operators.each do |op|
 	      op.manager = self
 	      op.create_toolbar
-	      op.settings[:sketch].glview = @glview
+	      op.settings[:sketch].glview = @glview if op.settings[:sketch]
       end
 	  end
 	  @all_assemblies.each{|a| a.manager = self }
