@@ -392,18 +392,8 @@ public
     end
 	end
 	
-	def save_file_as
-	  dia = Gtk::FileChooserDialog.new( GetText._("Save project as.."),
-                                      nil,
-                                      Gtk::FileChooser::ACTION_SAVE,
-                                      nil,
-                                      [Gtk::Stock::CANCEL, Gtk::Dialog::RESPONSE_CANCEL],
-                                      [Gtk::Stock::SAVE, Gtk::Dialog::RESPONSE_ACCEPT])
-		dia.set_property('do-overwrite-confirmation', true)  
-		filter = Gtk::FileFilter.new
-    filter.name = GetText._("Open Machinst project")
-    filter.add_pattern("*.omp")
-    dia.add_filter filter
+	def save_file_as 
+    dia = FileOpenDialog.new true
     if dia.run == Gtk::Dialog::RESPONSE_ACCEPT
       @filename = dia.filename
       @filename += '.omp' unless @filename =~ /.omp/
@@ -669,6 +659,8 @@ public
 				tool = MeasureDistanceTool.new( @glview, self, &block )
 			when 'line'
 				tool = LineTool.new( @glview, self, @work_sketch, &block )
+			when 'arc'
+				tool = ArcTool.new( @glview, self, @work_sketch, &block )
 		end
 		@toolstack.push tool
 		@glview.redraw

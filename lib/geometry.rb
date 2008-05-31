@@ -48,11 +48,12 @@ end
 
 class Segment
   include Selectable
-	attr_accessor :reference, :sketch
+	attr_accessor :reference, :sketch, :resolution
   def initialize( sketch )
 		@sketch = sketch
 		@reference = false
 		@selection_pass_color = [1.0, 1.0, 1.0]
+		@resolution = 30
   end
 end
 
@@ -76,7 +77,7 @@ class Line < Segment
     end
     return points.uniq
   end
-	
+=begin
 	def move( v )
     for pos in own_and_neighbooring_points
       pos.x += v.x
@@ -85,9 +86,13 @@ class Line < Segment
     end
     @sketch.build_displaylist
 	end
-	
+=end
 	def bounding_box
 		return bounding_box_from [@pos1, @pos2]
+	end
+	
+	def tesselate
+	  [self]
 	end
 	
 	def dup
@@ -96,6 +101,71 @@ class Line < Segment
 	 copy.pos2 = @pos2.dup
 	 return copy
 	end
+end
+
+
+class Arc < Segment
+  attr_accessor :center, :radius, :start_angle, :end_angle
+  def initialize( center, radius, start_angle, end_angle, sketch=nil )
+    super sketch
+    @center = center
+    @radius = radius
+    @start_angle = start_angle
+    @end_angle = end_angle
+    @points = []
+  end
+  
+  def point_at angle
+    x = Math.cos( (angle/360.0) * 2*Math::PI ) * @radius + @center.x
+    z = Math.sin( (angle/360.0) * 2*Math::PI ) * @radius + @center.z
+    return Vector[ x, @center.y, z ]
+  end
+  
+  def pos1
+    point_at @start_angle
+  end
+  
+  def pos2
+    point_at @end_angle
+  end
+  
+  def own_and_neighbooring_points
+	  points = []
+	  for seg in @sketch.segments
+	    for pos in [seg.pos1, seg.pos2]
+	      if [pos1, pos2].any?{|p| p.x == pos.x and p.y == pos.y and p.z == pos.z }
+	        points.push pos
+        end
+      end
+    end
+    points.push @center
+    return points.uniq
+  end
+  
+  def tesselate
+    span = (@start_angle - @end_angle).abs
+    if span > 0
+      @points.clear
+      min_angle = [@start_angle, @end_angle].min
+      max_angle = [@start_angle, @end_angle].max
+      min_angle.step( max_angle, span / @resolution ) do |angle|
+        @points.push point_at angle 
+      end
+    end
+    @lines = []
+    for i in 0...(@points.size-1)
+      line = Line.new( @points[i], @points[i+1] )
+      line.selection_pass_color = @selection_pass_color
+      @lines.push line
+    end
+    return @lines
+  end
+end
+
+class Circle < Arc
+  def initialize( center, radius, sketch=nil)
+    super center, radius, 0.0, 360.0, sketch
+  end
 end
 
 
@@ -114,6 +184,15 @@ class Plane
 	def normal_vector
 		return @v_vec.cross_product( @u_vec )
 	end
+	alias normal normal_vector
+	
+	def normal_vector= normal
+	  normal.normalize!
+	  help_vec = Vector[normal.y, normal.x, normal.z]
+	  @u_vec = normal.cross_product( help_vec ).normalize
+	  @v_vec = normal.cross_product( @u_vec ).normalize.invert
+	end
+	alias normal= normal_vector=
 	
 	def closest_point( p )
 	  distance = normal_vector.dot_product( @origin.vector_to p )
@@ -319,7 +398,7 @@ class Sketch
 	def build_displaylist
 		GL.NewList( @displaylist, GL::COMPILE)
 			GL.Begin( GL::LINES )
-				@segments.each do |seg|
+				for seg in @segments
 					if @selection_pass
 						GL.Color3f( seg.selection_pass_color[0], seg.selection_pass_color[1], seg.selection_pass_color[2] )
 					else
@@ -329,8 +408,10 @@ class Sketch
 							GL.Color3f( @@sketchcolor[0], @@sketchcolor[1], @@sketchcolor[2] )
 						end
 					end
-					GL.Vertex( seg.pos1.x, seg.pos1.y, seg.pos1.z )
-					GL.Vertex( seg.pos2.x, seg.pos2.y, seg.pos2.z )
+					for micro_seg in seg.tesselate
+					  GL.Vertex( micro_seg.pos1.x, micro_seg.pos1.y, micro_seg.pos1.z )
+					  GL.Vertex( micro_seg.pos2.x, micro_seg.pos2.y, micro_seg.pos2.z )
+				  end
 				end
 			GL.End
 		GL.EndList	
@@ -420,6 +501,26 @@ class Face
 	end
 	
 	def draw
+
+	end
+	
+	def dup
+		copy = super
+		copy.segments = segments.map{|s| s.dup }
+		return copy
+	end
+end
+
+class PlanarFace < Face
+	attr_accessor :plane
+	def initialize
+	  super()
+		@plane = Plane.new
+	end
+	
+	def draw
+	  normal = @plane.normal_vector.invert
+	  GL.Normal( normal.x, normal.y, normal.z )
 		tess = GLU::NewTess()
 		GLU::TessCallback( tess, GLU::TESS_VERTEX, lambda{|v| GL::Vertex v if v} )
    	GLU::TessCallback( tess, GLU::TESS_BEGIN, lambda{|which| GL::Begin which } )
@@ -445,31 +546,54 @@ class Face
 		GLU::TessEndPolygon tess
 		GLU::DeleteTess tess
 	end
-	
-	def dup
-		copy = super
-		copy.segments = segments.map{|s| s.dup }
-		return copy
-	end
-end
-
-class PlanarFace < Face
-	attr_accessor :plane
-	def initialize
-		@plane = Plane.new
-	end
-	
-	def draw
-	  normal = @plane.normal_vector.invert
-	  GL.Normal( normal.x, normal.y, normal.z )
-	  super
-	end
 end
 
 class CircularFace < Face
-	def initialize
-		@axis = Line.new
+	def initialize( axis, radius, position, height, start_angle, end_angle )
+	  super()
+		@axis        = axis
+		@radius      = radius
+		@position    = position
+		@height      = height
+		@start_angle = start_angle
+		@end_angle   = end_angle
+		# build outlines
+		arc = Arc.new( @position, @radius, start_angle, end_angle)
+		upper_arc = arc.dup
+		upper_arc.center = @position + @axis * @height
+		lower_edge = arc.tesselate
+		upper_edge = upper_arc.tesselate
+		borders = [ Line.new( arc.pos1, upper_arc.pos1), Line.new( arc.pos2, upper_arc.pos2) ]
+		@segments =  lower_edge + upper_edge + borders
 	end
+	
+	def draw
+	  plane = Plane.new
+	  plane.normal = @axis
+	  arc = Arc.new( @position, @radius, @start_angle, @end_angle )
+	  for line in arc.tesselate
+  	  corner1 = line.pos1
+  		corner2 = line.pos1 + @axis * @height
+  		corner3 = line.pos2 + @axis * @height
+  		corner4 = line.pos2
+			GL.Begin( GL::POLYGON )
+			  normal = @position.vector_to( line.pos1 ).normalize
+			  GL.Normal( normal.x, normal.y, normal.z )
+				GL.Vertex( corner1.x, corner1.y, corner1.z )
+				GL.Vertex( corner2.x, corner2.y, corner2.z )
+				normal = @position.vector_to( line.pos2 ).normalize
+  			GL.Normal( normal.x, normal.y, normal.z )
+				GL.Vertex( corner3.x, corner3.y, corner3.z )
+				GL.Vertex( corner4.x, corner4.y, corner4.z )
+			GL.End
+		end
+	end
+end
+
+class FreeformFace < Face
+  def initialize
+    
+  end
 end
 
 

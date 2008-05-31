@@ -420,10 +420,11 @@ class GLView < Gtk::DrawingArea
   				  GL.Enable GL::LINE_STIPPLE
   				  GL.LineStipple(5, 0x1C47)
     		  end
-  				top_comp.selected ? GL.Color3f(1,0,0) : GL.Color3f(1,1,1)
+  				GL.Color4f( *@background_color )
   			  unless @picking_pass and @manager.work_sketch
-  			    GL.CallList top_comp.displaylist      if [:shaded,  :overlay  ].any?{|e| e == @displaymode}
-  			    GL.CallList top_comp.wire_displaylist if [:overlay, :wireframe].any?{|e| e == @displaymode} or top_comp.selected
+  			    GL.CallList top_comp.displaylist      if [:shaded,  :overlay,   :hidden_lines ].any?{|e| e == @displaymode}
+  			    top_comp.selected ? GL.Color3f(1,0,0) : GL.Color3f(1,1,1)
+  			    GL.CallList top_comp.wire_displaylist if [:overlay, :wireframe, :hidden_lines ].any?{|e| e == @displaymode} or top_comp.selected
 			    end
   			  GL.Disable GL::POLYGON_STIPPLE
   			  GL.Disable GL::LINE_STIPPLE

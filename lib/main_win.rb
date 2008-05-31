@@ -258,11 +258,13 @@ class OpenMachinistMainWin < Gtk::Window
 		sketch_toolbar.icon_size = Gtk::IconSize::SMALL_TOOLBAR
 		sketch_toolbar.show_arrow = true
 		@main_vbox.pack_start(sketch_toolbar, false, false)
-		line_button = Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/big/list-remove.png' ), 'Line' )
+		line_button = Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/big/list-remove.png' ), GetText._('Line') )
 		line_button.signal_connect('clicked'){ @manager.activate_tool('line', true) }
 		sketch_toolbar.append( line_button, GetText._("Line tool") )
 		sketch_toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/big/circle.png' ),    GetText._('Circle') ) )    { @manager.activate_tool('circle') }
-		sketch_toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/big/arc.png' ),       GetText._('Arc') ) )       { @manager.activate_tool('arc') }
+		arc_button = Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/big/list-remove.png' ), GetText._('Arc') )
+		arc_button.signal_connect('clicked'){ @manager.activate_tool('arc', true) }
+		sketch_toolbar.append( arc_button, GetText._("Arc tool") )
 		sketch_toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/big/rectangle.png' ), GetText._('Rectangle') ) ) { @manager.activate_tool('rectangle') }
 		sketch_toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/big/fillet.png' ),    GetText._('Fillet') ) )    { @manager.activate_tool('fillet') }
 		sketch_toolbar.append( GetText._("Polygon"), "Create regular convex polygon with variable number of segments", "SketchToolbar/Polygon", Gtk::Image.new('../data/icons/big/polygon.png') ){}

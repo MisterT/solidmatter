@@ -31,33 +31,40 @@ class ExtrudeOperator < Operator
 			# create face in extrusion direction for every segment
 			direction = segments.first.sketch.plane.normal_vector * @settings[:depth] * (@settings[:direction] == :up ? 1 : -1)
 			# make sure we are in part coordinate space
-			origin = segments.first.sketch.plane.origin
+			sketch = segments.first.sketch
+			origin = sketch.plane.origin
 			segments.each do |seg|
-				corner1 = seg.pos1 + origin
-				corner2 = seg.pos1 + direction + origin
-				corner3 = seg.pos2 + direction + origin
-				corner4 = seg.pos2 + origin
-				segs = [ Line.new( corner1, corner2 ),
-				         Line.new( corner2, corner3 ),
-				         Line.new( corner3, corner4 ),
-				         Line.new( corner4, corner1 ) ]
-				face = PlanarFace.new
-				face.segments = segs
-				face.plane.u_vec = corner1.vector_to( corner2 ).normalize
-				face.plane.v_vec = corner1.vector_to( corner4 ).normalize
-				face.plane.origin = corner1
+			  case seg
+		    when Line
+  				corner1 = seg.pos1 + origin
+  				corner2 = seg.pos1 + direction + origin
+  				corner3 = seg.pos2 + direction + origin
+  				corner4 = seg.pos2 + origin
+  				segs = [ Line.new( corner1, corner2 ),
+  				         Line.new( corner2, corner3 ),
+  				         Line.new( corner3, corner4 ),
+  				         Line.new( corner4, corner1 ) ]
+  				face = PlanarFace.new
+  				face.segments = segs
+  				face.plane.u_vec = corner1.vector_to( corner2 ).normalize
+  				face.plane.v_vec = corner1.vector_to( corner4 ).normalize
+  				face.plane.origin = corner1
+  			when Arc
+  			  face = CircularFace.new( sketch.plane.normal, seg.radius, seg.center + origin, @settings[:depth], seg.start_angle, seg.end_angle )
+				end
 				@solid.faces.push( face )
 			end
 			# build caps
+			segments = segments.map{|s| s.tesselate }.flatten
 			lower_cap = PlanarFace.new
-			lower_cap.plane.u_vec = segments.first.sketch.plane.u_vec
-			lower_cap.plane.v_vec = segments.first.sketch.plane.v_vec
+			lower_cap.plane.u_vec = sketch.plane.u_vec
+			lower_cap.plane.v_vec = sketch.plane.v_vec
 			lower_cap.segments = segments.map{|s| Line.new(s.pos1 + origin, s.pos2 + origin) }
 			lower_cap.plane.origin = lower_cap.segments[0].pos1
 			@solid.faces.push( lower_cap )
 			upper_cap = PlanarFace.new
-			upper_cap.plane.u_vec = segments.first.sketch.plane.u_vec.invert
-			upper_cap.plane.v_vec = segments.first.sketch.plane.v_vec
+			upper_cap.plane.u_vec = sketch.plane.u_vec.invert
+			upper_cap.plane.v_vec = sketch.plane.v_vec
 			upper_cap.segments = segments.map{|s| Line.new(s.pos1 + origin + direction, s.pos2 + origin + direction) }
 			upper_cap.plane.origin = upper_cap.segments[0].pos1
 			@solid.faces.push( upper_cap )

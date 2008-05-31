@@ -18,9 +18,10 @@ $preferences = {
 	:first_light_color => [0.5, 0.5, 1.0, 0.0],
 	:second_light_color => [1.0, 0.7, 0.5, 0.0],
 	:view_transitions => true,
-	:transition_duration => 15.0,#60.0,
+	:transition_duration => 20.0,#60.0,
 	:max_reference_points => 8,
-	:thumb_res => 50
+	:thumb_res => 50,
+	:snap_dist => 6
 }
                   
 class PreferencesDialog
@@ -33,6 +34,7 @@ class PreferencesDialog
 		@glade['gc_check'].active = $preferences[:manage_gc]
 		@glade['transition_check'].active = $preferences[:view_transitions]
 		@glade['transition_scale'].value = $preferences[:transition_duration] / 10.0
+		@glade['snap_scale'].value = $preferences[:snap_dist]
 		@react_to_changes = true
   end
   
@@ -47,6 +49,7 @@ class PreferencesDialog
 			$preferences[:manage_gc] = @glade['gc_check'].active?
 			$preferences[:view_transitions] = @glade['transition_check'].active?
 			$preferences[:transition_duration] = @glade['transition_scale'].value * 10
+			$preferences[:snap_dist] = @glade['snap_scale'].value
 			@manager.glview.realize
 			@manager.glview.redraw
 		end

@@ -91,7 +91,8 @@ class Vector
 	alias invert reverse
 	
 	def angle( vec )
-		( 1 - self.normalize.dot_product(vec.normalize) ) * 90
+		dot = self.normalize.dot_product(vec.normalize)
+		return (Math.acos( dot ) / (2 * Math::PI)) * 360
 	end
 	
 	def vector_to( v )

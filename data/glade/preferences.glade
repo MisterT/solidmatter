@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.0 on Wed Mar 12 19:00:34 2008 -->
+<!--Generated with glade3 3.4.1 on Sat May 31 19:40:22 2008 -->
 <glade-interface>
   <widget class="GtkDialog" id="preferences">
     <property name="visible">True</property>
@@ -118,6 +118,7 @@
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                         <property name="top_padding">6</property>
                         <property name="left_padding">12</property>
+                        <property name="right_padding">6</property>
                         <child>
                           <widget class="GtkVBox" id="vbox6">
                             <property name="visible">True</property>
@@ -143,12 +144,57 @@
                                     <property name="can_focus">True</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                                     <property name="update_policy">GTK_UPDATE_DISCONTINUOUS</property>
-                                    <property name="adjustment">7 0 10 0.20000000000000001 1 0</property>
+                                    <property name="adjustment">6 0 10 0.20000000000000001 1 0</property>
                                     <property name="value_pos">GTK_POS_RIGHT</property>
+                                    <signal name="value_changed" handler="preference_changed"/>
                                   </widget>
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="label37">
+                                    <property name="visible">True</property>
+                                    <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                    <property name="xalign">0</property>
+                                    <property name="label" translatable="yes">Snapping distance</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkHBox" id="hbox9">
+                                    <property name="visible">True</property>
+                                    <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                    <child>
+                                      <widget class="GtkHScale" id="snap_scale">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                        <property name="update_policy">GTK_UPDATE_DISCONTINUOUS</property>
+                                        <property name="adjustment">6 0 15 1 1 0</property>
+                                        <property name="digits">0</property>
+                                        <property name="value_pos">GTK_POS_RIGHT</property>
+                                        <signal name="value_changed" handler="preference_changed"/>
+                                      </widget>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkLabel" id="label38">
+                                        <property name="visible">True</property>
+                                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                        <property name="label" translatable="yes">pixels</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                  </widget>
+                                  <packing>
+                                    <property name="position">3</property>
                                   </packing>
                                 </child>
                               </widget>
@@ -1181,6 +1227,7 @@
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                         <property name="top_padding">6</property>
                         <property name="left_padding">12</property>
+                        <property name="right_padding">6</property>
                         <child>
                           <widget class="GtkHBox" id="hbox2">
                             <property name="visible">True</property>
@@ -1349,6 +1396,7 @@
                         <property name="visible">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                         <property name="left_padding">12</property>
+                        <property name="right_padding">6</property>
                         <child>
                           <widget class="GtkVBox" id="vbox16">
                             <property name="visible">True</property>
@@ -1461,6 +1509,7 @@
                                 <property name="visible">True</property>
                                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                                 <property name="left_padding">24</property>
+                                <property name="right_padding">6</property>
                                 <child>
                                   <widget class="GtkVBox" id="vbox8">
                                     <property name="visible">True</property>
@@ -1519,6 +1568,7 @@
                                 <property name="visible">True</property>
                                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                                 <property name="left_padding">24</property>
+                                <property name="right_padding">6</property>
                                 <child>
                                   <widget class="GtkVBox" id="vbox23">
                                     <property name="visible">True</property>

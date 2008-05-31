@@ -189,11 +189,11 @@ class RegionSelectionTool < SelectionTool
 		@all_sketches = (manager.work_component.unused_sketches + [@op_sketch]).compact
 		@regions = @all_sketches.inject([]) do |regions, sketch|
 		  regions += sketch.all_chains.map do |chain|
-  	    poly = Polygon.from_chain chain
+  	    poly = Polygon.from_chain chain.map{|seg| seg.tesselate }.flatten
   	    face = PlanarFace.new
   	    face.plane = sketch.plane
   	    face.plane.build_displaylists
-  	    face.segments = chain.map{|seg| Line.new(Tool.sketch2world(seg.pos1, sketch.plane), Tool.sketch2world(seg.pos2, sketch.plane), sketch)  }
+  	    face.segments = chain.map{|seg| seg.tesselate }.flatten.map{|seg| Line.new(Tool.sketch2world(seg.pos1, sketch.plane), Tool.sketch2world(seg.pos2, sketch.plane), sketch)  }
   	    Region.new(chain, poly, face)
 	    end
     end
@@ -375,8 +375,7 @@ class SketchTool < Tool
   attr_accessor :create_reference_geometry
 	def initialize( text, glview, manager, sketch )
 		super( text, glview, manager )
-		@sketch = sketch
-		@snap_tolerance = 6
+		@sketch = sketch		
 		@last_reference_points = []
 		@create_reference_geometry = false
 		@does_snap = true
@@ -410,7 +409,7 @@ class SketchTool < Tool
 				[seg.pos1, seg.pos2].each do |pos|
 				  unless excluded.include? pos
   					dist = @glview.world2screen(sketch2world(point)).distance_to @glview.world2screen(sketch2world(pos))
-  					if dist < @snap_tolerance
+  					if dist < $preferences[:snap_dist]
   						if dist < closest_dist
   							closest = pos
   							closest_dist = dist
@@ -460,7 +459,7 @@ class SketchTool < Tool
           snap_point = Vector[p.x, point.y, point.z]
           # measure out distance to that in screen coords
           screen_dist = @glview.world2screen(sketch2world(snap_point)).distance_to @glview.world2screen(sketch2world(point))
-          if screen_dist < @snap_tolerance
+          if screen_dist < $preferences[:snap_dist]
             x_candidate ||= [p, screen_dist]
     	      x_candidate = [p, screen_dist] if screen_dist < x_candidate.last
           end
@@ -547,11 +546,9 @@ class LineTool < SketchTool
 	# update temp line
 	def mouse_move( x,y )
 	  super
-		if @last_point
-			new_point, was_snapped = snapped( x,y )
-		 	@temp_line = Line.new( @last_point, new_point, @sketch) if new_point
-		 	@draw_dot = was_snapped
-		end
+	  new_point, was_snapped = snapped( x,y )
+	  @draw_dot = was_snapped ? new_point : nil
+		@temp_line = Line.new( @last_point, new_point, @sketch) if new_point and @last_point
 		@glview.redraw
 	end
 	
@@ -573,20 +570,113 @@ class LineTool < SketchTool
 				GL.Vertex( pos1.x, pos1.y, pos1.z )
 				GL.Vertex( pos2.x, pos2.y, pos2.z )
 			GL.End
-			if @draw_dot
+		end
+		if @draw_dot
+			# draw dot at snap location
+			GL.Disable(GL::DEPTH_TEST)
+  		GL.Color3f(1,0.3,0.1)
+  		GL.PointSize(8.0)
+  		GL.Begin( GL::POINTS )
+  			GL.Vertex( @draw_dot.x, @draw_dot.y, @draw_dot.z )
+  		GL.End
+  		GL.Enable(GL::DEPTH_TEST)
+		end
+	end
+	
+	def resume
+	  super
+	  @manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if @manager.glview.window
+	end
+end
+
+
+class ArcTool < SketchTool
+	def initialize( glview, manager, sketch )
+		super( GetText._("Click left to select center:"), glview, manager, sketch )
+		@manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if @manager.glview.window
+		@temp_segments = []
+		@step = 1
+	end
+
+  	def click_left( x,y )
+  	  super
+  	  point, was_snapped = snapped( x,y )
+  	  if point
+        case @step
+        when 1
+          @center = point
+          @manager.set_status_text GetText._("Click left to select first point on arc:")
+        when 2
+          @radius = @center.distance_to point
+  		    @start_angle = @sketch.plane.u_vec.angle @center.vector_to point
+  		    @start_point = point
+  		    @manager.set_status_text GetText._("Click left to select second point on arc:")
+		    when 3
+		      end_angle = 360 - @sketch.plane.u_vec.angle( @center.vector_to( point ) )
+		      @sketch.segments.push Arc.new( @center, @radius, @start_angle, end_angle, @sketch )
+		      @sketch.build_displaylist
+		      @manager.cancel_current_tool
+        end
+        @step += 1
+      end
+  	end
+
+  	def mouse_move( x,y )
+  	  super
+  		point, was_snapped = snapped( x,y )
+  		@draw_dot = was_snapped ? point : nil
+  		if point
+    		case @step
+  		  when 2
+          @temp_segments = [ Line.new( @center, point, @sketch ) ]
+  	    when 3
+          angle = @center.vector_to(@start_point).angle @center.vector_to point
+
+          end_angle = @start_angle + angle
+          puts @sketch.plane.u_vec.angle @center.vector_to point
+          puts "Angle:      #{angle}"
+          #end_angle = 360 - end_angle if point.z > @center.z
+          end_angle = 360 - ( @sketch.plane.u_vec.angle @center.vector_to point)
+          arc = Arc.new( @center, @radius, @start_angle, end_angle )
+          @temp_segments = [ Line.new( @center, arc.pos1 ), arc, Line.new( @center, arc.pos2 ) ]
+  		  end
+		  end
+  		@glview.redraw
+  	end
+
+  	def click_right( x,y, time )
+  	  super
+  	  menu = SketchToolMenu.new( @manager, self )
+  	  menu.popup(nil, nil, 3,  time)
+  	end
+
+  	def draw
+  	  super
+  		for seg in @temp_segments
+  		  for micro_seg in seg.tesselate
+  			  GL.LineWidth(2)
+  			  GL.Color3f(1,1,1)
+  			  GL.Begin( GL::LINES )
+  			    pos1 = sketch2world( micro_seg.pos1 )
+  			    pos2 = sketch2world( micro_seg.pos2 )
+  				  GL.Vertex( pos1.x, pos1.y, pos1.z )
+  				  GL.Vertex( pos2.x, pos2.y, pos2.z )
+  			  GL.End
+			  end
+  		end
+  		if @draw_dot
   			# draw dot at snap location
   			GL.Disable(GL::DEPTH_TEST)
     		GL.Color3f(1,0.3,0.1)
     		GL.PointSize(8.0)
     		GL.Begin( GL::POINTS )
-    			GL.Vertex( pos2.x, pos2.y, pos2.z )
+    			GL.Vertex( @draw_dot.x, @draw_dot.y, @draw_dot.z )
     		GL.End
     		GL.Enable(GL::DEPTH_TEST)
   		end
-		end
-	end
-end
-
+  	end
+  end
+  
 
 class EditSketchTool < SketchTool
 	def initialize( glview, manager, sketch )
@@ -670,7 +760,7 @@ class EditSketchTool < SketchTool
   		points = @sketch.segments.map{|s| [s.pos1, s.pos2] }.flatten
   		@draw_points = points.select do |point|
   			dist = Point.new(x, @glview.allocation.height - y).distance_to @glview.world2screen(sketch2world(point))
-  			dist < @snap_tolerance
+  			dist < $preferences[:snap_dist]
   		end
   		@glview.redraw
 		end

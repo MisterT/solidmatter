@@ -7,13 +7,14 @@ require 'gtk2'
 require 'component_browser'
 
 class FileOpenDialog < Gtk::FileChooserDialog
-  def initialize
-    super( GetText._("Choose project file"),
+  def initialize save=false
+    super( save ? GetText._("Save project as..") : GetText._("Choose project file"),
            nil,
-           Gtk::FileChooser::ACTION_OPEN,
+           save ? Gtk::FileChooser::ACTION_SAVE : Gtk::FileChooser::ACTION_OPEN,
            nil,
            [Gtk::Stock::CANCEL, Gtk::Dialog::RESPONSE_CANCEL],
-           [Gtk::Stock::OPEN, Gtk::Dialog::RESPONSE_ACCEPT] )
+           [save ? Gtk::Stock::SAVE : Gtk::Stock::OPEN, Gtk::Dialog::RESPONSE_ACCEPT] )
+    set_property('do-overwrite-confirmation', true) 
     # add file filter
     filter = Gtk::FileFilter.new
     filter.name = GetText._("Open Machinst project")
