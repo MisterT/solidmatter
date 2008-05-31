@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: openmachinist 0.0.2\n"
-"POT-Creation-Date: 2008-05-25 17:35+0200\n"
-"PO-Revision-Date: 2008-05-25 17:35+0200\n"
+"POT-Creation-Date: 2008-05-31 20:37+0200\n"
+"PO-Revision-Date: 2008-05-31 20:37+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,19 +16,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: lib/geometry.rb:550
+#: lib/geometry.rb:674
 msgid "Exit operator without saving changes"
 msgstr ""
 
-#: lib/geometry.rb:551
+#: lib/geometry.rb:675
 msgid "Save changes and exit operator"
 msgstr ""
 
-#: lib/geometry.rb:661
+#: lib/geometry.rb:805
 msgid "Part could not be built"
 msgstr ""
 
-#: lib/geometry.rb:662
+#: lib/geometry.rb:806
 msgid "Please recheck all operator settings and close any open sketch regions!"
 msgstr ""
 
@@ -54,6 +54,22 @@ msgstr ""
 
 #: lib/multi_user.rb:300
 msgid "The save request was cancelled by another user"
+msgstr ""
+
+#: lib/file_open_dialog.rb:11
+msgid "Save project as.."
+msgstr ""
+
+#: lib/file_open_dialog.rb:11
+msgid "Choose project file"
+msgstr ""
+
+#: lib/file_open_dialog.rb:20
+msgid "Open Machinst project"
+msgstr ""
+
+#: lib/file_open_dialog.rb:24
+msgid "All filetypes"
 msgstr ""
 
 #: lib/main_win.rb:23
@@ -333,10 +349,6 @@ msgid "Next camera location"
 msgstr ""
 
 #: lib/main_win.rb:169
-msgid "Shading"
-msgstr ""
-
-#: lib/main_win.rb:169
 msgid "Select shading mode for the viewport"
 msgstr ""
 
@@ -356,7 +368,7 @@ msgstr ""
 msgid "Library"
 msgstr ""
 
-#: lib/main_win.rb:228 lib/main_win.rb:271
+#: lib/main_win.rb:228 lib/main_win.rb:273
 msgid "Constrain"
 msgstr ""
 
@@ -376,19 +388,19 @@ msgstr ""
 msgid "Animate"
 msgstr ""
 
-#: lib/main_win.rb:234 lib/main_win.rb:277
+#: lib/main_win.rb:234 lib/main_win.rb:279
 msgid "Grid pattern"
 msgstr ""
 
-#: lib/main_win.rb:235 lib/main_win.rb:278
+#: lib/main_win.rb:235 lib/main_win.rb:280
 msgid "Circular pattern"
 msgstr ""
 
-#: lib/main_win.rb:236 lib/main_win.rb:256 lib/main_win.rb:279
+#: lib/main_win.rb:236 lib/main_win.rb:256 lib/main_win.rb:281
 msgid "Mirror"
 msgstr ""
 
-#: lib/main_win.rb:241 lib/operators.rb:71
+#: lib/main_win.rb:241 lib/operators.rb:78
 msgid "Sketch"
 msgstr ""
 
@@ -420,7 +432,7 @@ msgstr ""
 msgid "Coil"
 msgstr ""
 
-#: lib/main_win.rb:251 lib/main_win.rb:267
+#: lib/main_win.rb:251 lib/main_win.rb:269
 msgid "Fillet"
 msgstr ""
 
@@ -436,6 +448,10 @@ msgstr ""
 msgid "Pattern"
 msgstr ""
 
+#: lib/main_win.rb:261
+msgid "Line"
+msgstr ""
+
 #: lib/main_win.rb:263
 msgid "Line tool"
 msgstr ""
@@ -448,111 +464,107 @@ msgstr ""
 msgid "Arc"
 msgstr ""
 
-#: lib/main_win.rb:266
-msgid "Rectangle"
+#: lib/main_win.rb:267
+msgid "Arc tool"
 msgstr ""
 
 #: lib/main_win.rb:268
-msgid "Polygon"
+msgid "Rectangle"
 msgstr ""
 
 #: lib/main_win.rb:270
+msgid "Polygon"
+msgstr ""
+
+#: lib/main_win.rb:272
 msgid "Dimension"
 msgstr ""
 
-#: lib/main_win.rb:273
+#: lib/main_win.rb:275
 msgid "Trim"
 msgstr ""
 
-#: lib/main_win.rb:275
+#: lib/main_win.rb:277
 msgid "Project"
 msgstr ""
 
-#: lib/main_win.rb:280
+#: lib/main_win.rb:282
 msgid "Offset"
 msgstr ""
 
-#: lib/project_manager.rb:108
+#: lib/project_manager.rb:109
 msgid "Aluminum"
 msgstr ""
 
-#: lib/project_manager.rb:109
+#: lib/project_manager.rb:110
 msgid "Steel"
 msgstr ""
 
-#: lib/project_manager.rb:110
+#: lib/project_manager.rb:111
 msgid "Copper"
 msgstr ""
 
-#: lib/project_manager.rb:111
+#: lib/project_manager.rb:112
 msgid "Carbon"
 msgstr ""
 
-#: lib/project_manager.rb:112
+#: lib/project_manager.rb:113
 msgid "Glass"
 msgstr ""
 
-#: lib/project_manager.rb:113
+#: lib/project_manager.rb:114
 msgid "Polystyrol"
 msgstr ""
 
-#: lib/project_manager.rb:114
+#: lib/project_manager.rb:115
 msgid "Poly-acryl"
 msgstr ""
 
-#: lib/project_manager.rb:134
+#: lib/project_manager.rb:135
 msgid "<not saved>"
 msgstr ""
 
-#: lib/project_manager.rb:153
+#: lib/project_manager.rb:154
 msgid "Untitled project"
 msgstr ""
 
-#: lib/project_manager.rb:155
+#: lib/project_manager.rb:156
 msgid "Untitled assembly"
 msgstr ""
 
-#: lib/project_manager.rb:196
+#: lib/project_manager.rb:197
 msgid "Rebuilding operator"
 msgstr ""
 
-#: lib/project_manager.rb:266
+#: lib/project_manager.rb:268
 msgid "part"
 msgstr ""
 
-#: lib/project_manager.rb:273
+#: lib/project_manager.rb:275
 msgid "assembly"
 msgstr ""
 
-#: lib/project_manager.rb:283
+#: lib/project_manager.rb:285
 msgid "sketch"
 msgstr ""
 
-#: lib/project_manager.rb:350
-msgid "Choose project file"
-msgstr ""
-
-#: lib/project_manager.rb:382
+#: lib/project_manager.rb:384
 msgid "Bad file format"
 msgstr ""
 
-#: lib/project_manager.rb:383
+#: lib/project_manager.rb:385
 msgid "The file format is unsupported.\nMaybe this file was saved with an older version of Open Machinist"
 msgstr ""
 
-#: lib/project_manager.rb:394
-msgid "Save project as.."
-msgstr ""
-
-#: lib/project_manager.rb:590
+#: lib/project_manager.rb:594
 msgid "Delete Sketch?"
 msgstr ""
 
-#: lib/project_manager.rb:595
-msgid "The operator includes an associated sketch.\nDo you want to delete the it?"
+#: lib/project_manager.rb:597
+msgid "The operator includes an associated sketch.\nDo you want to delete it?"
 msgstr ""
 
-#: lib/project_manager.rb:791 lib/project_manager.rb:792
+#: lib/project_manager.rb:792 lib/project_manager.rb:793
 msgid "Untitled"
 msgstr ""
 
@@ -576,35 +588,55 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: lib/widgets.rb:74
+#: lib/widgets.rb:61
+msgid "Shading"
+msgstr ""
+
+#: lib/widgets.rb:64
+msgid "Shaded"
+msgstr ""
+
+#: lib/widgets.rb:65
+msgid "Overlay"
+msgstr ""
+
+#: lib/widgets.rb:66
+msgid "Wireframe"
+msgstr ""
+
+#: lib/widgets.rb:67
+msgid "Hidden Lines"
+msgstr ""
+
+#: lib/widgets.rb:120
 msgid "Measure value"
 msgstr ""
 
-#: lib/widgets.rb:75
+#: lib/widgets.rb:121
 msgid "Bind to measured value"
 msgstr ""
 
-#: lib/operators.rb:95
+#: lib/operators.rb:102
 msgid "Type"
 msgstr ""
 
-#: lib/operators.rb:108
+#: lib/operators.rb:115
 msgid "Direction"
 msgstr ""
 
-#: lib/operators.rb:125
+#: lib/operators.rb:132
 msgid "Constant depth"
 msgstr ""
 
-#: lib/operators.rb:126
+#: lib/operators.rb:133
 msgid "Up to selection"
 msgstr ""
 
-#: lib/operators.rb:129
+#: lib/operators.rb:136
 msgid "Extrusion limit"
 msgstr ""
 
-#: lib/operators.rb:133
+#: lib/operators.rb:140
 msgid "Depth"
 msgstr ""
 
@@ -648,11 +680,23 @@ msgstr ""
 msgid "Distance:"
 msgstr ""
 
-#: lib/tools.rb:532
+#: lib/tools.rb:531
 msgid "Click left to create a point, middle click to move points:"
 msgstr ""
 
-#: lib/tools.rb:593
+#: lib/tools.rb:595
+msgid "Click left to select center:"
+msgstr ""
+
+#: lib/tools.rb:608
+msgid "Click left to select first point on arc:"
+msgstr ""
+
+#: lib/tools.rb:613
+msgid "Click left to select second point on arc:"
+msgstr ""
+
+#: lib/tools.rb:683
 msgid "Click left to select points, drag to move points, right click for options:"
 msgstr ""
 
@@ -705,7 +749,7 @@ msgid "Create reference geometry"
 msgstr ""
 
 #: data/glade/assembly_dialog.glade:9 data/glade/close_project_confirmation.glade:8
-#: data/glade/make_public_dialog.glade:9 data/glade/preferences.glade:233 data/glade/preferences.glade:264
+#: data/glade/make_public_dialog.glade:9 data/glade/preferences.glade:279 data/glade/preferences.glade:310
 #: data/glade/material_editor.glade:9 data/glade/simulation_settings.glade:9
 #: data/glade/part_dialog.glade:9 data/glade/account_editor.glade:9 data/glade/new_project.glade:9
 #: data/glade/join_project.glade:9 data/glade/save_request.glade:9 data/glade/open_project.glade:9
@@ -787,7 +831,7 @@ msgstr ""
 msgid "Create new Part"
 msgstr ""
 
-#: data/glade/new_dialog.glade:138 data/glade/preferences.glade:1625
+#: data/glade/new_dialog.glade:138 data/glade/preferences.glade:1675
 msgid "gtk-close"
 msgstr ""
 
@@ -884,191 +928,199 @@ msgstr ""
 msgid "<b>New Projects</b>"
 msgstr ""
 
-#: data/glade/preferences.glade:134
+#: data/glade/preferences.glade:135
 msgid "Mouse sensitivity"
 msgstr ""
 
-#: data/glade/preferences.glade:164
+#: data/glade/preferences.glade:161
+msgid "Snapping distance"
+msgstr ""
+
+#: data/glade/preferences.glade:188
+msgid "pixels"
+msgstr ""
+
+#: data/glade/preferences.glade:210
 msgid "<b>View handling</b>"
 msgstr ""
 
-#: data/glade/preferences.glade:187
+#: data/glade/preferences.glade:233
 msgid "Behaviour"
 msgstr ""
 
-#: data/glade/preferences.glade:223
+#: data/glade/preferences.glade:269
 msgid "Unit system:  "
 msgstr ""
 
-#: data/glade/preferences.glade:254
+#: data/glade/preferences.glade:300
 msgid "Default unit:  "
 msgstr ""
 
-#: data/glade/preferences.glade:286
+#: data/glade/preferences.glade:332
 msgid "Digits:  "
 msgstr ""
 
-#: data/glade/preferences.glade:315
+#: data/glade/preferences.glade:361
 msgid "_Show units"
 msgstr ""
 
-#: data/glade/preferences.glade:333
+#: data/glade/preferences.glade:379
 msgid "<b>Units</b>"
 msgstr ""
 
-#: data/glade/preferences.glade:371
+#: data/glade/preferences.glade:417
 msgid "Major grid spacing:  "
 msgstr ""
 
-#: data/glade/preferences.glade:404
+#: data/glade/preferences.glade:450
 msgid "Minor grid spacing:  "
 msgstr ""
 
-#: data/glade/preferences.glade:434
+#: data/glade/preferences.glade:480
 msgid "_Show minor lines"
 msgstr ""
 
-#: data/glade/preferences.glade:452
+#: data/glade/preferences.glade:498
 msgid "<b>Grid</b>"
 msgstr ""
 
-#: data/glade/preferences.glade:475
+#: data/glade/preferences.glade:521
 msgid "Units"
 msgstr ""
 
-#: data/glade/preferences.glade:531
+#: data/glade/preferences.glade:577
 msgid "Light two"
 msgstr ""
 
-#: data/glade/preferences.glade:571
+#: data/glade/preferences.glade:617
 msgid "Light one"
 msgstr ""
 
-#: data/glade/preferences.glade:609
+#: data/glade/preferences.glade:655
 msgid "Background"
 msgstr ""
 
-#: data/glade/preferences.glade:645
+#: data/glade/preferences.glade:691
 msgid "Selection"
 msgstr ""
 
-#: data/glade/preferences.glade:683
+#: data/glade/preferences.glade:729
 msgid "Edges"
 msgstr ""
 
-#: data/glade/preferences.glade:720
+#: data/glade/preferences.glade:766
 msgid "Viewport controls"
 msgstr ""
 
-#: data/glade/preferences.glade:743
+#: data/glade/preferences.glade:789
 msgid "<b>Viewport</b>"
 msgstr ""
 
-#: data/glade/preferences.glade:804
+#: data/glade/preferences.glade:850
 msgid "Reference geometry"
 msgstr ""
 
-#: data/glade/preferences.glade:854
+#: data/glade/preferences.glade:900
 msgid "Guides"
 msgstr ""
 
-#: data/glade/preferences.glade:902
+#: data/glade/preferences.glade:948
 msgid "Temporary"
 msgstr ""
 
-#: data/glade/preferences.glade:948
+#: data/glade/preferences.glade:994
 msgid "Under-defined"
 msgstr ""
 
-#: data/glade/preferences.glade:996
+#: data/glade/preferences.glade:1042
 msgid "Completely defined"
 msgstr ""
 
-#: data/glade/preferences.glade:1044
+#: data/glade/preferences.glade:1090
 msgid "Over-defined"
 msgstr ""
 
-#: data/glade/preferences.glade:1071
+#: data/glade/preferences.glade:1117
 msgid "<b>Sketch</b>"
 msgstr ""
 
-#: data/glade/preferences.glade:1095
+#: data/glade/preferences.glade:1141
 msgid "Colors"
 msgstr ""
 
-#: data/glade/preferences.glade:1128
+#: data/glade/preferences.glade:1174
 msgid "Managed _garbage collection"
 msgstr ""
 
-#: data/glade/preferences.glade:1144
+#: data/glade/preferences.glade:1190
 msgid "(much faster, but higher peak memory usage)"
 msgstr ""
 
-#: data/glade/preferences.glade:1159
+#: data/glade/preferences.glade:1205
 msgid "<b>Internal</b>"
 msgstr ""
 
-#: data/glade/preferences.glade:1192
+#: data/glade/preferences.glade:1239
 msgid "Memory"
 msgstr ""
 
-#: data/glade/preferences.glade:1221 data/glade/preferences.glade:1261
+#: data/glade/preferences.glade:1268 data/glade/preferences.glade:1308
 msgid "Performance"
 msgstr ""
 
-#: data/glade/preferences.glade:1237
+#: data/glade/preferences.glade:1284
 msgid "<b>Optimize for</b>"
 msgstr ""
 
-#: data/glade/preferences.glade:1293
+#: data/glade/preferences.glade:1340
 msgid "Use line _antialiasing"
 msgstr ""
 
-#: data/glade/preferences.glade:1309
+#: data/glade/preferences.glade:1356
 msgid "Use _stencil transparency"
 msgstr ""
 
-#: data/glade/preferences.glade:1328
+#: data/glade/preferences.glade:1375
 msgid "<b>Open GL</b>"
 msgstr ""
 
-#: data/glade/preferences.glade:1365
+#: data/glade/preferences.glade:1413
 msgid "Surface resolution"
 msgstr ""
 
-#: data/glade/preferences.glade:1398
+#: data/glade/preferences.glade:1446
 msgid "_Dynamic level of detail"
 msgstr ""
 
-#: data/glade/preferences.glade:1417
+#: data/glade/preferences.glade:1465
 msgid "<b>Tesselation</b>"
 msgstr ""
 
-#: data/glade/preferences.glade:1451
+#: data/glade/preferences.glade:1499
 msgid "Use _view transitions"
 msgstr ""
 
-#: data/glade/preferences.glade:1473
+#: data/glade/preferences.glade:1522
 msgid "Transition duration"
 msgstr ""
 
-#: data/glade/preferences.glade:1506
+#: data/glade/preferences.glade:1555
 msgid "Use _working plane animations"
 msgstr ""
 
-#: data/glade/preferences.glade:1531
+#: data/glade/preferences.glade:1581
 msgid "Animation duration"
 msgstr ""
 
-#: data/glade/preferences.glade:1567
+#: data/glade/preferences.glade:1617
 msgid "<b>Animations</b>"
 msgstr ""
 
-#: data/glade/preferences.glade:1590
+#: data/glade/preferences.glade:1640
 msgid "Display"
 msgstr ""
 
-#: data/glade/preferences.glade:1614
+#: data/glade/preferences.glade:1664
 msgid "gtk-help"
 msgstr ""
 
@@ -1308,16 +1360,28 @@ msgstr ""
 msgid "This allows you to specify a network\nserver hosting an Open Machinist \nmulti-user session. You need a login\nfor that server to make edits"
 msgstr ""
 
-#: data/glade/component_browser.glade:44
+#: data/glade/component_browser.glade:45
 msgid "\n<b>Insert component</b>\n"
 msgstr ""
 
-#: data/glade/component_browser.glade:78
+#: data/glade/component_browser.glade:79
 msgid "Parts\nAssemblies"
 msgstr ""
 
-#: data/glade/component_browser.glade:132
-msgid "gtk-refresh"
+#: data/glade/component_browser.glade:145
+msgid "Refresh thumbnails"
+msgstr ""
+
+#: data/glade/component_browser.glade:165
+msgid "Delete selected component"
+msgstr ""
+
+#: data/glade/component_browser.glade:186
+msgid "Add a new instance of selected part to the project"
+msgstr ""
+
+#: data/glade/component_browser.glade:187
+msgid "gtk-add"
 msgstr ""
 
 #: data/glade/progress.glade:44
