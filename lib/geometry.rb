@@ -55,6 +55,10 @@ class Segment
 		@selection_pass_color = [1.0, 1.0, 1.0]
 		@resolution = 30
   end
+  
+  def snap_points
+  	[]
+  end
 end
 
 
@@ -89,6 +93,14 @@ class Line < Segment
 =end
 	def bounding_box
 		return bounding_box_from [@pos1, @pos2]
+	end
+	
+	def midpoint
+		(@pos1 + @pos2) / 2.0
+	end
+	
+	def snap_points
+		super + [pos1, pos2, midpoint]
 	end
 	
 	def tesselate
@@ -140,6 +152,10 @@ class Arc < Segment
     end
     points.push @center
     return points.uniq
+  end
+  
+  def snap_points
+  	super + [pos1, pos2]
   end
   
   def tesselate
@@ -197,6 +213,12 @@ class Plane
 	def closest_point( p )
 	  distance = normal_vector.dot_product( @origin.vector_to p )
     return p - ( normal_vector * distance )
+	end
+	
+	def transform_like plane
+			@origin = plane.origin
+			@u_vec = plane.u_vec
+			@v_vec = plane.v_vec
 	end
 end
 
@@ -388,6 +410,7 @@ class Sketch
 		@glview = glview
 		@segments = []
 		@plane = WorkingPlane.new( glview, parent, plane )
+		@plane_id = parent.solid.faces.map{|f| (f.is_a? PlanarFace) ? f.plane : nil }.compact.index plane
 		parent.working_planes.push @plane
 		@displaylist = glview.add_displaylist
 		@visible = false
@@ -415,6 +438,14 @@ class Sketch
 				end
 			GL.End
 		GL.EndList	
+	end
+	
+	def refetch_plane_from_solid solid=nil
+		solid ||= @parent.solid if @parent and @parent.solid
+		if solid and @plane_id
+			new_plane = solid.faces.map{|f| (f.is_a? PlanarFace) ? f.plane : nil }.compact[@plane_id]
+			@plane.transform_like new_plane if new_plane
+		end
 	end
 	
 	def clean_up
@@ -494,10 +525,11 @@ end
 class Face
   include Selectable
   include ChainCompletion
-	attr_accessor :segments
+	attr_accessor :segments, :solid
 	def initialize
 		@segments = []
 		@selection_pass_color = [1.0, 1.0, 1.0]
+		@solid = nil
 	end
 	
 	def draw
@@ -551,7 +583,7 @@ end
 class CircularFace < Face
 	def initialize( axis, radius, position, height, start_angle, end_angle )
 	  super()
-		@axis        = axis
+		@axis        = axis.normalize
 		@radius      = radius
 		@position    = position
 		@height      = height
@@ -610,7 +642,7 @@ class Solid
 	
 	def dup
 		copy = super
-		copy.faces = faces.map{|f| f.dup }
+		copy.faces = faces.dup#map{|f| f.dup }
 		return copy
 	end
 end
@@ -633,10 +665,15 @@ class Operator
 	end
 	
 	def operate
-		@solid = if @previous
-			@previous.solid ? @previous.solid.dup : nil
+		if @previous
+			@solid = @previous.solid ? @previous.solid.dup : nil
+			segs = settings[:segments]
+		  if segs
+		  	sketches = segs.map{|seg| seg.sketch }.compact.uniq
+		  	sketches.each{|sk| sk.refetch_plane_from_solid @previous.solid }
+		  end
 		else
-			Solid.new
+			@solid = Solid.new
 		end
 		real_operate if @enabled 
 	end
@@ -736,6 +773,7 @@ class Part < Component
 		super()
 		@manager = manager
 		@unused_sketches = []
+		@all_sketches = []
 		@working_planes = [ WorkingPlane.new( manager.glview, self) ]
 		@operators = []
 		@history_limit = 0
@@ -789,7 +827,11 @@ class Part < Component
 	def build( from_op=@operators.first )
     if @history_limit >= 1
       raise "Operator must come before history limit" unless @operators.index(from_op) < @history_limit
-		  @operators.index( from_op ).upto( @history_limit - 1 ){|i| op = @operators[i] ; yield op if block_given? ; op.operate  } # update progressbar
+		  @operators.index( from_op ).upto( @history_limit - 1 ) do |i|
+		  	op = @operators[i]
+		  	yield op if block_given?  # update progressbar
+		  	op.operate
+		  end
 		  solid = @operators[@history_limit - 1].solid
 	  else
 	    solid = Solid.new

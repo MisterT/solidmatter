@@ -50,7 +50,7 @@ class ExtrudeOperator < Operator
   				face.plane.v_vec = corner1.vector_to( corner4 ).normalize
   				face.plane.origin = corner1
   			when Arc
-  			  face = CircularFace.new( sketch.plane.normal, seg.radius, seg.center + origin, @settings[:depth], seg.start_angle, seg.end_angle )
+  			  face = CircularFace.new( direction, seg.radius, seg.center + origin, @settings[:depth], seg.start_angle, seg.end_angle )
 				end
 				@solid.faces.push( face )
 			end
@@ -61,13 +61,13 @@ class ExtrudeOperator < Operator
 			lower_cap.plane.v_vec = sketch.plane.v_vec
 			lower_cap.segments = segments.map{|s| Line.new(s.pos1 + origin, s.pos2 + origin) }
 			lower_cap.plane.origin = lower_cap.segments[0].pos1
-			@solid.faces.push( lower_cap )
+			@solid.add_face lower_cap
 			upper_cap = PlanarFace.new
 			upper_cap.plane.u_vec = sketch.plane.u_vec.invert
 			upper_cap.plane.v_vec = sketch.plane.v_vec
 			upper_cap.segments = segments.map{|s| Line.new(s.pos1 + origin + direction, s.pos2 + origin + direction) }
 			upper_cap.plane.origin = upper_cap.segments[0].pos1
-			@solid.faces.push( upper_cap )
+			@solid.add_face upper_cap
 		end
 	end
 	

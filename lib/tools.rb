@@ -163,24 +163,7 @@ class OperatorSelectionTool < SelectionTool
 	end
 end
 
-=begin
-class SketchSelectionTool < SelectionTool
-	def initialize( glview, manager )
-		super( "Pick a closed sketch:", glview, manager )
-	end
-	
-	def click_left( x,y )
-		super
-		sel = @glview.select(x,y, :select_segments)
-		if sel
-		  @selection = sel.sketch   
-		  @manager.selection.select *@selection.segments
-		  @glview.redraw
-		  @manager.cancel_current_tool
-	  end
-	end
-end
-=end
+
 Region = Struct.new(:chain, :poly, :face)
 class RegionSelectionTool < SelectionTool
 	def initialize( glview, manager )
@@ -406,7 +389,7 @@ class SketchTool < Tool
 		unless @sketch.segments.empty?
 			closest_dist = 999999
 			@sketch.segments.each do |seg|
-				[seg.pos1, seg.pos2].each do |pos|
+				seg.snap_points.each do |pos|
 				  unless excluded.include? pos
   					dist = @glview.world2screen(sketch2world(point)).distance_to @glview.world2screen(sketch2world(pos))
   					if dist < $preferences[:snap_dist]
@@ -493,11 +476,17 @@ class SketchTool < Tool
     end
 	end
 	
+	def click_right( x,y, time )
+	  super
+	  menu = SketchToolMenu.new( @manager, self )
+	  menu.popup(nil, nil, 3,  time)
+	end
+	
 	# draw guides as stippeled lines
 	def draw
     super
     if @manager.use_sketch_guides and @does_snap
-      #GL.Disable(GL::DEPTH_TEST)
+      GL.Disable(GL::DEPTH_TEST)
 		  [@x_guide, @z_guide].compact.each do |guide|
 		    first = sketch2world(guide.first)
 		    last = sketch2world( guide.last )
@@ -511,8 +500,17 @@ class SketchTool < Tool
 					GL.Vertex( last.x, last.y, last.z )
 				GL.End
 				GL.Disable GL::LINE_STIPPLE
-				#GL.Enable(GL::DEPTH_TEST)
+				if @draw_dot
+					# draw dot at snap location
+					dot = sketch2world @draw_dot
+  				GL.Color3f(1,0.3,0.1)
+  				GL.PointSize(8.0)
+  				GL.Begin( GL::POINTS )
+  					GL.Vertex( dot.x, dot.y, dot.z )
+  				GL.End
+				end
 			end
+			GL.Enable(GL::DEPTH_TEST)
 		end
 	end
 	
@@ -552,12 +550,6 @@ class LineTool < SketchTool
 		@glview.redraw
 	end
 	
-	def click_right( x,y, time )
-	  super
-	  menu = SketchToolMenu.new( @manager, self )
-	  menu.popup(nil, nil, 3,  time)
-	end
-	
 	def draw
 	  super
 		if @temp_line
@@ -570,16 +562,6 @@ class LineTool < SketchTool
 				GL.Vertex( pos1.x, pos1.y, pos1.z )
 				GL.Vertex( pos2.x, pos2.y, pos2.z )
 			GL.End
-		end
-		if @draw_dot
-			# draw dot at snap location
-			GL.Disable(GL::DEPTH_TEST)
-  		GL.Color3f(1,0.3,0.1)
-  		GL.PointSize(8.0)
-  		GL.Begin( GL::POINTS )
-  			GL.Vertex( @draw_dot.x, @draw_dot.y, @draw_dot.z )
-  		GL.End
-  		GL.Enable(GL::DEPTH_TEST)
 		end
 	end
 	
@@ -608,7 +590,7 @@ class ArcTool < SketchTool
           @manager.set_status_text GetText._("Click left to select first point on arc:")
         when 2
           @radius = @center.distance_to point
-  		    @start_angle = @sketch.plane.u_vec.angle @center.vector_to point
+  		    @start_angle = 360 - (@sketch.plane.u_vec.angle @center.vector_to point)
   		    @start_point = point
   		    @manager.set_status_text GetText._("Click left to select second point on arc:")
 		    when 3
@@ -630,24 +612,14 @@ class ArcTool < SketchTool
   		  when 2
           @temp_segments = [ Line.new( @center, point, @sketch ) ]
   	    when 3
-          angle = @center.vector_to(@start_point).angle @center.vector_to point
-
-          end_angle = @start_angle + angle
-          puts @sketch.plane.u_vec.angle @center.vector_to point
-          puts "Angle:      #{angle}"
-          #end_angle = 360 - end_angle if point.z > @center.z
-          end_angle = 360 - ( @sketch.plane.u_vec.angle @center.vector_to point)
+          end_angle =@sketch.plane.u_vec.angle @center.vector_to point
+          end_angle = 360 - end_angle 
+          end_angle = 360 - end_angle if point.z > @center.z
           arc = Arc.new( @center, @radius, @start_angle, end_angle )
           @temp_segments = [ Line.new( @center, arc.pos1 ), arc, Line.new( @center, arc.pos2 ) ]
   		  end
 		  end
   		@glview.redraw
-  	end
-
-  	def click_right( x,y, time )
-  	  super
-  	  menu = SketchToolMenu.new( @manager, self )
-  	  menu.popup(nil, nil, 3,  time)
   	end
 
   	def draw
@@ -663,16 +635,6 @@ class ArcTool < SketchTool
   				  GL.Vertex( pos2.x, pos2.y, pos2.z )
   			  GL.End
 			  end
-  		end
-  		if @draw_dot
-  			# draw dot at snap location
-  			GL.Disable(GL::DEPTH_TEST)
-    		GL.Color3f(1,0.3,0.1)
-    		GL.PointSize(8.0)
-    		GL.Begin( GL::POINTS )
-    			GL.Vertex( @draw_dot.x, @draw_dot.y, @draw_dot.z )
-    		GL.End
-    		GL.Enable(GL::DEPTH_TEST)
   		end
   	end
   end

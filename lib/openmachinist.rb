@@ -71,9 +71,8 @@ Gtk.main_with_queue 100
 # region select von vertikalen planes
 # drag in Editsketchtool does not move points exactly above guides
 # refactor delete_op_view_selected code into delete_object
-# snap dist einstellbar
 # schnitte zwischen regions
 # dynamische größe von workingplanes
 # arc drawing über 180 grad
-# koppeln von working planes an faces
+
 

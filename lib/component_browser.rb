@@ -26,10 +26,10 @@ class ComponentBrowser
     @glade['component_browser'].signal_connect("destroy"){ Gtk.timeout_remove @timeout }
   end
   
-  def build_buttons
+  def build_buttons( regen_thumbs=false )
 	  # generate Gtk::Images for all parts
     @thumbs = @manager.all_parts.dup.map do |part|
-    	im = part.thumbnail ? part.thumbnail : @manager.glview.image_of_parts( part )
+    	im = (regen_thumbs or not part.thumbnail) ? @manager.glview.image_of_parts( part ) : part.thumbnail
     	part.thumbnail = im
       gtkim = native2gtk(im)
       @parts[gtkim] = part
@@ -45,7 +45,7 @@ class ComponentBrowser
 	    name = @parts[t].name
 	    vbox.add Gtk::Label.new(name.shorten 13)
 	    b.add vbox
-	    b.set_size_request( @btn_width, 75 )
+	    b.set_size_request( @btn_width, 110 )
 	    b.draw_indicator = true
 	    @parts[b] = @parts[t]
 	    b
@@ -57,9 +57,13 @@ class ComponentBrowser
     rebuild
   end
   
+  def update_thumbs
+  	build_buttons true
+  end
+  
   def add_selected
   	btn = @buttons.select{|b| b.active? }.first
-  	insert @parts[btn]
+  	insert @parts[btn] if btn
   end
   
   def remove_selected

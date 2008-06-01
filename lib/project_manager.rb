@@ -376,6 +376,7 @@ public
 					change_working_level @main_assembly 
 					self.has_been_changed = false
 					@filename = filename
+					@glview.zoom_onto @all_part_instances.select{|i| i.visible }
   			rescue
   			  dialog = Gtk::MessageDialog.new(@main_win, 
 				                                  Gtk::Dialog::DESTROY_WITH_PARENT,
