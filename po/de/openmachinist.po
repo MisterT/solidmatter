@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: openmachinist 0.0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-05-31 20:37+0200\n"
-"PO-Revision-Date: 2008-05-31 20:46+0200\n"
+"POT-Creation-Date: 2008-06-23 16:15+0200\n"
+"PO-Revision-Date: 2008-06-23 16:18+0200\n"
 "Last-Translator: Björn Breitgoff <>\n"
 "Language-Team: German\n"
 "MIME-Version: 1.0\n"
@@ -18,19 +18,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);"
 
-#: lib/geometry.rb:674
+#: lib/geometry.rb:711
 msgid "Exit operator without saving changes"
 msgstr "Operator verlassen ohne zu speichern"
 
-#: lib/geometry.rb:675
+#: lib/geometry.rb:712
 msgid "Save changes and exit operator"
 msgstr "Änderungen speichern und Operator verlassen"
 
-#: lib/geometry.rb:805
+#: lib/geometry.rb:847
 msgid "Part could not be built"
 msgstr "Bauteil konnte nicht errechnet werden"
 
-#: lib/geometry.rb:806
+#: lib/geometry.rb:848
 msgid "Please recheck all operator settings and close any open sketch regions!"
 msgstr ""
 "Bitte überprüfen Sie alle Operatoreinstellungen und schliessen Sie offene "
@@ -192,7 +192,7 @@ msgstr "/Ansicht/Unten"
 msgid "/View/Isometric"
 msgstr "/Ansicht/Isometrisch"
 
-#: lib/main_win.rb:88
+#: lib/main_win.rb:88 lib/main_win.rb:92
 msgid "/View/sep4"
 msgstr "/Ansicht/sep4"
 
@@ -208,291 +208,295 @@ msgstr "/Ansicht/Diagnosedarstellung"
 msgid "/View/Render shadows"
 msgstr "/Ansicht/Schatten darstellen"
 
-#: lib/main_win.rb:92
+#: lib/main_win.rb:93
+msgid "/View/Fullscreen"
+msgstr "/Ansicht/Vollbild"
+
+#: lib/main_win.rb:94
 msgid "/_Tools"
 msgstr "/_Werkzeug"
 
-#: lib/main_win.rb:93
+#: lib/main_win.rb:95
 msgid "/Tools/Measure distance"
 msgstr "/Werkzeug/Abstand messen"
 
-#: lib/main_win.rb:94
+#: lib/main_win.rb:96
 msgid "/Tools/Measure area"
 msgstr "/Werkzeug/Fläche messen"
 
-#: lib/main_win.rb:95
+#: lib/main_win.rb:97
 msgid "/Tools/Measure angle"
 msgstr "/Werkzeug/Winkel messen"
 
-#: lib/main_win.rb:96 lib/main_win.rb:100
+#: lib/main_win.rb:98 lib/main_win.rb:102
 msgid "/Tools/sep4"
 msgstr "/Werkzeug/sep4"
 
-#: lib/main_win.rb:97
+#: lib/main_win.rb:99
 msgid "/Tools/Analyze interference"
 msgstr "/Werkzeug/Auf Überschneidung testen"
 
-#: lib/main_win.rb:98
+#: lib/main_win.rb:100
 msgid "/Tools/Display center of gravity"
 msgstr "/Werkzeug/Schwerpunkt anzeigen"
 
-#: lib/main_win.rb:99
+#: lib/main_win.rb:101
 msgid "/Tools/Bill of materials"
 msgstr "/Werkzeug/Materialliste"
 
-#: lib/main_win.rb:101
+#: lib/main_win.rb:103
 msgid "/Tools/Material editor"
 msgstr "/Werkzeug/Werkstoff Editor"
 
-#: lib/main_win.rb:102
+#: lib/main_win.rb:104
 msgid "/_Simulation"
 msgstr "/_Simulation"
 
-#: lib/main_win.rb:103
+#: lib/main_win.rb:105
 msgid "/Simulation/Update constraints"
 msgstr "/Simulation/Einschränkungen updaten"
 
-#: lib/main_win.rb:104
+#: lib/main_win.rb:106
 msgid "/Simulation/Update sub-assembly constraints"
 msgstr "/Simulation/Unterbaugruppenbeschränkungen updaten"
 
-#: lib/main_win.rb:105 lib/main_win.rb:108
+#: lib/main_win.rb:107 lib/main_win.rb:110
 msgid "/Simulation/sep4"
 msgstr "/Simulation/sep4"
 
-#: lib/main_win.rb:106
+#: lib/main_win.rb:108
 msgid "/Simulation/Auto-update constraints"
 msgstr "/Simulation/Beschränkungen automatisch updaten"
 
-#: lib/main_win.rb:107
+#: lib/main_win.rb:109
 msgid "/Simulation/Auto-update sub-assembly constraints"
 msgstr "/Simulation/Unterbaugruppenbeschränkungen automatisch updaten"
 
-#: lib/main_win.rb:109
+#: lib/main_win.rb:111
 msgid "/Simulation/Activate contact solver"
 msgstr "/Simulation/Kontakt- und Reibungsberechnung"
 
-#: lib/main_win.rb:110
+#: lib/main_win.rb:112
 msgid "/Simulation/Define contact set..."
 msgstr "/Simulation/Kontaktgruppen..."
 
-#: lib/main_win.rb:111
+#: lib/main_win.rb:113
 msgid "/_Help"
 msgstr "/_Hilfe"
 
-#: lib/main_win.rb:112
+#: lib/main_win.rb:114
 msgid "/Help/_About Open Machinist"
 msgstr "/Hilfe/Über Open Machinist"
 
-#: lib/main_win.rb:128
+#: lib/main_win.rb:130
 msgid " New"
 msgstr " Neu"
 
-#: lib/main_win.rb:131
+#: lib/main_win.rb:133
 msgid "Create a new project, part or assembly"
 msgstr "Neues Projekt, Bauteil oder Baugruppe erstellen"
 
-#: lib/main_win.rb:132
+#: lib/main_win.rb:134
 msgid " Save"
 msgstr "Speichern"
 
-#: lib/main_win.rb:136
+#: lib/main_win.rb:138
 msgid "Save current part or assembly"
 msgstr "Aktuelles Projekt speichern"
 
-#: lib/main_win.rb:139
+#: lib/main_win.rb:141
 msgid "Select"
 msgstr "Auswahl"
 
-#: lib/main_win.rb:141
+#: lib/main_win.rb:143
 msgid "Choose selection mode"
 msgstr "Auswahlmodus wählen"
 
-#: lib/main_win.rb:142
+#: lib/main_win.rb:144
 msgid "Return"
 msgstr "Zurück"
 
-#: lib/main_win.rb:142
+#: lib/main_win.rb:144
 msgid "Work on parent assembly"
 msgstr "An übergeordneter Baugruppe arbeiten"
 
-#: lib/main_win.rb:146
+#: lib/main_win.rb:148
 msgid " Camera"
 msgstr "Kamera"
 
-#: lib/main_win.rb:149
+#: lib/main_win.rb:151
 msgid "Position the 3d viewpoint"
 msgstr "3D Ansicht steuern"
 
-#: lib/main_win.rb:150
+#: lib/main_win.rb:152
 msgid " Zoom selection"
 msgstr "Auswahl ansehen"
 
-#: lib/main_win.rb:153
+#: lib/main_win.rb:155
 msgid "Fit all selected objects into view"
 msgstr "Alle ausgewählten Objekte in der Ansicht zeigen"
 
-#: lib/main_win.rb:154
+#: lib/main_win.rb:156
 msgid " Look at"
 msgstr "Anschauen"
 
-#: lib/main_win.rb:157
+#: lib/main_win.rb:159
 msgid "Make view orthogonal to selected plane"
 msgstr "Die Ansicht senkrecht auf Fläche stellen"
 
-#: lib/main_win.rb:159
+#: lib/main_win.rb:161
 msgid "Previous"
 msgstr "Zurück"
 
-#: lib/main_win.rb:159
+#: lib/main_win.rb:161
 msgid "Previous camera location"
 msgstr "Vorherige Ansicht"
 
-#: lib/main_win.rb:166
+#: lib/main_win.rb:168
 msgid "Next camera location"
 msgstr "Nächste Kameraansicht"
 
-#: lib/main_win.rb:169
+#: lib/main_win.rb:171
 msgid "Select shading mode for the viewport"
 msgstr "Darstellungsmodus für den Ansichtsbereich wählen"
 
-#: lib/main_win.rb:172
+#: lib/main_win.rb:174
 msgid "Focus"
 msgstr "Fokus"
 
-#: lib/main_win.rb:180
+#: lib/main_win.rb:182
 msgid "Make all components except the current one transparent"
 msgstr "Alle Komponenten ausser der aktuellen transparent zeigen"
 
-#: lib/main_win.rb:225
+#: lib/main_win.rb:227
 msgid "Insert"
 msgstr "Einfügen"
 
-#: lib/main_win.rb:226
+#: lib/main_win.rb:228
 msgid "Library"
 msgstr "Bibliothek"
 
-#: lib/main_win.rb:228 lib/main_win.rb:273
+#: lib/main_win.rb:230 lib/main_win.rb:275
 msgid "Constrain"
 msgstr "Beschränken"
 
-#: lib/main_win.rb:229
+#: lib/main_win.rb:231
 msgid "Contacts"
 msgstr "Kontakte"
 
-#: lib/main_win.rb:230
+#: lib/main_win.rb:232
 msgid "Spring"
 msgstr "Feder"
 
-#: lib/main_win.rb:231
+#: lib/main_win.rb:233
 msgid "Belt"
 msgstr "Riemen"
 
-#: lib/main_win.rb:232
+#: lib/main_win.rb:234
 msgid "Animate"
 msgstr "Animieren"
 
-#: lib/main_win.rb:234 lib/main_win.rb:279
+#: lib/main_win.rb:236 lib/main_win.rb:281
 msgid "Grid pattern"
 msgstr "Rastermuster"
 
-#: lib/main_win.rb:235 lib/main_win.rb:280
+#: lib/main_win.rb:237 lib/main_win.rb:282
 msgid "Circular pattern"
 msgstr "Kreismuster"
 
-#: lib/main_win.rb:236 lib/main_win.rb:256 lib/main_win.rb:281
+#: lib/main_win.rb:238 lib/main_win.rb:258 lib/main_win.rb:283
 msgid "Mirror"
 msgstr "Spiegeln"
 
-#: lib/main_win.rb:241 lib/operators.rb:78
+#: lib/main_win.rb:243 lib/operators.rb:78
 msgid "Sketch"
 msgstr "Skizze"
 
-#: lib/main_win.rb:243
+#: lib/main_win.rb:245
 msgid "Extrude"
 msgstr "Extrudieren"
 
-#: lib/main_win.rb:244
+#: lib/main_win.rb:246
 msgid "Revolve"
 msgstr "Drehen"
 
-#: lib/main_win.rb:245
+#: lib/main_win.rb:247
 msgid "Hole"
 msgstr "Bohrung"
 
-#: lib/main_win.rb:246
+#: lib/main_win.rb:248
 msgid "Shell"
 msgstr "Hülle"
 
-#: lib/main_win.rb:247
+#: lib/main_win.rb:249
 msgid "Loft"
 msgstr "Schlauchfläche"
 
-#: lib/main_win.rb:248
+#: lib/main_win.rb:250
 msgid "Sweep"
 msgstr "Kurvenführung"
 
-#: lib/main_win.rb:249
+#: lib/main_win.rb:251
 msgid "Coil"
 msgstr "Spule"
 
-#: lib/main_win.rb:251 lib/main_win.rb:269
+#: lib/main_win.rb:253 lib/main_win.rb:271
 msgid "Fillet"
 msgstr "Verrundung"
 
-#: lib/main_win.rb:252
+#: lib/main_win.rb:254
 msgid "Chamfer"
 msgstr "Fase"
 
-#: lib/main_win.rb:253
+#: lib/main_win.rb:255
 msgid "Draft"
 msgstr "Kantenschräge"
 
-#: lib/main_win.rb:255
+#: lib/main_win.rb:257
 msgid "Pattern"
 msgstr "Muster"
 
-#: lib/main_win.rb:261
+#: lib/main_win.rb:263
 msgid "Line"
 msgstr "Linie"
 
-#: lib/main_win.rb:263
+#: lib/main_win.rb:265
 msgid "Line tool"
 msgstr "Linienwerkzeug"
 
-#: lib/main_win.rb:264
+#: lib/main_win.rb:266
 msgid "Circle"
 msgstr "Kreis"
 
-#: lib/main_win.rb:265
+#: lib/main_win.rb:267
 msgid "Arc"
 msgstr "Bogen"
 
-#: lib/main_win.rb:267
+#: lib/main_win.rb:269
 msgid "Arc tool"
 msgstr "Kreisbogenwerkzeug"
 
-#: lib/main_win.rb:268
+#: lib/main_win.rb:270
 msgid "Rectangle"
 msgstr "Rechteck"
 
-#: lib/main_win.rb:270
+#: lib/main_win.rb:272
 msgid "Polygon"
 msgstr "Polygon"
 
-#: lib/main_win.rb:272
+#: lib/main_win.rb:274
 msgid "Dimension"
 msgstr "Bemaßung"
 
-#: lib/main_win.rb:275
+#: lib/main_win.rb:277
 msgid "Trim"
 msgstr "Schneiden"
 
-#: lib/main_win.rb:277
+#: lib/main_win.rb:279
 msgid "Project"
 msgstr "Projezieren"
 
-#: lib/main_win.rb:282
+#: lib/main_win.rb:284
 msgid "Offset"
 msgstr "Abstand"
 
@@ -552,11 +556,11 @@ msgstr "Baugruppe"
 msgid "sketch"
 msgstr "skizze"
 
-#: lib/project_manager.rb:384
+#: lib/project_manager.rb:385
 msgid "Bad file format"
 msgstr "Unbekanntes Dateiformat"
 
-#: lib/project_manager.rb:385
+#: lib/project_manager.rb:386
 msgid ""
 "The file format is unsupported.\n"
 "Maybe this file was saved with an older version of Open Machinist"
@@ -565,11 +569,11 @@ msgstr ""
 "Möglicherweise wurde diese Datei mit einer älteren Version von Open "
 "Machinist erzeugt"
 
-#: lib/project_manager.rb:594
+#: lib/project_manager.rb:595
 msgid "Delete Sketch?"
 msgstr "Skizze löschen?"
 
-#: lib/project_manager.rb:597
+#: lib/project_manager.rb:598
 msgid ""
 "The operator includes an associated sketch.\n"
 "Do you want to delete it?"
@@ -577,7 +581,7 @@ msgstr ""
 "Der Operator enthält eine zugeordnete Skizze.\n"
 "Möchten Sie diese auch löschen?"
 
-#: lib/project_manager.rb:792 lib/project_manager.rb:793
+#: lib/project_manager.rb:793 lib/project_manager.rb:794
 msgid "Untitled"
 msgstr "Unbenanntes"
 
@@ -673,48 +677,48 @@ msgstr "Bauteil ziehen um es umher zu bewegen, Rechtsklick für Optionen:"
 msgid "Select a feature from yout model, right click for options:"
 msgstr "Wählen Sie ein Feature an Ihrem Model, Rechtsklick für Optionen:"
 
-#: lib/tools.rb:187
+#: lib/tools.rb:170
 msgid "Pick a closed region from a sketch:"
 msgstr "Geschlossenen Bereich einer Skizze wählen:"
 
-#: lib/tools.rb:252
+#: lib/tools.rb:235
 msgid "Select a single plane:"
 msgstr "Ebene wählen:"
 
-#: lib/tools.rb:281
+#: lib/tools.rb:264
 msgid ""
 "Drag left to pan, drag right to rotate the camera, middle drag for zoom:"
 msgstr ""
 "Ziehen mit linker Maustaste zum bewegen, mit rechter Taste zum rotieren, mit "
 "mittlerer Taste zum zoomen:"
 
-#: lib/tools.rb:317
+#: lib/tools.rb:300
 msgid "Pick a series of points to display the lenght of the path along them:"
 msgstr "Wählen Sie eine Serie von Punkten um die Länge des Pfades anzuzeigen:"
 
-#: lib/tools.rb:340
+#: lib/tools.rb:323
 msgid "Distance:"
 msgstr "Abstand:"
 
-#: lib/tools.rb:531
+#: lib/tools.rb:529
 msgid "Click left to create a point, middle click to move points:"
 msgstr ""
 "Linksklick um Punkt zu erstellen, ziehen mit mittlerer Taste zum bewegen von "
 "Punkten:"
 
-#: lib/tools.rb:595
+#: lib/tools.rb:577
 msgid "Click left to select center:"
 msgstr "Mit linker Maustaste Kreismittelpunkt wählen:"
 
-#: lib/tools.rb:608
+#: lib/tools.rb:590
 msgid "Click left to select first point on arc:"
 msgstr "Mit linker Maustaste ersten Punkt auf Bogen wählen:"
 
-#: lib/tools.rb:613
+#: lib/tools.rb:595
 msgid "Click left to select second point on arc:"
 msgstr "Mit linker Maustaste zweiten Punkt auf Bogen wählen:"
 
-#: lib/tools.rb:683
+#: lib/tools.rb:645
 msgid ""
 "Click left to select points, drag to move points, right click for options:"
 msgstr ""
@@ -1500,15 +1504,15 @@ msgstr ""
 msgid "Refresh thumbnails"
 msgstr "Vorschauen neu berechnen"
 
-#: data/glade/component_browser.glade:165
+#: data/glade/component_browser.glade:166
 msgid "Delete selected component"
 msgstr "Markierte Komponente löschen"
 
-#: data/glade/component_browser.glade:186
+#: data/glade/component_browser.glade:187
 msgid "Add a new instance of selected part to the project"
 msgstr "Eine neue Instanz des gewählten Bauteils in das Projekt einfügen"
 
-#: data/glade/component_browser.glade:187
+#: data/glade/component_browser.glade:188
 msgid "gtk-add"
 msgstr "gtk-add"
 

@@ -89,6 +89,8 @@ class OpenMachinistMainWin < Gtk::Window
 				[GetText._("/View/Show working planes"), "<CheckItem>", nil, nil, lambda{}],
 				[GetText._("/View/Diagnostic shading"),  "<CheckItem>", nil, nil, lambda{}],			
 				[GetText._("/View/Render shadows"),      "<CheckItem>", nil, nil, lambda{}],
+				[GetText._("/View/sep4"), "<Separator>"],
+				[GetText._("/View/Fullscreen"),   "<StockItem>", nil, Gtk::Stock::FULLSCREEN,  lambda{ @fullscreen ? (self.unfullscreen and @fullscreen = false) : (self.fullscreen and @fullscreen = true) }],
 			[GetText._("/_Tools")],
 				[GetText._("/Tools/Measure distance"), "<Item>", nil, nil, lambda{ @manager.activate_tool('measure_distance') }],
 				[GetText._("/Tools/Measure area"),     "<Item>", nil, nil, lambda{}],

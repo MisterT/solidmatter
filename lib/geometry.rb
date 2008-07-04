@@ -500,7 +500,7 @@ class Polygon
 		      intersections += 1 if intersection_point.z > point.y
 		    end
 		  end
-		  return (intersections % 2 == 0) ? false : true
+		  return intersections % 2 != 0
 		 end
   end
   

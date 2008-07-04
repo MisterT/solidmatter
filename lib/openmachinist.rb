@@ -54,8 +54,6 @@ Gtk.main_with_queue 100
 # undo/redo stack
 # vererbung von parts
 # use gtkuimanager for the menu
-# shading modes
-# Gtk::FileFilter - A filter for selecting a file subset
 # extrusion toolbar wird nicht auf aktuellen depthwert gesetzt
 # op_view klappzustand speichern
 # direkt die iters manipulieren in server_win damit beim update scrollstand erhalten belibt
