@@ -81,6 +81,7 @@ class Line < Segment
     end
     return points.uniq
   end
+  
 =begin
 	def move( v )
     for pos in own_and_neighbooring_points
@@ -91,6 +92,7 @@ class Line < Segment
     @sketch.build_displaylist
 	end
 =end
+
 	def bounding_box
 		return bounding_box_from [@pos1, @pos2]
 	end
@@ -153,21 +155,32 @@ class Arc < Segment
     points.push @center
     return points.uniq
   end
-  
+
   def snap_points
   	super + [pos1, pos2]
   end
   
   def tesselate
     span = (@start_angle - @end_angle).abs
-    if span > 0
-      @points.clear
-      min_angle = [@start_angle, @end_angle].min
-      max_angle = [@start_angle, @end_angle].max
-      min_angle.step( max_angle, span / @resolution ) do |angle|
-        @points.push point_at angle 
-      end
-    end
+   # if span > 0
+    #  @points.clear
+    #  min_angle = [@start_angle, @end_angle].min
+   #   max_angle = [@start_angle, @end_angle].max
+   #   min_angle.step( max_angle, span / @resolution ) do |angle|
+   #     @points.push point_at angle 
+   #   end
+  #  end
+  	if span > 0
+		  angle = @start_angle
+		  increment = span / @resolution
+		  @points.clear
+		  while (angle - @end_angle).abs > increment
+		  	@points.push point_at angle
+		  	angle += increment
+		  	angle = angle - 360 if angle > 360
+		  end
+		  @points << point_at( @end_angle )
+		end
     @lines = []
     for i in 0...(@points.size-1)
       line = Line.new( @points[i], @points[i+1] )
@@ -244,6 +257,21 @@ class WorkingPlane < Plane
 		@visible = false
 		@parent = parent
 		build_displaylists
+	end
+	
+	def resize2fit points
+		unless points.empty?
+			max_dist = points.map{|p| p.distance_to Vector[0,0,0] }.max
+			new_size = 4 * max_dist
+			step = (new_size - @size) / $preferences[:transition_duration]
+			if step != 0
+				@size.step( new_size, step ) do |size|
+					@size = size
+					build_displaylists
+					@glview.redraw
+				end
+			end
+		end
 	end
 	
 	def animate( direction=1 )
@@ -374,7 +402,7 @@ module ChainCompletion
 	end
 	
 	def ordered_polygons
-		polygons = all_chains.map{|ch| Polygon::from_chain ch }
+		polygons = all_chains.map{|ch| Polygon::from_chain ch.map{|seg| seg.tesselate }.flatten }
 		contained_in = {}
 		depth = 0
 		# check each poly for in how many others it is contained
@@ -387,12 +415,14 @@ module ChainCompletion
 				end
 			end 
 		end
+		ordered_polys = []
 		# subpolys must wind in opposite direction of parent
     depth.times do |i|
       polys = polygons.select{|p| contained_in[p] == i }
       i % 2 == 0 ? polys.each{|p| p.to_cw! } : polys.each{|p| p.to_ccw! }
+      ordered_polys += polys
     end
-		return polygons
+		return ordered_polys.reverse
 	end
 end
 

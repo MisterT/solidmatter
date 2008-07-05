@@ -67,10 +67,8 @@ Gtk.main_with_queue 100
 # automatically apply operator if there is only one unused sketch region
 # parts/operatos should communicate somehow that they could not be built correctly
 # region select von vertikalen planes
-# drag in Editsketchtool does not move points exactly above guides
 # refactor delete_op_view_selected code into delete_object
 # schnitte zwischen regions
-# dynamische größe von workingplanes
-# arc drawing über 180 grad
+
 
 

@@ -171,7 +171,8 @@ class RegionSelectionTool < SelectionTool
 		@op_sketch = manager.work_operator.settings[:sketch]
 		@all_sketches = (manager.work_component.unused_sketches + [@op_sketch]).compact
 		@regions = @all_sketches.inject([]) do |regions, sketch|
-		  regions += sketch.all_chains.map do |chain|
+
+		  regions += sketch.all_chains.reverse.map do |chain|
   	    poly = Polygon.from_chain chain.map{|seg| seg.tesselate }.flatten
   	    face = PlanarFace.new
   	    face.plane = sketch.plane
@@ -179,6 +180,17 @@ class RegionSelectionTool < SelectionTool
   	    face.segments = chain.map{|seg| seg.tesselate }.flatten.map{|seg| Line.new(Tool.sketch2world(seg.pos1, sketch.plane), Tool.sketch2world(seg.pos2, sketch.plane), sketch)  }
   	    Region.new(chain, poly, face)
 	    end
+
+=begin
+	    regions += sketch.ordered_polygons.map do |poly|
+  	    chain = (0...(poly.points.size-1)).map{|i| Line.new(poly.points[i], poly.points[i+1], sketch) }
+  	    face = PlanarFace.new
+  	    face.plane = sketch.plane
+  	    face.plane.build_displaylists
+  	    face.segments = chain.map{|seg| Line.new(Tool.sketch2world(seg.pos1, sketch.plane), Tool.sketch2world(seg.pos2, sketch.plane), sketch)  }
+  	    Region.new(chain, poly, face)
+	    end
+=end
     end
     @regions.compact!
     @op_sketch.visible = true if @op_sketch
@@ -189,8 +201,10 @@ class RegionSelectionTool < SelectionTool
 		super
 		mouse_move( x,y )
 	  if @current_region
-		  @selection = @current_region.chain
-		  @manager.cancel_current_tool
+	  	@selection ||= []
+		  @selection.push @current_region.chain
+		  @selection = @selection.first # XXX should really combine the regions into one
+		  @manager.cancel_current_tool unless @manager.key_pressed? :Shift
 	  end
 	end
 	
@@ -476,6 +490,11 @@ class SketchTool < Tool
     end
 	end
 	
+	def release_left
+		super
+		@sketch.plane.resize2fit @sketch.segments.map{|s| s.snap_points }.flatten
+	end
+	
 	def click_right( x,y, time )
 	  super
 	  menu = SketchToolMenu.new( @manager, self )
@@ -594,7 +613,10 @@ class ArcTool < SketchTool
   		    @start_point = point
   		    @manager.set_status_text GetText._("Click left to select second point on arc:")
 		    when 3
-		      end_angle = 360 - @sketch.plane.u_vec.angle( @center.vector_to( point ) )
+		      #end_angle = 360 - @sketch.plane.u_vec.angle( @center.vector_to( point ) )
+		      end_angle =@sketch.plane.u_vec.angle @center.vector_to point
+          end_angle = 360 - end_angle 
+          end_angle = 360 - end_angle if point.z > @center.z
 		      @sketch.segments.push Arc.new( @center, @radius, @start_angle, end_angle, @sketch )
 		      @sketch.build_displaylist
 		      @manager.cancel_current_tool
@@ -670,12 +692,12 @@ class EditSketchTool < SketchTool
     @does_snap = true
     pos = @glview.screen2world( x,y )
     new_selection = @glview.select( x,y )
-    # if drag starts on an already selected segment
     if pos
       pos = world2sketch(pos)
-    	@drag_start = pos
+      @drag_start = @draw_points.empty? ? pos : @draw_points.first.dup
     	@old_draw_points = Marshal.load(Marshal.dump( @draw_points ))
-		  if @selection and @selection.include? new_selection	    
+    	# if drag starts on an already selected segment
+		  if @selection and @selection.include? new_selection	   
 		    @points_to_drag = @selection.map{|e| e.own_and_neighbooring_points }.flatten.uniq
 		    @old_points = Marshal.load(Marshal.dump( @points_to_drag ))
 		  elsif new_selection
@@ -714,6 +736,16 @@ class EditSketchTool < SketchTool
 	def release_left
 	  super
 	  @does_snap = false
+	  # close loops that broke because of imprecision
+	  for dynamic_pos in @sketch.segments.select{|s| s.is_a? Line }.map{|line| [line.pos1, line.pos2] }.flatten
+	  	for static_pos in @sketch.segments.select{|s| not s.is_a? Line }.map{|seg| seg.snap_points }.flatten
+	  		if dynamic_pos.distance_to(static_pos) < $preferences[:merge_threshold]
+	  			dynamic_pos.x = static_pos.x
+	  			dynamic_pos.y = static_pos.y
+	  			dynamic_pos.z = static_pos.z
+	  		end
+	  	end
+	  end
   end
   
   def mouse_move( x,y, only_super=false, excluded=[] )
@@ -744,7 +776,6 @@ class EditSketchTool < SketchTool
   end
   
   def click_right( x,y, time )
-	  super
 	  click_left( x,y )
 	  menu = SketchSelectionToolMenu.new @manager
 	  menu.popup(nil, nil, 3,  time)

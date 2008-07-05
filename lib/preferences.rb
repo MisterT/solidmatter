@@ -21,7 +21,8 @@ $preferences = {
 	:transition_duration => 20.0,#60.0,
 	:max_reference_points => 8,
 	:thumb_res => 50,
-	:snap_dist => 6
+	:snap_dist => 6,
+	:merge_threshold => 0.001
 }
                   
 class PreferencesDialog
