@@ -157,7 +157,7 @@ class Arc < Segment
   end
 
   def snap_points
-  	super + [pos1, pos2]
+  	super + [pos1, pos2, @center]
   end
   
   def tesselate
@@ -194,6 +194,16 @@ end
 class Circle < Arc
   def initialize( center, radius, sketch=nil)
     super center, radius, 0.0, 360.0, sketch
+  end
+  
+  def Circle::from3points( p1, p2, p3, sketch=nil )
+    
+  end
+  
+  def Circle::from_opposite_points( p1, p2, sketch=nil )
+    center = p1 + (p1.vector_to(p2) / 2.0)
+    radius = center.distance_to p1
+    Circle.new( center, radius, sketch)
   end
 end
 
@@ -263,7 +273,7 @@ class WorkingPlane < Plane
 		unless points.empty?
 			max_dist = points.map{|p| p.distance_to Vector[0,0,0] }.max
 			new_size = 4 * max_dist
-			step = (new_size - @size) / $preferences[:transition_duration]
+			step = (new_size - @size) / ($preferences[:transition_duration] / 2)
 			if step != 0
 				@size.step( new_size, step ) do |size|
 					@size = size

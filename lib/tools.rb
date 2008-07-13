@@ -7,10 +7,13 @@ require 'pop_ups.rb'
 
 
 class Tool
+  attr_reader :toolbar, :uses_toolbar
 	def initialize( status_text, glview, manager )
 		@status_text = status_text
 		@glview = glview
 		@manager = manager
+		create_toolbar
+		@uses_toolbar = false
 		resume
 	end
 public
@@ -29,51 +32,39 @@ public
 	end
 	
 	def double_click( x,y )
-	 
 	end
 	
 	def click_middle( x,y )
-
 	end
 	
 	def click_right( x,y, time )
-
 	end
 	
 	def drag_left( x,y )
-
 	end
 	
 	def drag_middle( x,y )
-
 	end
 	
 	def drag_right( x,y )
-
 	end
 	
 	def mouse_move( x,y )
-
 	end
 	
 	def press_left( x,y )
-	 
 	end
 	
 	def press_right( x,y )
-	  
 	end
 	
 	def release_left
-	 
 	end
 	
 	def release_right
-	 
 	end
 	
 	def button_release
-	 
 	end
 	
 	def pause
@@ -89,9 +80,22 @@ public
 		@glview.immediate_draw_routines.pop
 		@manager.glview.window.cursor = nil
 	end
+	
+  #--- UI ---#
+	def create_toolbar
+		@toolbar = Gtk::Toolbar.new
+		@toolbar.toolbar_style = Gtk::Toolbar::BOTH
+		@toolbar.icon_size = Gtk::IconSize::SMALL_TOOLBAR
+		fill_toolbar 
+		@toolbar.append( Gtk::SeparatorToolItem.new){}
+		@toolbar.append( Gtk::Stock::OK, GetText._("Finish using tool"),"Tool/Ok"){ @manager.cancel_current_tool }
+	end
+	
+	def fill_toolbar
+	  # should be overridden by subclasses
+	end
 private
 	def draw
-	  
 	end
 end
 
@@ -171,7 +175,6 @@ class RegionSelectionTool < SelectionTool
 		@op_sketch = manager.work_operator.settings[:sketch]
 		@all_sketches = (manager.work_component.unused_sketches + [@op_sketch]).compact
 		@regions = @all_sketches.inject([]) do |regions, sketch|
-
 		  regions += sketch.all_chains.reverse.map do |chain|
   	    poly = Polygon.from_chain chain.map{|seg| seg.tesselate }.flatten
   	    face = PlanarFace.new
@@ -180,7 +183,6 @@ class RegionSelectionTool < SelectionTool
   	    face.segments = chain.map{|seg| seg.tesselate }.flatten.map{|seg| Line.new(Tool.sketch2world(seg.pos1, sketch.plane), Tool.sketch2world(seg.pos2, sketch.plane), sketch)  }
   	    Region.new(chain, poly, face)
 	    end
-
 =begin
 	    regions += sketch.ordered_polygons.map do |poly|
   	    chain = (0...(poly.points.size-1)).map{|i| Line.new(poly.points[i], poly.points[i+1], sketch) }
@@ -376,6 +378,7 @@ class SketchTool < Tool
 		@last_reference_points = []
 		@create_reference_geometry = false
 		@does_snap = true
+		@temp_segments = []
 	end
 	
 	# snap points to guides, then to other points, then to grid
@@ -490,7 +493,7 @@ class SketchTool < Tool
     end
 	end
 	
-	def release_left
+	def click_left( x,y )
 		super
 		@sketch.plane.resize2fit @sketch.segments.map{|s| s.snap_points }.flatten
 	end
@@ -530,6 +533,19 @@ class SketchTool < Tool
 				end
 			end
 			GL.Enable(GL::DEPTH_TEST)
+			# draw additional temporary geometry
+			for seg in @temp_segments
+  		  for micro_seg in seg.tesselate
+  			  GL.LineWidth(2)
+  			  GL.Color3f(1,1,1)
+  			  GL.Begin( GL::LINES )
+  			    pos1 = sketch2world( micro_seg.pos1 )
+  			    pos2 = sketch2world( micro_seg.pos2 )
+  				  GL.Vertex( pos1.x, pos1.y, pos1.z )
+  				  GL.Vertex( pos2.x, pos2.y, pos2.z )
+  			  GL.End
+  		  end
+  		end
 		end
 	end
 	
@@ -565,23 +581,11 @@ class LineTool < SketchTool
 	  super
 	  new_point, was_snapped = snapped( x,y )
 	  @draw_dot = was_snapped ? new_point : nil
-		@temp_line = Line.new( @last_point, new_point, @sketch) if new_point and @last_point
+	  if new_point and @last_point
+		  @temp_line = Line.new( @last_point, new_point, @sketch)
+		  @temp_segments = [@temp_line]
+	  end
 		@glview.redraw
-	end
-	
-	def draw
-	  super
-		if @temp_line
-		  # draw line segment
-			GL.LineWidth(2)
-			GL.Color3f(1,1,1)
-			GL.Begin( GL::LINES )
-			  pos1 = sketch2world( @temp_line.pos1 )
-			  pos2 = sketch2world( @temp_line.pos2 )
-				GL.Vertex( pos1.x, pos1.y, pos1.z )
-				GL.Vertex( pos2.x, pos2.y, pos2.z )
-			GL.End
-		end
 	end
 	
 	def resume
@@ -595,71 +599,132 @@ class ArcTool < SketchTool
 	def initialize( glview, manager, sketch )
 		super( GetText._("Click left to select center:"), glview, manager, sketch )
 		@manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if @manager.glview.window
-		@temp_segments = []
 		@step = 1
+		@uses_toolbar = true
 	end
 
-  	def click_left( x,y )
-  	  super
-  	  point, was_snapped = snapped( x,y )
-  	  if point
-        case @step
-        when 1
-          @center = point
-          @manager.set_status_text GetText._("Click left to select first point on arc:")
-        when 2
-          @radius = @center.distance_to point
-  		    @start_angle = 360 - (@sketch.plane.u_vec.angle @center.vector_to point)
-  		    @start_point = point
-  		    @manager.set_status_text GetText._("Click left to select second point on arc:")
-		    when 3
-		      #end_angle = 360 - @sketch.plane.u_vec.angle( @center.vector_to( point ) )
-		      end_angle =@sketch.plane.u_vec.angle @center.vector_to point
-          end_angle = 360 - end_angle 
-          end_angle = 360 - end_angle if point.z > @center.z
-		      @sketch.segments.push Arc.new( @center, @radius, @start_angle, end_angle, @sketch )
-		      @sketch.build_displaylist
-		      @manager.cancel_current_tool
-        end
-        @step += 1
+	def click_left( x,y )
+	  super
+	  point, was_snapped = snapped( x,y )
+	  if point
+      case @step
+      when 1
+        @center = point
+        @manager.set_status_text GetText._("Click left to select first point on arc:")
+      when 2
+        @radius = @center.distance_to point
+		    @start_angle = 360 - (@sketch.plane.u_vec.angle @center.vector_to point)
+		    @start_point = point
+		    @manager.set_status_text GetText._("Click left to select second point on arc:")
+	    when 3
+	      #end_angle = 360 - @sketch.plane.u_vec.angle( @center.vector_to( point ) )
+	      end_angle = @sketch.plane.u_vec.angle @center.vector_to point
+        end_angle = 360 - end_angle 
+        end_angle = 360 - end_angle if point.z > @center.z
+	      @sketch.segments.push Arc.new( @center, @radius, @start_angle, end_angle, @sketch )
+	      @sketch.build_displaylist
+	      @manager.cancel_current_tool
       end
-  	end
+      @step += 1
+    end
+	end
 
-  	def mouse_move( x,y )
-  	  super
-  		point, was_snapped = snapped( x,y )
-  		@draw_dot = was_snapped ? point : nil
-  		if point
-    		case @step
-  		  when 2
-          @temp_segments = [ Line.new( @center, point, @sketch ) ]
-  	    when 3
-          end_angle =@sketch.plane.u_vec.angle @center.vector_to point
-          end_angle = 360 - end_angle 
-          end_angle = 360 - end_angle if point.z > @center.z
-          arc = Arc.new( @center, @radius, @start_angle, end_angle )
-          @temp_segments = [ Line.new( @center, arc.pos1 ), arc, Line.new( @center, arc.pos2 ) ]
-  		  end
+	def mouse_move( x,y )
+	  super
+		point, was_snapped = snapped( x,y )
+		@draw_dot = was_snapped ? point : nil
+		if point
+  		case @step
+		  when 2
+        @temp_segments = [ Line.new( @center, point, @sketch ) ]
+	    when 3
+        end_angle =@sketch.plane.u_vec.angle @center.vector_to point
+        end_angle = 360 - end_angle 
+        end_angle = 360 - end_angle if point.z > @center.z
+        arc = Arc.new( @center, @radius, @start_angle, end_angle )
+        @temp_segments = [ Line.new( @center, arc.pos1 ), arc, Line.new( @center, arc.pos2 ) ]
 		  end
-  		@glview.redraw
-  	end
+	  end
+		@glview.redraw
+	end
+end
 
-  	def draw
-  	  super
-  		for seg in @temp_segments
-  		  for micro_seg in seg.tesselate
-  			  GL.LineWidth(2)
-  			  GL.Color3f(1,1,1)
-  			  GL.Begin( GL::LINES )
-  			    pos1 = sketch2world( micro_seg.pos1 )
-  			    pos2 = sketch2world( micro_seg.pos2 )
-  				  GL.Vertex( pos1.x, pos1.y, pos1.z )
-  				  GL.Vertex( pos2.x, pos2.y, pos2.z )
-  			  GL.End
-			  end
-  		end
-  	end
-  end
+
+class CircleTool < SketchTool
+	def initialize( glview, manager, sketch )
+		super( GetText._("Click left to select center:"), glview, manager, sketch )
+		@manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if @manager.glview.window
+		@step = 1
+	end
+	
+	def click_left( x,y )
+	  super
+	  point, was_snapped = snapped( x,y )
+	  if point
+      case @step
+      when 1
+        @center = point
+        @manager.set_status_text GetText._("Click left to select a point on the circle:")
+	    when 2
+        radius = @center.distance_to point
+	      @sketch.segments.push Circle.new( @center, radius, @sketch )
+	      @sketch.build_displaylist
+	      @manager.cancel_current_tool
+      end
+      @step += 1
+    end
+	end
+
+	def mouse_move( x,y )
+	  super
+		point, was_snapped = snapped( x,y )
+		@draw_dot = was_snapped ? point : nil
+		if point
+  		if @step == 2
+        radius = @center.distance_to point
+        circle = Circle.new( @center, radius )
+        @temp_segments = [ Line.new(@center, point), circle ]
+		  end
+	  end
+		@glview.redraw
+	end
+end
+
+
+class TwoPointCircleTool < SketchTool
+	def initialize( glview, manager, sketch )
+		super( GetText._("Click left to select first point on circle:"), glview, manager, sketch )
+		@manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if @manager.glview.window
+		@step = 1
+	end
+	
+	def click_left( x,y )
+	  super
+	  point, was_snapped = snapped( x,y )
+	  if point
+      case @step
+      when 1
+        @p1 = point
+        @manager.set_status_text GetText._("Click left to select second point on circle:")
+	    when 2
+	      @sketch.segments.push Circle::from_opposite_points( @p1, point, @sketch )
+	      @sketch.build_displaylist
+	      @manager.cancel_current_tool
+      end
+      @step += 1
+    end
+	end
+
+	def mouse_move( x,y )
+	  super
+		point, was_snapped = snapped( x,y )
+		@draw_dot = was_snapped ? point : nil
+		if point and @step == 2
+      @temp_segments = [ Circle::from_opposite_points( @p1, point ) ]
+	  end
+		@glview.redraw
+	end
+end
   
 
 class EditSketchTool < SketchTool

@@ -263,8 +263,10 @@ class OpenMachinistMainWin < Gtk::Window
 		line_button = Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/big/list-remove.png' ), GetText._('Line') )
 		line_button.signal_connect('clicked'){ @manager.activate_tool('line', true) }
 		sketch_toolbar.append( line_button, GetText._("Line tool") )
-		sketch_toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/big/circle.png' ),    GetText._('Circle') ) )    { @manager.activate_tool('circle') }
-		arc_button = Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/big/list-remove.png' ), GetText._('Arc') )
+		circle_button = Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/big/circle.png' ), GetText._('Circle') )
+		circle_button.signal_connect('clicked'){ @manager.activate_tool('circle', true) }
+		sketch_toolbar.append( circle_button, GetText._("Circle tool") )
+		arc_button = Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/big/arc.png' ), GetText._('Arc') )
 		arc_button.signal_connect('clicked'){ @manager.activate_tool('arc', true) }
 		sketch_toolbar.append( arc_button, GetText._("Arc tool") )
 		sketch_toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/big/rectangle.png' ), GetText._('Rectangle') ) ) { @manager.activate_tool('rectangle') }

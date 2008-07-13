@@ -497,7 +497,7 @@ public
 	  @work_component == @main_assembly
 	end
 	
-	# return from drawing or operator mode
+	# return from drawing, tool or operator mode
 	def exit_current_mode
 		if @work_sketch
 		  @work_sketch.visible = false unless @work_component.unused_sketches.include? @work_sketch
@@ -517,11 +517,17 @@ public
 			part_toolbar
 			@selection.deselect_all
 			return true
+		elsif @work_tool
+			@work_tool = nil
+			cancel_current_tool
+			@selection.deselect_all
+			return true
 		end
 		return false
 	end
 	
 	def sketch_mode sketch
+	  # roll back operators up to this point in history
 	  op = sketch.op
 	  if op
   	  i = op.part.operators.index op
@@ -546,6 +552,17 @@ public
 		@asm_toolbar.visible = false
 		@sketch_toolbar.visible = false
 		@work_operator = op
+	end
+	
+	def tool_mode tool
+	  if tool.uses_toolbar
+		  @main_vbox.pack_start( tool.toolbar, false, true )
+		  @main_vbox.show_all
+		  @prt_toolbar.visible = false
+		  @asm_toolbar.visible = false
+		  @sketch_toolbar.visible = false
+	  end
+		@work_tool = tool
 	end
 ###                                                                       ###
 ######---------------------- Operators and tools ----------------------######
@@ -662,7 +679,10 @@ public
 				tool = LineTool.new( @glview, self, @work_sketch, &block )
 			when 'arc'
 				tool = ArcTool.new( @glview, self, @work_sketch, &block )
+			when 'circle'
+				tool = TwoPointCircleTool.new( @glview, self, @work_sketch, &block )
 		end
+		tool_mode tool
 		@toolstack.push tool
 		@glview.redraw
 	end
@@ -673,8 +693,22 @@ public
 	
 	def cancel_current_tool
 		unless @toolstack.size == 1
-			@toolstack.pop.exit 
+			tool = @toolstack.pop
+			tool.exit
+			@work_tool = nil
+			@main_vbox.remove tool.toolbar if tool.uses_toolbar
 			current_tool.resume
+			if current_tool.uses_toolbar 
+			  tool_mode current_tool
+		  elsif @work_operator
+		    operator_mode @work_operator
+			elsif @work_sketch
+			  sketch_toolbar
+		  elsif @work_component.class == Part
+		    part_toolbar
+	    else
+	      assembly_toolbar
+      end
 			@glview.redraw
 		end
 	end

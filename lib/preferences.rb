@@ -10,8 +10,8 @@ Bookmark = Struct.new( :adress, :port, :login, :password )
 
 $preferences = { 
 	:bookmarks => [ Bookmark.new( 'localhost', 2222, 'synthetic', 'bla' ) ],
-	:anti_aliasing => false,
-	:stencil_transparency => false,
+	:anti_aliasing => true,
+	:stencil_transparency => true,
 	:manage_gc => true,
 	:first_light_position => [0.5, 1.0, 1.0, 0.0],
 	:second_light_position => [-0.8, -0.8, 0.35, 0.0],
