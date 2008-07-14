@@ -103,6 +103,10 @@ class Vector
 	 (vector_to v).length
 	end
 	
+	def near_to other
+		distance_to(other) < $preferences[:merge_threshold]
+	end
+	
 	def project_xy
 	 Vector[ self[0], self[1], 0 ]
 	end

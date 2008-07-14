@@ -521,7 +521,7 @@ public
 			@work_tool = nil
 			cancel_current_tool
 			@selection.deselect_all
-			return true
+			return false
 		end
 		return false
 	end
@@ -681,6 +681,8 @@ public
 				tool = ArcTool.new( @glview, self, @work_sketch, &block )
 			when 'circle'
 				tool = TwoPointCircleTool.new( @glview, self, @work_sketch, &block )
+			when 'trim'
+				tool = TrimTool.new( @glview, self, @work_sketch, &block )
 		end
 		tool_mode tool
 		@toolstack.push tool

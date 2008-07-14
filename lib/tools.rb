@@ -194,6 +194,7 @@ class RegionSelectionTool < SelectionTool
 	    end
 =end
     end
+    puts "There are #{@regions.size} regions"
     @regions.compact!
     @op_sketch.visible = true if @op_sketch
     @glview.redraw
@@ -213,9 +214,9 @@ class RegionSelectionTool < SelectionTool
 	def mouse_move( x,y )
 	  for sketch in @all_sketches
 	    sketch.plane.visible = true
-	    sel = @glview.select(x,y, :select_faces)
+	    sel = @glview.select(x,y, :select_planes)
 	    sketch.plane.visible = false
-	    if sel.is_a? WorkingPlane
+	    if sel
         pos = pos_of( x,y, sel )
         @current_region = @regions.select{|r| r.face.plane == sel and r.poly.contains? Point.new( pos.x, pos.z ) }.first
         @glview.redraw
@@ -227,7 +228,9 @@ class RegionSelectionTool < SelectionTool
 	
 	def draw
 	  GL.Color3f( 0.9, 0.2, 0 )
+	  GL.Disable(GL::POLYGON_OFFSET_FILL)
     @current_region.face.draw if @current_region
+    GL.Enable(GL::POLYGON_OFFSET_FILL)
 	end
 	
 	def pos_of( x,y, plane )
@@ -254,7 +257,7 @@ class PlaneSelectionTool < SelectionTool
 	
 	def click_left( x,y )
 	  super
-	  sel = @glview.select(x,y, :select_faces)
+	  sel = @glview.select(x,y, :select_faces_and_planes)
 		if sel
 		  if sel.is_a? PlanarFace
         @selection = sel.plane
@@ -804,7 +807,7 @@ class EditSketchTool < SketchTool
 	  # close loops that broke because of imprecision
 	  for dynamic_pos in @sketch.segments.select{|s| s.is_a? Line }.map{|line| [line.pos1, line.pos2] }.flatten
 	  	for static_pos in @sketch.segments.select{|s| not s.is_a? Line }.map{|seg| seg.snap_points }.flatten
-	  		if dynamic_pos.distance_to(static_pos) < $preferences[:merge_threshold]
+	  		if dynamic_pos.near_to static_pos
 	  			dynamic_pos.x = static_pos.x
 	  			dynamic_pos.y = static_pos.y
 	  			dynamic_pos.z = static_pos.z
@@ -860,6 +863,66 @@ class EditSketchTool < SketchTool
 		end
 	end
 end
+
+
+class TrimTool < SketchTool
+	def initialize( glview, manager, sketch )
+		super( GetText._("Click left to delete subsegments of your sketch:"), glview, manager, sketch )
+		@does_snap = false
+		save_real_segments
+	end
+	
+	def save_real_segments
+		# replace sketch segments with precut versions
+		@old_segments = @sketch.segments
+		@mapper = {}
+		cut_segments = @sketch.segments.inject([]) do |all_cut, seg| 
+			cut_segs = seg.cut_with( @sketch.segments - [seg] )
+			cut_segs.each{|cs| @mapper[cs.object_id] = seg }
+			all_cut += cut_segs
+		end
+		@sketch.segments = cut_segments
+		@sketch.build_displaylist
+	end
+	
+	def mouse_move( x,y )
+  	super
+  	if sel = @glview.select( x,y )
+			@manager.selection.select sel
+		else
+			@manager.selection.deselect_all
+		end
+		@glview.redraw
+  end
+  
+	def click_left( x,y )
+	  super
+  	if sel = @glview.select( x,y )
+			real_seg = @mapper[sel.object_id]
+			new_segs = real_seg.trim_between( sel.pos1, sel.pos2 )
+			@old_segments.delete real_seg
+			@sketch.segments = @old_segments + new_segs
+			save_real_segments
+		end
+	end
+	
+	def exit
+		super
+		# restore sketch with original segments
+		@sketch.segments = @old_segments
+		@sketch.build_displaylist
+	end
+end
+
+
+
+
+
+
+
+
+
+
 
 
 

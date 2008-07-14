@@ -59,6 +59,14 @@ class Segment
   def snap_points
   	[]
   end
+  
+  def cut_with segs
+  	[self]
+  end
+  
+  def trim_between( p1, p2 )
+  	[self]
+  end
 end
 
 
@@ -378,7 +386,7 @@ module ChainCompletion
 		pos = segment.pos2
 		changed = true
 		runs = 0
-		while (not pos == segment.pos1) and changed and runs <= segments.size
+		while (not pos.near_to segment.pos1) and changed and runs <= segments.size
 		  runs += 1
 			changed = false
 			for seg in segments
@@ -395,7 +403,7 @@ module ChainCompletion
 				end
 			end
 		end
-		return pos == segment.pos1 ? chain : nil
+		return (pos.near_to segment.pos1) ? chain : nil
 	end
 	
 	def all_chains
@@ -440,8 +448,8 @@ end
 
 class Sketch
 	include ChainCompletion
-	attr_accessor :name, :parent, :op, :selection_pass, :visible, :selected, :glview, :displaylist
-	attr_reader :plane, :segments
+	attr_accessor :name, :parent, :op, :selection_pass, :visible, :selected, :glview, :displaylist, :segments
+	attr_reader :plane
 	@@sketchcolor = [0,1,0]
 	def initialize( name, parent, plane, glview )
 		@name = name
@@ -904,7 +912,7 @@ class Part < Component
 			  #col = @information[:material].color
 			  #GL.Color4f(col[0], col[1], col[2], @information[:material].opacity)
 			  c = face.selection_pass_color
-			  GL.Color3f( c[0],c[1],c[2] ) if type == :select_faces
+			  GL.Color3f( c[0],c[1],c[2] ) if type == :select_faces or type == :select_faces_and_planes
 				#GL.Begin( GL::POLYGON )
 				#face.segments.each do |seg|
           #GL.TexCoord2f(0.995, 0.005)

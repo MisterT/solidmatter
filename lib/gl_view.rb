@@ -457,7 +457,9 @@ class GLView < Gtk::DrawingArea
   			GL.Disable(GL::LIGHTING)
   			c = top_comp.selection_pass_color
   			GL.Color3f( c[0],c[1],c[2] ) if c
-  			GL.CallList( (@picking_pass or @selection_pass == :select_faces) ? top_comp.pick_displaylist : top_comp.displaylist )
+  			GL.Disable(GL::POLYGON_OFFSET_FILL)
+  			GL.CallList( (@picking_pass or @selection_pass == :select_planes or @selection_pass == :select_faces_and_planes) ? top_comp.pick_displaylist : top_comp.displaylist )
+  			GL.Enable(GL::POLYGON_OFFSET_FILL)
   		end
   		GL.PopMatrix
 	  end
@@ -519,7 +521,11 @@ class GLView < Gtk::DrawingArea
 	    case type
 	    when :select_faces
 	      selectables = @manager.all_part_instances.select{|inst| inst.visible }.map{|inst| inst.solid.faces }.flatten
-	      selectables += @manager.work_component.working_planes
+	    when :select_planes
+	      selectables = @manager.work_component.working_planes
+	    when :select_faces_and_planes
+	    	selectables = @manager.work_component.working_planes
+	      selectables += @manager.all_part_instances.select{|inst| inst.visible }.map{|inst| inst.solid.faces }.flatten
       when :select_instances
         selectables = @manager.all_part_instances.select{|inst| inst.visible }
       when :select_segments

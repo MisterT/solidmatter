@@ -147,7 +147,7 @@ class OpenMachinistMainWin < Gtk::Window
 		toolbar.append( Gtk::SeparatorToolItem.new){}
 		cam_btn = Gtk::ToolButton.new( Gtk::Image.new('../data/icons/middle/camera_middle.png'), GetText._(" Camera") )
 		cam_btn.important = false
-		cam_btn.signal_connect("clicked"){@manager.activate_tool('camera') }
+		cam_btn.signal_connect("clicked"){@manager.activate_tool('camera', true) }
 		toolbar.append( cam_btn, GetText._("Position the 3d viewpoint"), "Toolbar/Camera" )
 		zoom_btn = Gtk::ToolButton.new( Gtk::Image.new('../data/icons/middle/system-search_middle.png'), GetText._(" Zoom selection") )
 		zoom_btn.important = false
@@ -269,14 +269,14 @@ class OpenMachinistMainWin < Gtk::Window
 		arc_button = Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/big/arc.png' ), GetText._('Arc') )
 		arc_button.signal_connect('clicked'){ @manager.activate_tool('arc', true) }
 		sketch_toolbar.append( arc_button, GetText._("Arc tool") )
-		sketch_toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/big/rectangle.png' ), GetText._('Rectangle') ) ) { @manager.activate_tool('rectangle') }
-		sketch_toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/big/fillet.png' ),    GetText._('Fillet') ) )    { @manager.activate_tool('fillet') }
+		sketch_toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/big/rectangle.png' ), GetText._('Rectangle') ) ) { @manager.activate_tool('rectangle', true) }
+		sketch_toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/big/fillet.png' ),    GetText._('Fillet') ) )    { @manager.activate_tool('fillet', true) }
 		sketch_toolbar.append( GetText._("Polygon"), "Create regular convex polygon with variable number of segments", "SketchToolbar/Polygon", Gtk::Image.new('../data/icons/big/polygon.png') ){}
 		sketch_toolbar.append( Gtk::SeparatorToolItem.new )
 		sketch_toolbar.append( GetText._("Dimension"), "Add dimensions to the sketch", "SketchToolbar/Dimension", Gtk::Image.new('../data/icons/big/dimension.png') ){}
 		sketch_toolbar.append( GetText._("Constrain"), "Constrain the sketch", "SketchToolbar/Constrain", Gtk::Image.new('../data/icons/big/constrain.png') ){}
 		sketch_toolbar.append( Gtk::SeparatorToolItem.new )
-		sketch_toolbar.append( GetText._("Trim"), "Cut away parts of a segment", "SketchToolbar/Trim", Gtk::Image.new('../data/icons/big/trim.png') ){}
+		sketch_toolbar.append( GetText._("Trim"), "Cut away parts of a segment", "SketchToolbar/Trim", Gtk::Image.new('../data/icons/big/trim.png') ){ @manager.activate_tool('trim', true) }
 		sketch_toolbar.append( Gtk::SeparatorToolItem.new )
 		sketch_toolbar.append( GetText._("Project"), "Project external features onto the sketch plane", "SketchToolbar/Project", Gtk::Image.new('../data/icons/big/look_at.png') ){}
 		sketch_toolbar.append( Gtk::SeparatorToolItem.new )
