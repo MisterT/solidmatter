@@ -102,6 +102,7 @@ class GLView < Gtk::DrawingArea
 		@displaymode = :overlay
 		# these are called for immediate mode drawing
 		@immediate_draw_routines = []
+		@all_displaylists = []
 		# camera handling stuff
 		@max_remembered_views = 25
 		@cameras = [Camera.new]
@@ -246,8 +247,8 @@ class GLView < Gtk::DrawingArea
 			  drag_x = (x - @last_down.x).to_f / allocation.width
 				drag_y = (y - @last_down.y).to_f / allocation.height
 				cam = @last_mouse_down_cam.clone
-				cam.move_right -drag_x * 1.5 * cam.target.distance_to( cam.position )
-				cam.move_up drag_y * 0.8 * cam.target.distance_to( cam.position )
+				cam.move_right -drag_x * 1.5 * cam.target.distance_to( cam.position ) * $preferences[:mouse_sensivity]
+				cam.move_up drag_y * 0.8 * cam.target.distance_to( cam.position ) * $preferences[:mouse_sensivity]
 				@cameras[@current_cam_index] = cam
 				redraw
 		else
@@ -261,7 +262,7 @@ class GLView < Gtk::DrawingArea
 			  drag_x = (x - @last_down.x).to_f / allocation.width
   			drag_y = (y - @last_down.y).to_f / allocation.height
 				cam = @last_mouse_down_cam.clone
-				zoom_amount = drag_x * 3 * cam.target.distance_to( cam.position )
+				zoom_amount = drag_x * 3 * cam.target.distance_to( cam.position ) * $preferences[:mouse_sensivity]
 				if cam.position.vector_to( cam.target ).length > zoom_amount
 					cam.move_forward zoom_amount
 					@cameras[@current_cam_index] = cam 
@@ -278,8 +279,8 @@ class GLView < Gtk::DrawingArea
 			  drag_x = (x - @last_down.x).to_f / allocation.width
 				drag_y = (y - @last_down.y).to_f / allocation.height
 				cam = @last_mouse_down_cam.clone
-				cam.rotate_around_up -drag_x * 5 * cam.target.distance_to( cam.position )
-				cam.rotate_around_right drag_y * 4 * cam.target.distance_to( cam.position )
+				cam.rotate_around_up -drag_x * 5 * cam.target.distance_to( cam.position ) * $preferences[:mouse_sensivity]
+				cam.rotate_around_right drag_y * 4 * cam.target.distance_to( cam.position ) * $preferences[:mouse_sensivity]
 				@cameras[@current_cam_index] = cam
 				redraw
 		else
@@ -289,7 +290,17 @@ class GLView < Gtk::DrawingArea
 	
 	def add_displaylist
 		list = GL.GenLists(1)
+		@all_displaylists << list
 		return list
+	end
+	
+	def delete_displaylist list
+		@all_displaylists.delete list
+		GL.DeleteLists( list, 1 ) if list
+	end
+	
+	def delete_all_displaylists
+		delete_displaylist @all_displaylists.pop until @all_displaylists.empty?
 	end
 	
 	def realize
@@ -449,6 +460,7 @@ class GLView < Gtk::DrawingArea
   				top_comp.build_displaylist
   			else
   				GL.LineWidth(4)
+  				puts "We have the sketch: #{top_comp.name}, with parent #{top_comp.parent.name}" unless top_comp.displaylist
   				GL.CallList( top_comp.displaylist )
   			end
   		### ---------------------- Working plane ---------------------- ###

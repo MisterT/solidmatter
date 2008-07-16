@@ -158,13 +158,23 @@ public
     	@work_component = @main_assembly
     	@work_sketch = nil
     	exchange_all_gl_components do
-      	@all_assemblies         = [@main_assembly]
+      	@all_assemblies         = [@main_assembly.real_component]
       	@all_parts              = []
       	@all_instances          = []
       	@all_part_instances     = []
-      	@all_assembly_instances = []
+      	@all_assembly_instances = [@main_assembly]
       	@all_sketches           = []
   	  end
+    	new_part if $preferences[:create_part_on_new_project] and @not_starting_up
+=begin
+    		first_part = Part.new( unique_name(GetText._("part")), self ) 
+    		instance = Instance.new( first_part, @main_assembly )
+    		@main_assembly.components.push instance
+    		@all_parts.push first_part
+				@all_instances.push instance
+				@all_part_instances.push instance
+    	end
+=end
     	@colliding_instances    = []
     	@filename = nil
     	self.has_been_changed = false
@@ -180,11 +190,16 @@ public
 	
 	def exchange_all_gl_components
 		if @not_starting_up
+			@glview.delete_all_displaylists
 	    @all_parts.each{|p| p.clean_up ; p.working_planes.each{|pl| pl.clean_up } }
 	    @all_sketches.each{|sk| sk.clean_up }
     end
 	  yield
 	  if @not_starting_up
+	  	@all_sketches.each do |sk| 
+        sk.displaylist = @glview.add_displaylist
+        sk.build_displaylist
+      end
 	  	progress = ProgressDialog.new
 	  	num_ops = @all_parts.map{|p| p.operators}.flatten.size
   		op_i = 1
@@ -205,10 +220,7 @@ public
 	      end
       end
       progress.close
-      @all_sketches.each do |sk| 
-        sk.displaylist = @glview.add_displaylist
-        sk.build_displaylist
-      end
+
     end
 	end
 	
@@ -265,7 +277,7 @@ public
 	
 	def new_part
 		# create part and make its instance the work part
-		part = Part.new( unique_name( GetText._("part") ), self, @glview.add_displaylist, @glview.add_displaylist )
+		part = Part.new( unique_name( GetText._("part") ), self)
 		@all_parts.push part
 		new_instance( part )
 	end
@@ -374,8 +386,8 @@ public
 						end
 					end
 					change_working_level @main_assembly 
-					self.has_been_changed = false
 					@filename = filename
+					self.has_been_changed = false
 					@glview.zoom_onto @all_part_instances.select{|i| i.visible }
   			rescue
   			  dialog = Gtk::MessageDialog.new(@main_win, 
@@ -416,7 +428,9 @@ public
   			  @all_parts.each{|p| p.solid = Solid.new }
   			  strip_non_dumpable
   			  puts "projectname: " + project_name
-  				Marshal::dump( [@glview.image_of_instances(@all_part_instances,8,100,project_name).to_tiny, @name, @main_assembly, @all_assemblies,	@all_parts, @all_instances, @all_part_instances, @all_assembly_instances, @all_sketches], file )
+  				Marshal::dump( [@glview.image_of_instances(@all_part_instances,8,100,project_name).to_tiny, 
+  												@name, @main_assembly, @all_assemblies,	@all_parts, @all_instances, 
+  												@all_part_instances, @all_assembly_instances, @all_sketches], file )
   				readd_non_dumpable 
   				@all_parts.each{|p| p.build } 
   			end

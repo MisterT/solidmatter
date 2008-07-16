@@ -53,7 +53,6 @@ class Segment
 		@sketch = sketch
 		@reference = false
 		@selection_pass_color = [1.0, 1.0, 1.0]
-		@resolution = 30
   end
   
   def snap_points
@@ -180,7 +179,7 @@ class Arc < Segment
   #  end
   	if span > 0
 		  angle = @start_angle
-		  increment = span / @resolution
+		  increment = span / $preferences[:surface_resolution]
 		  @points.clear
 		  while (angle - @end_angle).abs > increment
 		  	@points.push point_at angle
@@ -293,11 +292,11 @@ class WorkingPlane < Plane
 	end
 	
 	def animate( direction=1 )
-	  if $preferences[:view_transitions]
+	  if $preferences[:animate_working_planes]
   	  original_size = @size
       GC.disable if $preferences[:manage_gc]
       start, ende = direction == 1 ? [0, @size] : [@size, 0]
-  		start.step( ende, (@size / $preferences[:transition_duration]) * direction ) do |i|
+  		start.step( ende, (@size / $preferences[:animation_duration]) * direction ) do |i|
   			@size = i
   			build_displaylists
   			@glview.redraw
@@ -371,10 +370,11 @@ class WorkingPlane < Plane
 	end
 	
 	def clean_up
-		GL.DeleteLists( @displaylist, 1 )
-		GL.DeleteLists( @pick_displaylist, 1 )
+		@glview.delete_displaylist @displaylist
+		@glview.delete_displaylist @pick_displaylist
 		@displaylist = nil
 		@pick_displaylist = nil
+		self
 	end
 end
 
@@ -497,7 +497,7 @@ class Sketch
 	end
 	
 	def clean_up
-		GL.DeleteLists( @displaylist, 1 )
+		@glview.delete_displaylist @displaylist
 		@displaylist = nil
 	end
 end
@@ -806,8 +806,8 @@ class Component
 	end
 	
 	def clean_up
-	  GL.DeleteLists( @displaylist, 1 )
-	  GL.DeleteLists( @wire_displaylist, 1 )
+		@manager.glview.delete_displaylist @displaylist
+		@manager.glview.delete_displaylist @wire_displaylist
 	  @displaylist = nil
 	  @wire_displaylist = nil
 	end
@@ -817,7 +817,7 @@ end
 class Part < Component
   attr_accessor :manager, :displaylist, :wire_displaylist, :history_limit, :solid
 	attr_reader :operators, :working_planes, :unused_sketches, :solid
-	def initialize(name, manager, disp_num, wire_disp_num )
+	def initialize(name, manager)
 		super()
 		@manager = manager
 		@unused_sketches = []
@@ -830,8 +830,8 @@ class Part < Component
 							      :approved => "",
 							      :version  => "0.1",
 							      :material => @manager.materials.first}
-		@displaylist = disp_num
-		@wire_displaylist = wire_disp_num
+		@displaylist = @manager.glview.add_displaylist
+		@wire_displaylist = @manager.glview.add_displaylist
 		@solid = Solid.new
 	end
 

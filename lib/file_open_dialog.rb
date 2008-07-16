@@ -15,6 +15,7 @@ class FileOpenDialog < Gtk::FileChooserDialog
            [Gtk::Stock::CANCEL, Gtk::Dialog::RESPONSE_CANCEL],
            [save ? Gtk::Stock::SAVE : Gtk::Stock::OPEN, Gtk::Dialog::RESPONSE_ACCEPT] )
     set_property('do-overwrite-confirmation', true) 
+    self.current_folder = $preferences[:project_dir]
     # add file filter
     filter = Gtk::FileFilter.new
     filter.name = GetText._("Open Machinst project")

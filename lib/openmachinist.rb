@@ -69,6 +69,7 @@ Gtk.main_with_queue 100
 # region select von vertikalen planes
 # refactor delete_op_view_selected code into delete_object
 # schnitte zwischen regions
+# editsketchtool sollte eigenschaften von segments ändern können (kreisgrösse)
 
 
 
