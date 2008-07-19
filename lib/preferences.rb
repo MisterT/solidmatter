@@ -30,7 +30,8 @@ $preferences = {
 	:max_reference_points => 8,
 	:thumb_res => 50,
 	:snap_dist => 6,
-	:merge_threshold => 0.001
+	:merge_threshold => 0.001,
+	:area_samples => 5000
 }
 
 $non_gconf_types = [Bookmark]

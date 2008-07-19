@@ -528,6 +528,23 @@ class Polygon
   def push p
     @points.push p
   end
+  
+  def area
+  	samples = $preferences[:area_samples]
+  	xs = @points.map{|p| p.x }.sort
+  	zs = @points.map{|p| p.z }.sort
+  	left = xs.first
+  	right = xs.last
+  	upper = zs.last
+  	lower = zs.first
+  	a = 0.0
+  	samples.times do
+  		x = left + rand * (right-left).abs
+  		z = lower + rand * (upper-lower).abs
+  		a += 1 if contains? Vector[x,z,0]
+  	end
+  	(a / samples) * (right-left).abs * (upper-lower).abs
+  end
 
   def contains? point_or_poly
   	if point_or_poly.is_a? Polygon
