@@ -29,11 +29,28 @@ class Module
 	end
 end
 
+def given o
+	$__ = o
+end
+
 class Array
 	_topicalize_ *%w(each map select sort_by any? all?)
 end
 
 
+
+
+###------------ Hyper and reduction operators ------------###
+
+module Enumerable
+	def _ op, enum=nil
+		if enum
+			zip(enum).map{|i,j| i && j ? eval("#{i}.#{op} #{j}") : nil }.compact
+		else
+			eval "inject{|a,b| a.#{op} b }"
+		end
+	end
+end
 
 
 
@@ -59,6 +76,11 @@ class Junction
 		@objects << (o.is_a?(Junction) ? o.objects : o)
 		@objects.flatten!
 		self
+	end
+	
+	def method_missing( meth, *args )
+		Junction.define_operator meth
+		send meth, *args
 	end
 	
 	# XXX define as method_missing
@@ -96,10 +118,6 @@ class Junction
 			end
 		"
 	end
-	define_operator '=='
-	define_operator '<'
-	define_operator '>'
-	define_operator 'bla'
 
 	def each
 		threads = []
@@ -164,7 +182,11 @@ def any( *objs, &block )
 	j
 end
 
-class Fixnum
+class Integer
+	_junctionize_
+end
+
+class Float
 	_junctionize_
 end
 
@@ -173,28 +195,7 @@ class String
 end
 
 	
-	
-	
-	
-###------------ Hyper and reduction operators ------------###
 
-module Enumerable
-	def _ op
-		eval "inject{|a,b| a.#{op} b }"
-	end
-end
-
-
-=begin
-	has
-	given
-	chained comp
-=end
-	
-	
-	
-	
-	
 	
 
 
