@@ -777,7 +777,7 @@ class EditSketchTool < SketchTool
 	 	if sel
 	 	  if @manager.key_pressed? :Shift
 	 	    @manager.selection.add sel
-	 	    @selection.push sel
+	 	    @selection ? (@selection.push sel) : (@selection = [])
  	    else
 	 	    @manager.selection.select sel
 		    @selection = [sel]
