@@ -18,14 +18,15 @@ class ExtrudeOperator < Operator
 	end
 	
 	def real_operate
+	  @new_faces = []
 	  segments = @settings[:segments]
 		if segments and @solid
 		  # take the most appropriate chain from the sketch
 		  sketch = segments.first.sketch
 		  segments = sketch.all_chains.select{|ch| segments.any?{|s| ch.include? s } }.first
-		  unless segments
+		  if not segments
 		  	@solid = nil
-		  	return
+		  	return []
 		  end
 		  @settings[:segments] = segments
 			# create face in extrusion direction for every segment
@@ -53,6 +54,7 @@ class ExtrudeOperator < Operator
   			  face = CircularFace.new( direction, seg.radius, seg.center + origin, @settings[:depth], seg.start_angle, seg.end_angle )
 				end
 				@solid.add_face face
+				@new_faces << face
 			end
 			# build caps
 			segments = segments.map{|s| s.tesselate }.flatten
@@ -62,13 +64,16 @@ class ExtrudeOperator < Operator
 			lower_cap.segments = segments.map{|s| Line.new(s.pos1 + origin, s.pos2 + origin) }
 			lower_cap.plane.origin = lower_cap.segments[0].pos1
 			@solid.add_face lower_cap
+			@new_faces << lower_cap
 			upper_cap = PlanarFace.new
 			upper_cap.plane.u_vec = sketch.plane.u_vec.invert
 			upper_cap.plane.v_vec = sketch.plane.v_vec
 			upper_cap.segments = segments.map{|s| Line.new(s.pos1 + origin + direction, s.pos2 + origin + direction) }
 			upper_cap.plane.origin = upper_cap.segments[0].pos1
 			@solid.add_face upper_cap
+			@new_faces << upper_cap
 		end
+		return @new_faces
 	end
 	
 	def fill_toolbar 

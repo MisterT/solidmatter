@@ -683,8 +683,9 @@ end
 class Face
   include Selectable
   include ChainCompletion
-	attr_accessor :segments, :solid
-	def initialize
+	attr_accessor :segments, :solid, :created_by_op
+	def initialize op=nil
+	  @created_by_op = op
 		@segments = []
 		@selection_pass_color = [1.0, 1.0, 1.0]
 		@solid = nil
@@ -857,7 +858,10 @@ class Operator
 		else
 			@solid = Solid.new
 		end
-		real_operate if @enabled 
+		if @enabled
+  		new_faces = real_operate 
+  		new_faces.each{|f| f.created_by_op = self }
+		end
 	end
 	
 	def real_operate

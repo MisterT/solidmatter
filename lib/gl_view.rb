@@ -399,7 +399,7 @@ class GLView < Gtk::DrawingArea
 			recurse_draw( @manager.main_assembly )
 			# draw 3d interface stuff
 			GL.Disable(GL::LIGHTING)
-			@immediate_draw_routines.each{|r| r.call }
+			@immediate_draw_routines.each{|r| r.call } unless @selection_pass or @picking_pass
 			gldrawable.swap_buffers unless @selection_pass or @picking_pass or @do_not_swap
 		gldrawable.gl_end
 	end

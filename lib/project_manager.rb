@@ -680,7 +680,7 @@ public
 			when 'part_select'
 				tool = PartSelectionTool.new( @glview, self, &block )
 			when 'operator_select'
-  			tool = PartSelectionTool.new( @glview, self, &block )
+  			tool = OperatorSelectionTool.new( @glview, self, &block )
 			when 'region_select'
 				tool = RegionSelectionTool.new( @glview, self, &block )
 			when 'sketch_select'

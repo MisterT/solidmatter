@@ -146,6 +146,12 @@ class PartSelectionTool < SelectionTool
     end
 	end
 	
+	def mouse_move( x,y )
+	  super
+	  @current_part = @glview.select(x,y, :select_instances)
+    @glview.redraw
+	end
+	
 	def press_right( x,y, time )
 	  super
 		click_left( x,y )
@@ -153,17 +159,51 @@ class PartSelectionTool < SelectionTool
 		menu = sel ? ComponentMenu.new(@manager, sel, :glview) : BackgroundMenu.new(@manager)
 		menu.popup(nil, nil, 3,  time)
 	end
+	
+	def draw
+	  super
+	  GL.Color4f( 0.9, 0.2, 0, 0.5 )
+	  GL.Disable(GL::POLYGON_OFFSET_FILL)
+    @current_part.solid.faces.each{|f| f.draw } if @current_part
+    GL.Enable(GL::POLYGON_OFFSET_FILL)
+	end
 end
 
 class OperatorSelectionTool < SelectionTool
 	def initialize( glview, manager )
-		super( GetText._("Select a feature from yout model, right click for options:"), glview, manager )
+		super( GetText._("Select a feature from your model, right click for options:"), glview, manager )
+		@draw_faces = []
+	end
+	
+	def click_left( x,y )
+		super
+		mouse_move( x,y )
+		if @current_face
+		  op = @current_face.created_by_op
+		  @manager.exit_current_mode
+      @manager.operator_mode op
+    end
+	end
+	
+	def mouse_move( x,y )
+	  super
+	  @current_face = @glview.select(x,y, :select_faces)
+	  @draw_faces = @current_face ? @current_face.solid.faces.select{|f| f.created_by_op == @current_face.created_by_op } : []
+    @glview.redraw
 	end
 	
 	def click_right( x,y, time )
 	  super
 		click_left( x,y )
 		BackgroundMenu.new(@manager).popup(nil, nil, 3,  time)
+	end
+	
+	def draw
+	  super
+	  GL.Color4f( 0.9, 0.2, 0, 0.5 )
+	  GL.Disable(GL::POLYGON_OFFSET_FILL)
+    @draw_faces.each{|f| f.draw }
+    GL.Enable(GL::POLYGON_OFFSET_FILL)
 	end
 end
 
@@ -172,6 +212,7 @@ Region = Struct.new(:chain, :poly, :face)
 class RegionSelectionTool < SelectionTool
 	def initialize( glview, manager )
 		super( GetText._("Pick a closed region from a sketch:"), glview, manager )
+		# create a list of regions that can be picked
 		@op_sketch = manager.work_operator.settings[:sketch]
 		@all_sketches = (manager.work_component.unused_sketches + [@op_sketch]).compact
 		@regions = @all_sketches.inject([]) do |regions, sketch|
@@ -183,18 +224,7 @@ class RegionSelectionTool < SelectionTool
   	    face.segments = chain.map{|seg| seg.tesselate }.flatten.map{|seg| Line.new(Tool.sketch2world(seg.pos1, sketch.plane), Tool.sketch2world(seg.pos2, sketch.plane), sketch)  }
   	    Region.new(chain, poly, face)
 	    end
-=begin
-	    regions += sketch.ordered_polygons.map do |poly|
-  	    chain = (0...(poly.points.size-1)).map{|i| Line.new(poly.points[i], poly.points[i+1], sketch) }
-  	    face = PlanarFace.new
-  	    face.plane = sketch.plane
-  	    face.plane.build_displaylists
-  	    face.segments = chain.map{|seg| Line.new(Tool.sketch2world(seg.pos1, sketch.plane), Tool.sketch2world(seg.pos2, sketch.plane), sketch)  }
-  	    Region.new(chain, poly, face)
-	    end
-=end
     end
-    puts "There are #{@regions.size} regions"
     @regions.compact!
     @op_sketch.visible = true if @op_sketch
     @glview.redraw
@@ -210,9 +240,10 @@ class RegionSelectionTool < SelectionTool
 		  @manager.cancel_current_tool unless @manager.key_pressed? :Shift
 	  end
 	end
-	
+
 	def mouse_move( x,y )
-	  for sketch in @all_sketches #XXX sollten nur die sichtbaren sketches sein
+	  super
+	  for sketch in @all_sketches
 	    sketch.plane.visible = true
 	    sel = @glview.select(x,y, :select_planes)
 	    sketch.plane.visible = false
@@ -227,6 +258,7 @@ class RegionSelectionTool < SelectionTool
 	end
 	
 	def draw
+	  super
 	  GL.Color3f( 0.9, 0.2, 0 )
 	  GL.Disable(GL::POLYGON_OFFSET_FILL)
     @current_region.face.draw if @current_region
@@ -243,7 +275,8 @@ class RegionSelectionTool < SelectionTool
 	end
 	
 	def exit
-		@all_sketches.each { |s| s.plane.visible = false }
+	#	@all_sketches.each { |s| s.plane.visible = false }
+	  @op_sketch.visible = false if @op_sketch
 		super
 	end
 end

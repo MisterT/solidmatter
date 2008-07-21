@@ -121,7 +121,7 @@ class MeasureEntry < Gtk::VBox
 		 Gtk::MenuItem.new(GetText._("Bind to measured value"))
 		].each{|i| menu.append(i)}
 		menu.show_all
-		@btn.signal_connect("button_press_event"){|w,e| menu.popup(nil, nil, 3, e.time)}
+		@btn.signal_connect("clicked"){|w,e| menu.popup(nil, nil, 3, e.time)}
 	end
 	
 	def value
