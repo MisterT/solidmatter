@@ -54,7 +54,9 @@ class Camera
 	end
 	
 	def move_forward( value )
-	 @position += view_vec * value
+		not_too_far = @position.vector_to(@target).length > value
+		@position += view_vec * value if not_too_far
+		not_too_far
 	end
 
 	def look_at( v )
@@ -128,7 +130,8 @@ class GLView < Gtk::DrawingArea
 	       		   Gdk::Event::BUTTON3_MOTION_MASK |
 	       		   Gdk::Event::POINTER_MOTION_MASK |
 	             Gdk::Event::BUTTON_PRESS_MASK   |
-	             Gdk::Event::BUTTON_RELEASE_MASK
+	             Gdk::Event::BUTTON_RELEASE_MASK |
+	             Gdk::Event::SCROLL_MASK
 		)
 		signal_connect("button_press_event") do |widget, event|
 		  GC.disable if $preferences[:manage_gc]
@@ -166,6 +169,16 @@ class GLView < Gtk::DrawingArea
   				mouse_move( event.x, event.y )
   			end
 			end
+		end
+		signal_connect("scroll_event") do |widget, event|
+			cam = @cameras[@current_cam_index]
+			zoom_amount = cam.target.distance_to( cam.position ) * $preferences[:mouse_sensivity] * 0.2
+			if event.direction == Gdk::EventScroll::UP
+				cam.move_forward zoom_amount 
+			else
+				cam.move_forward -zoom_amount
+			end
+			redraw
 		end
 	end
 	
@@ -263,8 +276,7 @@ class GLView < Gtk::DrawingArea
   			drag_y = (y - @last_down.y).to_f / allocation.height
 				cam = @last_mouse_down_cam.clone
 				zoom_amount = drag_x * 3 * cam.target.distance_to( cam.position ) * $preferences[:mouse_sensivity]
-				if cam.position.vector_to( cam.target ).length > zoom_amount
-					cam.move_forward zoom_amount
+				if cam.move_forward zoom_amount
 					@cameras[@current_cam_index] = cam 
 					redraw
 				end
