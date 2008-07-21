@@ -7,8 +7,9 @@ require 'libglade2'
 
 
 class PartInformationDialog
-	def initialize( information, manager )
-	  @info = information
+	def initialize( part, manager )
+	  @part = part
+	  @info = part.information
     @manager = manager
 	  @return_handler = Proc.new
 	  @glade = GladeXML.new( "../data/glade/part_dialog.glade", nil, 'openmachinist' ) {|handler| method(handler)}
@@ -54,6 +55,9 @@ class PartInformationDialog
   end
   
   def update_solid_info w 
-    
+    GC.enable # make sure the garbage collector is still on
+    @glade['area_label'].text = @part.solid.area.to_s
+    @glade['volume_label'].text = @part.solid.volume.to_s
+    @glade['mass_label'].text = @part.mass.to_s
   end
 end

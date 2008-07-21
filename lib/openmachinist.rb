@@ -3,6 +3,8 @@
 #  Created by Björn Breitgoff on unknown date.
 #  Copyright (c) 2008. All rights reserved.
 
+require 'rubygems'
+require 'ruby-prof'
 require 'thread'
 require 'main_win.rb'
 require 'preferences.rb'
@@ -58,18 +60,20 @@ Gtk.main_with_queue 100
 # op_view klappzustand speichern
 # direkt die iters manipulieren in server_win damit beim update scrollstand erhalten belibt
 # checken ob clean_up von workplane und sketch richtig erfolgt
-# sketch button sollte eingedrückt bleib wenn plane gewählt wird
+# sketch button sollte eingedrückt bleiben wenn plane gewählt wird
 # sicherheitsprüfungen im server ( is_valid(projectname, client_id) schreiben)
+# network code auf thread-safety mit Gtk prüfen
 # immer nach glDrawable fragen um redraw probleme zu vermeiden
 # nicht selektierbare objekte sollten wie der background wirken und bei click die selection aufheben
 # shortcuts über accelerators
 # when selecting regions, select inner regions first
 # automatically apply operator if there is only one unused sketch region
-# parts/operatos should communicate somehow that they could not be built correctly
+# parts/operators should communicate somehow that they could not be built correctly
 # region select von vertikalen planes
 # refactor delete_op_view_selected code into delete_object
 # schnitte zwischen regions
 # editsketchtool sollte eigenschaften von segments ändern können (kreisgrösse)
-
+# click wird nicht richtig registriert in region select tool wenn zu langsam
+# polygon from chain should tesselate segments => dann RegionTool#init verändern
 
 

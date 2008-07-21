@@ -117,10 +117,10 @@ class Line < Segment
 	end
 	
 	def dup
-	 copy = super
-	 copy.pos1 = @pos1.dup
-	 copy.pos2 = @pos2.dup
-	 return copy
+    copy = super
+    copy.pos1 = @pos1.dup
+    copy.pos2 = @pos2.dup
+    copy
 	end
 end
 
@@ -196,6 +196,12 @@ class Arc < Segment
     end
     return @lines
   end
+  
+  def dup
+    copy = super
+    copy.center = @center.dup
+    copy
+	end
 end
 
 class Circle < Arc
@@ -530,6 +536,19 @@ class Polygon
   end
   
   def area
+    mesh_area
+  end
+  
+  def mesh_area
+    tesselate.inject(0) do |area, triangle|
+      edge_vec1 = triangle[0].vector_to triangle[1]
+      edge_vec2 = triangle[0].vector_to triangle[2]
+      tr_area = (edge_vec1.cross_product edge_vec2).length * 0.5
+      area + tr_area
+    end
+  end
+  
+  def monte_carlo_area
   	samples = $preferences[:area_samples]
   	xs = @points.map{|p| p.x }.sort
   	zs = @points.map{|p| p.z }.sort
@@ -584,6 +603,80 @@ class Polygon
     dot = cross.dot_product @normal
     return dot < 0
   end
+	
+	def tesselate
+	  vertices = []
+		tess = GLU::NewTess()
+		GLU::TessCallback( tess, GLU::TESS_VERTEX, lambda{|v| vertices << Vector[v[0],v[1],v[2]] if v } )
+   	GLU::TessCallback( tess, GLU::TESS_BEGIN, lambda{|which| vertices << which.to_s } )
+   	GLU::TessCallback( tess, GLU::TESS_END, lambda{ GL::End() } )
+   	GLU::TessCallback( tess, GLU::TESS_ERROR, lambda{|errCode| raise "Tessellation Error: #{GLU::ErrorString errCode}" } )
+   	GLU::TessCallback( tess, GLU::TESS_COMBINE, 
+     	lambda do |coords, vertex_data, weight|
+  			vertex = [coords[0], coords[1], coords[2]]
+  			vertex
+  		end 
+		)
+		GLU::TessProperty( tess, GLU::TESS_WINDING_RULE, GLU::TESS_WINDING_POSITIVE )
+		GLU::TessBeginPolygon( tess, nil )
+			GLU::TessBeginContour tess
+				@points.each{|p| GLU::TessVertex( tess, p.elements, p.elements ) }
+			GLU::TessEndContour tess
+		GLU::TessEndPolygon tess
+		GLU::DeleteTess tess
+		# vertices should now be filled with interleaved points and drawing instructions
+		# as grouping is triggered through the next instruction string we put a random one at the end 
+		vertices << GL::TRIANGLES.to_s
+		triangles = []
+		container = []
+		last_geom_type = nil
+		for point_or_instruct in vertices
+		  case point_or_instruct
+	    when String    
+	      case last_geom_type
+        when GL::TRIANGLES.to_s
+          triangles += triangles2triangles container
+        when GL::TRIANGLE_STRIP.to_s
+          triangles += triangle_strip2triangles container
+        when GL::TRIANGLE_FAN.to_s
+          triangles += triangle_fan2triangles container
+        when nil
+        else 
+          raise "We dont handle this GL geometry type yet: #{point_or_instruct}"
+        end
+        last_geom_type = point_or_instruct
+        container = []
+      when Vector
+        container << point_or_instruct
+	    end
+		end
+		return triangles
+	end
+	
+	def triangle_strip2triangles points
+	  triangles = []
+	  points.each_with_index do |p,i|
+	    break unless points[i+2]
+	    triangles << ( i % 2 == 0 ? [p, points[i+1], points[i+2]] : [points[i+1], p, points[i+2]] )
+    end
+    triangles
+	end
+	
+	def triangle_fan2triangles points
+	  center = points.shift
+	  triangles = []
+	  points.each_with_index do |p,i|
+	    break unless points[i+1]
+	    triangles << [center, p, points[i+1]]
+    end
+    triangles
+	end
+	
+	def triangles2triangles points
+	  triangles = []
+	  triangles << [points.shift, points.shift, points.shift] until points.empty?
+	  triangles
+	end
 end
 
 
@@ -601,6 +694,10 @@ class Face
 
 	end
 	
+	def area
+    0.0
+	end
+	
 	def dup
 		copy = super
 		copy.segments = segments.map{|s| s.dup }
@@ -610,19 +707,30 @@ end
 
 class PlanarFace < Face
 	attr_accessor :plane
+	attr_reader :polygon
 	def initialize
 	  super()
 		@plane = Plane.new
 	end
 	
+	def pretesselate
+	 	ch = chain( @segments.first )
+		if ch
+			@polygon = Polygon.from_chain( ch ).to_cw!
+		else
+			raise "Trying to build face #{self} from non-closed segment chain"
+		end
+	end
+	
 	def draw
+	  pretesselate unless @polygon
 	  normal = @plane.normal_vector.invert
 	  GL.Normal( normal.x, normal.y, normal.z )
 		tess = GLU::NewTess()
 		GLU::TessCallback( tess, GLU::TESS_VERTEX, lambda{|v| GL::Vertex v if v} )
    	GLU::TessCallback( tess, GLU::TESS_BEGIN, lambda{|which| GL::Begin which } )
    	GLU::TessCallback( tess, GLU::TESS_END, lambda{ GL::End() } )
-   	GLU::TessCallback( tess, GLU::TESS_ERROR, lambda{|errCode| puts "Tessellation Error: #{GLU::ErrorString errCode}" } )
+   	GLU::TessCallback( tess, GLU::TESS_ERROR, lambda{|errCode| raise "Tessellation Error: #{GLU::ErrorString errCode}" } )
    	GLU::TessCallback( tess, GLU::TESS_COMBINE, 
    	lambda do |coords, vertex_data, weight|
 			vertex = [coords[0], coords[1], coords[2]]
@@ -631,17 +739,17 @@ class PlanarFace < Face
 		GLU::TessProperty( tess, GLU::TESS_WINDING_RULE, GLU::TESS_WINDING_POSITIVE )
 		GLU::TessBeginPolygon( tess, nil )
 			GLU::TessBeginContour tess
-				ch = chain( @segments.first )
-				if ch
-					for point in Polygon.from_chain( ch ).to_cw!.points
-						GLU::TessVertex( tess, point.elements, point.elements )
-					end
-				else
-					puts "WARNING: Face #{self} could not be tesselated correctly"
-				end 
+				for point in @polygon.points
+					GLU::TessVertex( tess, point.elements, point.elements )
+				end
 			GLU::TessEndContour tess
 		GLU::TessEndPolygon tess
 		GLU::DeleteTess tess
+	end
+	
+	def area
+	  @polygon or pretesselate
+	  @polygon.area
 	end
 end
 
@@ -703,6 +811,15 @@ class Solid
 	def add_face f
 	  f.solid = self
 	  @faces.push f
+	end
+	
+	def surface_area
+	 @faces.inject(0){|sum,f| sum + f.area }
+	end
+	alias area surface_area
+	
+	def volume
+	  0.0
 	end
 	
 	def dup
@@ -832,7 +949,7 @@ end
 
 
 class Part < Component
-  attr_accessor :manager, :displaylist, :wire_displaylist, :history_limit, :solid
+  attr_accessor :manager, :displaylist, :wire_displaylist, :history_limit, :solid, :information
 	attr_reader :operators, :working_planes, :unused_sketches, :solid
 	def initialize(name, manager)
 		super()
@@ -957,13 +1074,18 @@ class Part < Component
 	end
 	
 	def display_properties
-		dia = PartInformationDialog.new( @information, @manager ) do |info|
+		dia = PartInformationDialog.new( self, @manager ) do |info|
 		  @information = info if info
 			@manager.op_view.update
-			build_displaylist if @solid
+			#XXX build_displaylist if @solid
 			@manager.glview.redraw
 	  end
 	end
+	
+	def mass
+	  @solid.volume * @information[:material].density
+	end
+	
 =begin
 	def dup
 	  copy = super
@@ -1033,8 +1155,7 @@ end
 
 class Instance
   include Selectable
-  @@highest_id ||= 0
-  @@used_ids = []
+  @@used_ids ||= []
 	attr_reader :parent, :position, :transparent, :component_id
 	attr_accessor :visible, :real_component
 	def initialize( component, parent=nil )

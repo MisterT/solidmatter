@@ -55,7 +55,7 @@ public
 	def press_left( x,y )
 	end
 	
-	def press_right( x,y )
+	def press_right( x,y, time )
 	end
 	
 	def release_left
@@ -146,7 +146,7 @@ class PartSelectionTool < SelectionTool
     end
 	end
 	
-	def click_right( x,y, time )
+	def press_right( x,y, time )
 	  super
 		click_left( x,y )
 		sel = @manager.selection.first
@@ -175,11 +175,11 @@ class RegionSelectionTool < SelectionTool
 		@op_sketch = manager.work_operator.settings[:sketch]
 		@all_sketches = (manager.work_component.unused_sketches + [@op_sketch]).compact
 		@regions = @all_sketches.inject([]) do |regions, sketch|
-		  regions += sketch.all_chains.reverse.map do |chain|
+		  regions + sketch.all_chains.reverse.map do |chain|
   	    poly = Polygon.from_chain chain.map{|seg| seg.tesselate }.flatten
   	    face = PlanarFace.new
   	    face.plane = sketch.plane
-  	    face.plane.build_displaylists
+  	    face.plane.build_displaylists #XXX kann man evtl weglassen
   	    face.segments = chain.map{|seg| seg.tesselate }.flatten.map{|seg| Line.new(Tool.sketch2world(seg.pos1, sketch.plane), Tool.sketch2world(seg.pos2, sketch.plane), sketch)  }
   	    Region.new(chain, poly, face)
 	    end
@@ -212,7 +212,7 @@ class RegionSelectionTool < SelectionTool
 	end
 	
 	def mouse_move( x,y )
-	  for sketch in @all_sketches
+	  for sketch in @all_sketches #XXX sollten nur die sichtbaren sketches sein
 	    sketch.plane.visible = true
 	    sel = @glview.select(x,y, :select_planes)
 	    sketch.plane.visible = false
@@ -298,7 +298,7 @@ class CameraTool < Tool
 	  @manager.glview.window.cursor =Gdk::Cursor.new Gdk::Cursor::SB_V_DOUBLE_ARROW
 	end
 	
-	def press_right( x,y )
+	def press_right( x,y, time )
 	  super
 	  @manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::EXCHANGE
 	end
@@ -845,6 +845,7 @@ class EditSketchTool < SketchTool
   
   def click_right( x,y, time )
 	  click_left( x,y )
+	  @glview.redraw
 	  menu = SketchSelectionToolMenu.new @manager
 	  menu.popup(nil, nil, 3,  time)
 	end

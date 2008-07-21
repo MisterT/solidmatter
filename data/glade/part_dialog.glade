@@ -285,6 +285,8 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                        <property name="has_tooltip">True</property>
+                        <property name="tooltip_text">Make sure that nobody else makes changes to this part while you are working on it</property>
                         <property name="focus_on_click">False</property>
                         <property name="response_id">0</property>
                         <signal name="clicked" handler="use_part_clicked"/>
@@ -392,9 +394,11 @@
                                     <property name="spacing">3</property>
                                     <property name="homogeneous">True</property>
                                     <child>
-                                      <widget class="GtkLabel" id="label6">
+                                      <widget class="GtkLabel" id="area_label">
                                         <property name="visible">True</property>
                                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                        <property name="xalign">0</property>
+                                        <property name="xpad">55</property>
                                         <property name="label" translatable="yes">n/a</property>
                                       </widget>
                                       <packing>
@@ -402,9 +406,11 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkLabel" id="label7">
+                                      <widget class="GtkLabel" id="volume_label">
                                         <property name="visible">True</property>
                                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                        <property name="xalign">0</property>
+                                        <property name="xpad">55</property>
                                         <property name="label" translatable="yes">n/a</property>
                                       </widget>
                                       <packing>
@@ -413,9 +419,11 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkLabel" id="label8">
+                                      <widget class="GtkLabel" id="mass_label">
                                         <property name="visible">True</property>
                                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                        <property name="xalign">0</property>
+                                        <property name="xpad">55</property>
                                         <property name="label" translatable="yes">n/a</property>
                                       </widget>
                                       <packing>
@@ -436,14 +444,16 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="GtkButton" id="updateBtn">
+                          <widget class="GtkButton" id="update_btn">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="has_tooltip">True</property>
+                            <property name="tooltip_text">Recalculate the physical properties of this part</property>
                             <property name="label" translatable="yes">Update</property>
                             <property name="use_underline">True</property>
                             <property name="focus_on_click">False</property>
                             <property name="response_id">0</property>
-                            <signal name="activate" handler="update_solid_info"/>
+                            <signal name="clicked" handler="update_solid_info"/>
                           </widget>
                           <packing>
                             <property name="expand">False</property>

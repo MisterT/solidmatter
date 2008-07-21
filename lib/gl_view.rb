@@ -143,7 +143,7 @@ class GLView < Gtk::DrawingArea
 				@last_down = Point.new( event.x, event.y )
 				click_middle( event.x, event.y )
 			elsif event.button == 3
-				press_right( event.x, event.y )
+				press_right( event.x, event.y, event.time )
 			end
 			redraw
 		end
@@ -221,14 +221,14 @@ class GLView < Gtk::DrawingArea
 		@manager.current_tool.click_middle( x,y )
 	end
 	
-	def press_right( x,y )
+	def press_right( x,y, time )
 	  @last_button_down = :right
 		@last_down = Point.new( x, y )
 		if @manager.current_tool.is_a? CameraTool
 			add_view
 			@last_mouse_down_cam = @cameras[@current_cam_index].clone
 		end
-		@manager.current_tool.press_right( x,y )
+		@manager.current_tool.press_right( x,y, time )
     @button_press_time = Time.now
 	end
 	
@@ -422,7 +422,7 @@ class GLView < Gtk::DrawingArea
     				GL.Color3f( c[0],c[1],c[2] ) if c
   				  top_comp.build_displaylist @selection_pass
   				  GL.CallList top_comp.displaylist 
-  				  top_comp.build_displaylist # XXX kann man evtl weglassen
+  				  #top_comp.build_displaylist # XXX kann man evtl weglassen
 				  end
   			else
   				[:shaded,  :overlay].any?{|e| e == @displaymode} ? (GL.Enable GL::LIGHTING) : (GL.Disable GL::LIGHTING)

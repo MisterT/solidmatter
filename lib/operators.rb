@@ -52,7 +52,7 @@ class ExtrudeOperator < Operator
   			when Arc
   			  face = CircularFace.new( direction, seg.radius, seg.center + origin, @settings[:depth], seg.start_angle, seg.end_angle )
 				end
-				@solid.faces.push( face )
+				@solid.add_face face
 			end
 			# build caps
 			segments = segments.map{|s| s.tesselate }.flatten
