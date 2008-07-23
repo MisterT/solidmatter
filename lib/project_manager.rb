@@ -207,6 +207,7 @@ public
   	  @all_parts.each do |p| 
   	    p.displaylist = @glview.add_displaylist
   	    p.wire_displaylist = @glview.add_displaylist
+  	    p.selection_displaylist = @glview.add_displaylist
   	    p.build do |op| 
   				progress.fraction += increment
   				progress.text = GetText._("Rebuilding operator") + "'#{op.name}' (#{op_i}/#{num_ops})" 
@@ -220,7 +221,6 @@ public
 	      end
       end
       progress.close
-
     end
 	end
 	

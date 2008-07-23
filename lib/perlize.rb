@@ -31,10 +31,19 @@ end
 
 def given o
 	$__ = o
+	yield
 end
 
 class Array
 	_topicalize_ *%w(each map select sort_by any? all?)
+end
+
+class Range
+	_topicalize_ *%w(each map select sort_by any? all?)
+end
+
+class Integer
+	_topicalize_ *%w(times step upto downto)
 end
 
 
@@ -118,6 +127,9 @@ class Junction
 			end
 		"
 	end
+	define_operator "=="
+	define_operator "<"
+	define_operator ">"
 
 	def each
 		threads = []
@@ -125,6 +137,7 @@ class Junction
 			threads << Thread.start{ yield o }
 		end
 		threads.each{|t| t.join }
+		self
 	end
 	_topicalize_ 'each'
 	
@@ -182,7 +195,11 @@ def any( *objs, &block )
 	j
 end
 
-class Integer
+class Fixnum
+	_junctionize_
+end
+
+class Bignum
 	_junctionize_
 end
 

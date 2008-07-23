@@ -75,5 +75,7 @@ Gtk.main_with_queue 100
 # editsketchtool sollte eigenschaften von segments ändern können (kreisgrösse)
 # click wird nicht richtig registriert in region select tool wenn zu langsam
 # polygon from chain should tesselate segments => dann RegionTool#init verändern und poly aus regionstruct nehmen
+# typechecking => Bekommen faces WorkingPlanes zugewiesen?
+# unterscheidung von instanzen bei selection unmöglich da beide die selbe displaylist haben
 
 

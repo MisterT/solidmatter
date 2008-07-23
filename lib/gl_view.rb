@@ -430,10 +430,10 @@ class GLView < Gtk::DrawingArea
   			if @selection_pass
   			  GL.Disable GL::LIGHTING
   				unless @manager.work_sketch
-  				  c = top_comp.selection_pass_color
-    				GL.Color3f( c[0],c[1],c[2] ) if c
-  				  top_comp.build_displaylist @selection_pass
-  				  GL.CallList top_comp.displaylist 
+  				  #c = top_comp.selection_pass_color
+    				#GL.Color3f( c[0],c[1],c[2] ) if c
+  				  #top_comp.build_displaylist @selection_pass
+  				  GL.CallList top_comp.selection_displaylist 
   				  #top_comp.build_displaylist # XXX kann man evtl weglassen
 				  end
   			else
@@ -560,12 +560,20 @@ class GLView < Gtk::DrawingArea
 		current_color = [0, 0, 0]
 		increment = 1.0 / 255
 		i = 0
+		parts_to_build = []
 		selectables.each do |s|
 			s.selection_pass_color = current_color.dup
+			if s.class == Part
+				s.solid.faces.each{|f| f.selection_pass_color = current_color.dup }
+				s.build_selection_displaylist 
+			elsif s.is_a? Face
+				parts_to_build << s.created_by_op.part
+			end
 			current_color[i] += increment
 			raise "maximum number of colors reached" if current_color[i] >= 1
 			i == 2 ? i = 0 : i += 1 
 		end
+		parts_to_build.uniq.each{|p| p.build_selection_displaylist }
 		# change rendering style to aliased, flat-color rendering
 		render_style :selection_pass
 		# render scene to the back buffer

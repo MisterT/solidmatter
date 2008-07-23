@@ -173,22 +173,36 @@ class OperatorSelectionTool < SelectionTool
 	def initialize( glview, manager )
 		super( GetText._("Select a feature from your model, right click for options:"), glview, manager )
 		@draw_faces = []
+		part = @manager.work_component
+		@op_displaylists = {}
+		part.operators.map do |op| 
+	  	faces = part.solid.faces.select{|f| f.created_by_op == op }
+	  	list = @glview.add_displaylist
+	  	GL.NewList( list, GL::COMPILE)
+	  		faces.each{|f| f.draw }
+	  	GL.EndList
+	  	@op_displaylists[op] = list
+	  end
 	end
 	
 	def click_left( x,y )
 		super
 		mouse_move( x,y )
-		if @current_face
-		  op = @current_face.created_by_op
+		#if @current_face
+		if @current_op
+		  #op = @current_face.created_by_op
 		  @manager.exit_current_mode
-      @manager.operator_mode op
+      #@manager.operator_mode op
+      @manager.operator_mode @current_op
     end
 	end
 	
 	def mouse_move( x,y )
 	  super
-	  @current_face = @glview.select(x,y, :select_faces)
-	  @draw_faces = @current_face ? @current_face.solid.faces.select{|f| f.created_by_op == @current_face.created_by_op } : []
+	  #@current_face = @glview.select(x,y, :select_faces)
+	  #@draw_faces = @current_face ? @current_face.solid.faces.select{|f| f.created_by_op == @current_face.created_by_op } : []
+	  face = @glview.select(x,y, :select_faces)
+	  @current_op = (face and @op_displaylists[face.created_by_op]) ? face.created_by_op : nil
     @glview.redraw
 	end
 	
@@ -200,10 +214,16 @@ class OperatorSelectionTool < SelectionTool
 	
 	def draw
 	  super
-	  GL.Color4f( 0.9, 0.2, 0, 0.5 )
+	  GL.Color4f( 0.9, 0.2, 0.0, 0.5 )
 	  GL.Disable(GL::POLYGON_OFFSET_FILL)
-    @draw_faces.each{|f| f.draw }
+    #@draw_faces.each{|f| f.draw }
+    GL.CallList @op_displaylists[@current_op] if @current_op
     GL.Enable(GL::POLYGON_OFFSET_FILL)
+	end
+	
+	def exit
+		super
+		@op_displaylists.values.each{|l| @glview.delete_displaylist l }
 	end
 end
 

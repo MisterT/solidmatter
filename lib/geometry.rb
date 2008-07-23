@@ -942,18 +942,11 @@ class Component
 	def name
 	  information[:name]
 	end
-	
-	def clean_up
-		@manager.glview.delete_displaylist @displaylist
-		@manager.glview.delete_displaylist @wire_displaylist
-	  @displaylist = nil
-	  @wire_displaylist = nil
-	end
 end
 
 
 class Part < Component
-  attr_accessor :manager, :displaylist, :wire_displaylist, :history_limit, :solid, :information
+  attr_accessor :manager, :displaylist, :wire_displaylist, :selection_displaylist, :history_limit, :solid, :information
 	attr_reader :operators, :working_planes, :unused_sketches, :solid
 	def initialize(name, manager)
 		super()
@@ -970,6 +963,7 @@ class Part < Component
 							      :material => @manager.materials.first}
 		@displaylist = @manager.glview.add_displaylist
 		@wire_displaylist = @manager.glview.add_displaylist
+		@selection_displaylist = @manager.glview.add_displaylist
 		@solid = Solid.new
 	end
 
@@ -1077,6 +1071,16 @@ class Part < Component
 		GL.EndList
 	end
 	
+	def build_selection_displaylist
+	  GL.NewList( @selection_displaylist, GL::COMPILE)
+		  @solid.faces.each do |face|
+			  c = face.selection_pass_color
+			  GL.Color3f( c[0],c[1],c[2] )
+				face.draw
+			end
+		GL.EndList
+	end
+	
 	def display_properties
 		dia = PartInformationDialog.new( self, @manager ) do |info|
 		  @information = info if info
@@ -1090,7 +1094,16 @@ class Part < Component
 	  @solid.volume * @information[:material].density
 	end
 	
-=begin
+	def clean_up
+		@manager.glview.delete_displaylist @displaylist
+		@manager.glview.delete_displaylist @wire_displaylist
+		@manager.glview.delete_displaylist @selection_displaylist
+	  @displaylist = nil
+	  @wire_displaylist = nil
+	  @selection_displaylist = nil
+	end
+	
+
 	def dup
 	  copy = super
 	  copy.unused_sketches = @unused_sketches.dup
@@ -1098,8 +1111,10 @@ class Part < Component
 	  copy.operators = @operators.dup
 	  copy.information = @information.dup
 	  copy.solid = @solid.dup
+	  @displaylist = @manager.glview.add_displaylist
+		@wire_displaylist = @manager.glview.add_displaylist
+		@selection_displaylist = @manager.glview.add_displaylist
 	end
-=end
 end
 
 
