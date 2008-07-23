@@ -1019,6 +1019,7 @@ class Part < Component
 		if solid
 			@solid = solid
 			build_displaylist
+			@manager.glview.rebuild_selection_pass_colors
 			@manager.component_changed self
 		else
 			dia = Gtk::MessageDialog.new( nil, Gtk::Dialog::DESTROY_WITH_PARENT,

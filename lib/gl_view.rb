@@ -536,71 +536,79 @@ class GLView < Gtk::DrawingArea
 		return pos
 	end
 	
+	def rebuild_selection_pass_colors type=nil
+	  if type or @manager.current_tool.is_a?(SelectionTool)
+  	 	if @manager.work_sketch
+  		  @selectables = @manager.work_sketch.segments 
+  	  else
+  	    case type or @manager.current_tool.selection_mode
+  	    when :select_faces
+  	      @selectables = @manager.all_part_instances.select{|inst| inst.visible }.map{|inst| inst.solid.faces }.flatten
+  	    when :select_planes
+  	      @selectables = @manager.work_component.working_planes
+  	    when :select_faces_and_planes
+  	    	@selectables = @manager.work_component.working_planes
+  	      @selectables += @manager.all_part_instances.select{|inst| inst.visible }.map{|inst| inst.solid.faces }.flatten
+        when :select_instances
+          @selectables = @manager.all_part_instances.select{|inst| inst.visible }
+        when :select_segments
+          @selectables = @manager.work_component.unused_sketches.map{|sk| sk.segments }.flatten if @manager.work_component.class == Part
+  	    end
+      end
+      # create colors to represent selectable objects
+  		current_color = [0, 0, 0]
+  		@color_increment = 1.0 / 255
+  		i = 0
+  		parts_to_build = []
+  		@selectables.each do |s|
+  			s.selection_pass_color = current_color.dup
+  			if s.class == Part
+  				s.solid.faces.each{|f| f.selection_pass_color = current_color.dup }
+  				s.build_selection_displaylist 
+  			elsif s.is_a? Face
+  				parts_to_build << s.created_by_op.part
+  			end
+  			current_color[i] += @color_increment
+  			raise "maximum number of colors reached" if current_color[i] >= 1
+  			i == 2 ? i = 0 : i += 1 
+  		end
+  		parts_to_build.uniq.each{|p| p.build_selection_displaylist }
+	  end
+	end
+	
 	def select( x, y, type=true )
-		# corect coords from gtk to GL orientation
-		y = allocation.height - y
-		if @manager.work_sketch
-		  selectables = @manager.work_sketch.segments 
-	  else
-	    case type
-	    when :select_faces
-	      selectables = @manager.all_part_instances.select{|inst| inst.visible }.map{|inst| inst.solid.faces }.flatten
-	    when :select_planes
-	      selectables = @manager.work_component.working_planes
-	    when :select_faces_and_planes
-	    	selectables = @manager.work_component.working_planes
-	      selectables += @manager.all_part_instances.select{|inst| inst.visible }.map{|inst| inst.solid.faces }.flatten
-      when :select_instances
-        selectables = @manager.all_part_instances.select{|inst| inst.visible }
-      when :select_segments
-        selectables = @manager.work_component.unused_sketches.map{|sk| sk.segments }.flatten if @manager.work_component.class == Part
-	    end
-    end
-    # create colors to represent selectable objects
-		current_color = [0, 0, 0]
-		increment = 1.0 / 255
-		i = 0
-		parts_to_build = []
-		selectables.each do |s|
-			s.selection_pass_color = current_color.dup
-			if s.class == Part
-				s.solid.faces.each{|f| f.selection_pass_color = current_color.dup }
-				s.build_selection_displaylist 
-			elsif s.is_a? Face
-				parts_to_build << s.created_by_op.part
-			end
-			current_color[i] += increment
-			raise "maximum number of colors reached" if current_color[i] >= 1
-			i == 2 ? i = 0 : i += 1 
+	  if @selectables
+  		# corect coords from gtk to GL orientation
+  		y = allocation.height - y
+  		# change rendering style to aliased, flat-color rendering
+  		render_style :selection_pass
+  		# render colorcoded scene to the back buffer
+  		@selection_pass = type
+  		redraw
+  		@selection_pass = false
+  		# look up color under cursor
+  		color_bytes = GL.ReadPixels( x,y, 1,1, GL::RGB, GL::UNSIGNED_BYTE )
+  		color = [ color_bytes[0] / 255.0, color_bytes[1] / 255.0, color_bytes[2] / 255.0 ]
+  		# select corresponding object
+  		obj = nil
+  		best_diff = 9999
+  		@selectables.each do |inst| 
+  			obj_color = inst.selection_pass_color
+  			diff = 0
+  			3.times{|i| diff += (obj_color[i] - color[i]).abs }
+  			if diff < best_diff 
+  				best_diff = diff
+  				obj = inst
+  			end
+  		end
+  		obj = nil unless best_diff < @color_increment
+  		@manager.work_component.unused_sketches.each{|sk| sk.build_displaylist } if @manager.work_component.class == Part
+  		# reset regular rendering style
+  		render_style :regular
+  		restore_backbuffer
+  		return obj
 		end
-		parts_to_build.uniq.each{|p| p.build_selection_displaylist }
-		# change rendering style to aliased, flat-color rendering
-		render_style :selection_pass
-		# render scene to the back buffer
-		@selection_pass = type
-		redraw
-		@selection_pass = false
-		# look up color under cursor
-		color_bytes = GL.ReadPixels( x,y, 1,1, GL::RGB, GL::UNSIGNED_BYTE )
-		color = [ color_bytes[0] / 255.0, color_bytes[1] / 255.0, color_bytes[2] / 255.0 ]
-		# select corresponding object
-		obj = nil
-		best_diff = 9999
-		selectables.each do |inst| 
-			obj_color = inst.selection_pass_color
-			diff = 0
-			3.times{|i| diff += (obj_color[i] - color[i]).abs }
-			if diff < best_diff 
-				best_diff = diff
-				obj = inst
-			end
-		end
-		obj = nil unless best_diff < increment
-		@manager.work_component.unused_sketches.each{|sk| sk.build_displaylist } if @manager.work_component.class == Part
-		# reset regular rendering style
-		render_style :regular
-		restore_backbuffer
-		return obj
+		return nil
 	end
 	
 	def view_transition( from_cam, to_cam )

@@ -108,6 +108,11 @@ class SelectionTool < Tool
 		super( text, glview, manager )
 		@selection = nil
 		@callback = Proc.new if block_given?
+		@glview.rebuild_selection_pass_colors selection_mode
+	end
+	
+	def selection_mode
+	  raise "Must be overridden"
 	end
 	
 	def exit
@@ -120,6 +125,10 @@ end
 class PartSelectionTool < SelectionTool
 	def initialize( glview, manager )
 		super( GetText._("Drag a part to move it around, right click for options:"), glview, manager )
+	end
+	
+	def selection_mode
+	  :select_instances
 	end
 	
 	def click_left( x,y )
@@ -164,7 +173,8 @@ class PartSelectionTool < SelectionTool
 	  super
 	  GL.Color4f( 0.9, 0.2, 0, 0.5 )
 	  GL.Disable(GL::POLYGON_OFFSET_FILL)
-    @current_part.solid.faces.each{|f| f.draw } if @current_part
+    #@current_part.solid.faces.each{|f| f.draw } if @current_part
+    GL.CallList @current_part.displaylist if @current_part
     GL.Enable(GL::POLYGON_OFFSET_FILL)
 	end
 end
@@ -173,6 +183,7 @@ class OperatorSelectionTool < SelectionTool
 	def initialize( glview, manager )
 		super( GetText._("Select a feature from your model, right click for options:"), glview, manager )
 		@draw_faces = []
+=begin
 		part = @manager.work_component
 		@op_displaylists = {}
 		part.operators.map do |op| 
@@ -183,26 +194,32 @@ class OperatorSelectionTool < SelectionTool
 	  	GL.EndList
 	  	@op_displaylists[op] = list
 	  end
+=end
+	end
+	
+	def selection_mode
+	  :select_faces
 	end
 	
 	def click_left( x,y )
 		super
 		mouse_move( x,y )
-		#if @current_face
-		if @current_op
-		  #op = @current_face.created_by_op
+		if @current_face
+		#if @current_op
+		  op = @current_face.created_by_op
 		  @manager.exit_current_mode
-      #@manager.operator_mode op
-      @manager.operator_mode @current_op
+      @manager.operator_mode op
+      #@manager.operator_mode @current_op
     end
 	end
 	
 	def mouse_move( x,y )
 	  super
-	  #@current_face = @glview.select(x,y, :select_faces)
-	  #@draw_faces = @current_face ? @current_face.solid.faces.select{|f| f.created_by_op == @current_face.created_by_op } : []
-	  face = @glview.select(x,y, :select_faces)
-	  @current_op = (face and @op_displaylists[face.created_by_op]) ? face.created_by_op : nil
+	  @current_face = @glview.select(x,y, :select_faces)
+	  @current_face = nil unless @manager.work_component.operators.include? @current_face.created_by_op if @current_face
+	  @draw_faces = @current_face ? @current_face.solid.faces.select{|f| f.created_by_op == @current_face.created_by_op } : []
+	  #face = @glview.select(x,y, :select_faces)
+	  #@current_op = (face and @op_displaylists[face.created_by_op]) ? face.created_by_op : nil
     @glview.redraw
 	end
 	
@@ -216,14 +233,14 @@ class OperatorSelectionTool < SelectionTool
 	  super
 	  GL.Color4f( 0.9, 0.2, 0.0, 0.5 )
 	  GL.Disable(GL::POLYGON_OFFSET_FILL)
-    #@draw_faces.each{|f| f.draw }
-    GL.CallList @op_displaylists[@current_op] if @current_op
+    @draw_faces.each{|f| f.draw }
+    #GL.CallList @op_displaylists[@current_op] if @current_op
     GL.Enable(GL::POLYGON_OFFSET_FILL)
 	end
 	
 	def exit
 		super
-		@op_displaylists.values.each{|l| @glview.delete_displaylist l }
+		#@op_displaylists.values.each{|l| @glview.delete_displaylist l }
 	end
 end
 
@@ -248,6 +265,10 @@ class RegionSelectionTool < SelectionTool
     @regions.compact!
     @op_sketch.visible = true if @op_sketch
     @glview.redraw
+	end
+	
+	def selection_mode
+	  :select_planes
 	end
 	
 	def click_left( x,y )
@@ -306,6 +327,10 @@ class PlaneSelectionTool < SelectionTool
 	def initialize( glview, manager )
 		super( GetText._("Select a single plane:"), glview, manager )
 		@manager.work_component.working_planes.each{|plane| plane.visible = true }
+	end
+	
+	def selection_mode
+	  :select_faces_and_planes
 	end
 	
 	def click_left( x,y )

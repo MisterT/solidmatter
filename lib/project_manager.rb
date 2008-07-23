@@ -212,7 +212,6 @@ public
   				progress.fraction += increment
   				progress.text = GetText._("Rebuilding operator") + "'#{op.name}' (#{op_i}/#{num_ops})" 
   				op_i += 1
-  				sleep 0.1
   			end
   			p.build_wire_displaylist
   	    p.working_planes.each do |pl| 
