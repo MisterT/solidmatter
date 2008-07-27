@@ -46,31 +46,13 @@ class Selection
 	
 	def select( *comps )
 		deselect_all
-		buildables = []
 		@sel = comps
-		@sel.each do |c| 
-		  c.selected = true 
-		  buildables.push( c.is_a?(Segment) ? c.sketch : c )
-	  end
-	  buildables.uniq.each{|b| rebuild b }
+		@sel.each{|c| c.selected = true }
 	end
 	
 	def deselect_all
-	  buildables = []
-		@sel.each do |c| 
-		  c.selected = false
-		  buildables.push( c.is_a?(Segment) ? c.sketch : c )
-	  end
-	  buildables.uniq.each{|b| rebuild b }
+		@sel.each{|c| c.selected = false }
 		@sel = []
-	end
-	
-	def rebuild( comp )
-	  if comp.is_a? Segment
-	    comp.sketch.build_displaylist
-	  else
-	    comp.build_displaylist
-	  end
 	end
 	
 	def all
@@ -166,15 +148,6 @@ public
       	@all_sketches           = []
   	  end
     	new_part if $preferences[:create_part_on_new_project] and @not_starting_up
-=begin
-    		first_part = Part.new( unique_name(GetText._("part")), self ) 
-    		instance = Instance.new( first_part, @main_assembly )
-    		@main_assembly.components.push instance
-    		@all_parts.push first_part
-				@all_instances.push instance
-				@all_part_instances.push instance
-    	end
-=end
     	@colliding_instances    = []
     	@filename = nil
     	self.has_been_changed = false
@@ -210,10 +183,9 @@ public
   	    p.selection_displaylist = @glview.add_displaylist
   	    p.build do |op| 
   				progress.fraction += increment
-  				progress.text = GetText._("Rebuilding operator") + "'#{op.name}' (#{op_i}/#{num_ops})" 
+  				progress.text = GetText._("Rebuilding operator ") + "'#{op.name}' (#{op_i}/#{num_ops})" 
   				op_i += 1
   			end
-  			p.build_wire_displaylist
   	    p.working_planes.each do |pl| 
   	      pl.displaylist = @glview.add_displaylist
   	      pl.build_displaylists
@@ -288,18 +260,27 @@ public
 		new_instance( assembly )
 	end
 
-	def new_sketch
+	def new_sketch( template=nil )
 	  # pick plane for sketch
 	  activate_tool('plane_select', true) do |plane|
 	    if plane
     		# create sketch and make it the work sketch
     		sketch = Sketch.new( unique_name( GetText._("sketch") ), @work_component, plane, @glview )
+    		if template
+    		  sketch.segments = template.segments.map{|s| seg = s.dup ; seg.sketch = sketch ; seg }
+    		  sketch.build_displaylist
+		    end
     		@all_sketches.push sketch
     		@work_component.unused_sketches.push( sketch )
+    		#@work_component.working_planes.push sketch.plane
     		@op_view.update
-    		sketch_mode( sketch )
+    		sketch_mode sketch
 		  end
 	  end
+	end
+	
+	def share_sketch
+	  
 	end
 	
 	def add_object( inst, insert=true )
@@ -387,6 +368,7 @@ public
 					change_working_level @main_assembly 
 					@filename = filename
 					self.has_been_changed = false
+					@all_parts.each{|p| p.build } #XXX this shouldn't really be needed
 					@glview.zoom_onto @all_part_instances.select{|i| i.visible }
   			rescue
   			  dialog = Gtk::MessageDialog.new(@main_win, 
@@ -733,7 +715,7 @@ public
 			break if comp.parent == @work_component
 			comp = comp.parent
 		end
-		# parent now contains the topmost ancestor of comp that is directly in the work assembly.
+		# comp now contains the topmost ancestor of the original comp that is directly in the work assembly.
 		# if not, the component selected is in an assembly on top of the work asm and neglected
 		return comp
 	end
@@ -741,6 +723,7 @@ public
 	def select comp
 		comp = top_ancestor comp
 		@selection.select comp if comp
+		comp
 	end
 	
 	def delete_selected

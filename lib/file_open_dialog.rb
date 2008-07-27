@@ -18,7 +18,7 @@ class FileOpenDialog < Gtk::FileChooserDialog
     self.current_folder = $preferences[:project_dir]
     # add file filter
     filter = Gtk::FileFilter.new
-    filter.name = GetText._("Open Machinst project")
+    filter.name = GetText._("Open Machinist project")
     filter.add_pattern("*.omp")
     add_filter filter
     filter = Gtk::FileFilter.new

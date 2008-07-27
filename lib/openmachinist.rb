@@ -72,11 +72,10 @@ Gtk.main_with_queue 100
 # region select von vertikalen planes
 # refactor delete_op_view_selected code into delete_object
 # schnitte zwischen regions
-# editsketchtool sollte eigenschaften von segments ändern können (kreisgrösse)
 # click wird nicht richtig registriert in region select tool wenn zu langsam
 # polygon from chain should tesselate segments => dann RegionTool#init verändern und poly aus regionstruct nehmen
 # typechecking => Bekommen faces WorkingPlanes zugewiesen?
 # unterscheidung von instanzen bei selection unmöglich da beide die selbe displaylist haben
 # segments should draw themselves, so we can draw longer polylines
-
+# optimize rebuild_wire_displaylist out of selection => Gl.color direkt in redraw
 

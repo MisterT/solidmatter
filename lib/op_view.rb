@@ -46,11 +46,13 @@ class OpView < Gtk::ScrolledWindow
 			if event.button == 3 
 			  @tv.event(Gdk::EventButton.new(Gdk::Event::BUTTON_PRESS)) # XXX
 			  sel = self.selections[0]
-			  case sel
+			  menu = case sel
 		    when Operator
-		      menu = OperatorMenu.new(@manager, sel)
+		      OperatorMenu.new(@manager, sel)
 	      when Instance
-	        menu = ComponentMenu.new(@manager, sel, :op_view)
+	        ComponentMenu.new(@manager, sel, :op_view)
+        when Sketch
+          SketchMenu.new(@manager, sel)
 		    end
 			  menu.popup(nil, nil, event.button, event.time) if menu
 			end

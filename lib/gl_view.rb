@@ -151,11 +151,11 @@ class GLView < Gtk::DrawingArea
 			redraw
 		end
 		signal_connect("button_release_event") do |w,e| 
-		  button_release( e.x, e.y ) 
 		  case e.button
 	      when 1 then release_left( e.x, e.y )
 		    when 3 then release_right( e.x, e.y, e.time )
 	    end
+	    button_release( e.x, e.y ) 
 	  end
 		signal_connect("motion_notify_event") do |widget, event|
 		  unless Gtk::events_pending?
@@ -429,13 +429,7 @@ class GLView < Gtk::DrawingArea
   			GL.Translate( top_comp.position.x, top_comp.position.y, top_comp.position.z )
   			if @selection_pass
   			  GL.Disable GL::LIGHTING
-  				unless @manager.work_sketch
-  				  #c = top_comp.selection_pass_color
-    				#GL.Color3f( c[0],c[1],c[2] ) if c
-  				  #top_comp.build_displaylist @selection_pass
-  				  GL.CallList top_comp.selection_displaylist 
-  				  #top_comp.build_displaylist # XXX kann man evtl weglassen
-				  end
+  				GL.CallList top_comp.selection_displaylist unless @manager.work_sketch
   			else
   				[:shaded,  :overlay].any?{|e| e == @displaymode} ? (GL.Enable GL::LIGHTING) : (GL.Disable GL::LIGHTING)
   				if top_comp.transparent and $preferences[:stencil_transparency]

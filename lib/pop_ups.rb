@@ -36,6 +36,7 @@ class ComponentMenu < Gtk::Menu
     items = [
 			Gtk::MenuItem.new( GetText._("Duplicate instance")),
 			Gtk::MenuItem.new( GetText._("Duplicate original")),
+			Gtk::ImageMenuItem.new(Gtk::Stock::CUT),
 			Gtk::ImageMenuItem.new(Gtk::Stock::COPY),
 			Gtk::ImageMenuItem.new(Gtk::Stock::PASTE),
 			Gtk::ImageMenuItem.new(Gtk::Stock::DELETE),
@@ -44,8 +45,8 @@ class ComponentMenu < Gtk::Menu
 			Gtk::SeparatorMenuItem.new,
 			Gtk::ImageMenuItem.new(Gtk::Stock::PROPERTIES)
 		]
-		items[3].sensitive = manager.clipboard ? true : false
-		items[6].active = part.visible
+		items[4].sensitive = manager.clipboard ? true : false
+		items[7].active = part.visible
 		# duplicate instance
 		items[0].signal_connect("activate") do
       manager.duplicate_instance
@@ -54,26 +55,30 @@ class ComponentMenu < Gtk::Menu
 		items[1].signal_connect("activate") do
       # dupli orig
 		end
+		# cut
+		items[3].signal_connect("activate") do
+			manager.cut_to_clipboard
+		end
 		# copy
-		items[2].signal_connect("activate") do
+		items[3].signal_connect("activate") do
 			manager.copy_to_clipboard
 		end
 		# paste
-		items[3].signal_connect("activate") do
+		items[4].signal_connect("activate") do
 			manager.paste_from_clipboard
 		end
 		# delete
-		items[4].signal_connect("activate") do
+		items[5].signal_connect("activate") do
 			manager.delete_op_view_selected if location == :op_view
 			manager.delete_selected 				if location == :glview
 		end
 		# visible
-		items[6].signal_connect("activate") do
+		items[7].signal_connect("activate") do
       part.visible = items[6].active?
       manager.glview.redraw
 		end
 		# properties
-		items[8].signal_connect("activate") do
+		items[9].signal_connect("activate") do
 			part.display_properties
 		end
 		items.each{|i| append i }
@@ -101,6 +106,27 @@ class OperatorMenu < Gtk::Menu
 		end
 		# delete
 		items[3].signal_connect("activate") do
+      manager.delete_op_view_selected
+		end
+		items.each{|i| append i }
+		show_all
+  end
+end
+
+class SketchMenu < Gtk::Menu
+  def initialize( manager, sketch )
+    super()
+    items = [
+			Gtk::MenuItem.new( GetText._("Duplicate sketch")),
+			Gtk::SeparatorMenuItem.new,
+			Gtk::ImageMenuItem.new(Gtk::Stock::DELETE)
+		]
+		# duplicate
+		items[0].signal_connect("activate") do
+		  manager.new_sketch sketch
+		end
+		# delete
+		items[2].signal_connect("activate") do
       manager.delete_op_view_selected
 		end
 		items.each{|i| append i }
@@ -156,6 +182,7 @@ class SketchSelectionToolMenu < Gtk::Menu
 			Gtk::CheckMenuItem.new( GetText._("Snap to grid")),
 			Gtk::CheckMenuItem.new( GetText._("Use guides")),
 			Gtk::SeparatorMenuItem.new,
+			Gtk::ImageMenuItem.new(Gtk::Stock::CUT),
 			Gtk::ImageMenuItem.new(Gtk::Stock::COPY),
 			Gtk::ImageMenuItem.new(Gtk::Stock::PASTE),
 			Gtk::ImageMenuItem.new(Gtk::Stock::DELETE),
@@ -165,10 +192,11 @@ class SketchSelectionToolMenu < Gtk::Menu
 		items[0].active = manager.point_snap
 		items[1].active = manager.grid_snap
 		items[2].active = manager.use_sketch_guides
-		items[4].sensitive = manager.selection.empty? ? false : true
-		items[5].sensitive = manager.clipboard ? true : false
-		items[6].sensitive = manager.selection.empty? ? false : true
-		items[8].sensitive = (manager.work_sketch or 
+		items[4].sensitive = (not manager.selection.empty?)
+		items[5].sensitive = (not manager.selection.empty?)
+		items[6].sensitive = manager.clipboard ? true : false
+		items[7].sensitive = manager.selection.empty? ? false : true
+		items[9].sensitive = (manager.work_sketch or 
 												  manager.work_operator or 
 												  manager.work_component != manager.main_assembly) ? true : false
 		# snap points
@@ -183,20 +211,24 @@ class SketchSelectionToolMenu < Gtk::Menu
 		items[2].signal_connect("activate") do |w|
 			manager.use_sketch_guides = w.active?
 		end
-		# copy
+		# cut
 		items[4].signal_connect("activate") do |w|
+      manager.cut_to_clipboard
+		end
+		# copy
+		items[5].signal_connect("activate") do |w|
       manager.copy_to_clipboard
 		end
 		# paste
-		items[5].signal_connect("activate") do |w|
+		items[6].signal_connect("activate") do |w|
       manager.paste_from_clipboard
 		end
 		# delete
-		items[6].signal_connect("activate") do |w|
+		items[7].signal_connect("activate") do |w|
       manager.delete_selected
 		end
 		# return
-		items[8].signal_connect("activate") do |w|
+		items[9].signal_connect("activate") do |w|
       manager.working_level_up
 		end
 		items.each{|i| append i }

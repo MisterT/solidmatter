@@ -216,6 +216,7 @@ class OperatorSelectionTool < SelectionTool
 	def mouse_move( x,y )
 	  super
 	  @current_face = @glview.select(x,y, :select_faces)
+	  raise "Wörkking plane" if @current_face.is_a? WorkingPlane
 	  @current_face = nil unless @manager.work_component.operators.include? @current_face.created_by_op if @current_face
 	  @draw_faces = @current_face ? @current_face.solid.faces.select{|f| f.created_by_op == @current_face.created_by_op } : []
 	  #face = @glview.select(x,y, :select_faces)
@@ -816,6 +817,11 @@ class EditSketchTool < SketchTool
 		@points_to_drag = []
 	end
 	
+	def resume
+	  super
+	  @glview.rebuild_selection_pass_colors :select_segments
+	end
+	
 	def click_left( x,y )
 	  super
 	  sel = @glview.select( x,y )
@@ -922,7 +928,8 @@ class EditSketchTool < SketchTool
   end
   
   def click_right( x,y, time )
-	  click_left( x,y )
+    new_selection = @glview.select( x,y )
+    click_left( x,y ) unless @selection and @selection.include? new_selection
 	  @glview.redraw
 	  menu = SketchSelectionToolMenu.new @manager
 	  menu.popup(nil, nil, 3,  time)

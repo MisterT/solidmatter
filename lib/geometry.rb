@@ -454,8 +454,7 @@ end
 
 class Sketch
 	include ChainCompletion
-	attr_accessor :name, :parent, :op, :selection_pass, :visible, :selected, :glview, :displaylist, :segments
-	attr_reader :plane
+	attr_accessor :name, :parent, :op, :selection_pass, :visible, :selected, :glview, :displaylist, :segments, :plane
 	@@sketchcolor = [0,1,0]
 	def initialize( name, parent, plane, glview )
 		@name = name
@@ -505,6 +504,14 @@ class Sketch
 	def clean_up
 		@glview.delete_displaylist @displaylist
 		@displaylist = nil
+	end
+	
+	def dup
+	  copy = super
+	  copy.displaylist = @glview.add_displaylist
+	  copy.op = nil
+	  copy.segments = @segments.dup
+	  copy
 	end
 end
 
@@ -1037,15 +1044,13 @@ class Part < Component
 		return bounding_box_from points
 	end
 
-	def build_displaylist( type=:normal )
+	def build_displaylist
 		# generate mesh and write to displaylist
 	  GL.NewList( @displaylist, GL::COMPILE)
 	    # draw shaded faces
 		  @solid.faces.each do |face|
 			  #col = @information[:material].color
 			  #GL.Color4f(col[0], col[1], col[2], @information[:material].opacity)
-			  c = face.selection_pass_color
-			  GL.Color3f( c[0],c[1],c[2] ) if type == :select_faces or type == :select_faces_and_planes
 				#GL.Begin( GL::POLYGON )
 				#face.segments.each do |seg|
           #GL.TexCoord2f(0.995, 0.005)

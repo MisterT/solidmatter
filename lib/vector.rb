@@ -16,7 +16,7 @@ class Vector
 	
 	def vec3!
 	  @elements.delete_at 3
-	  return self
+	  self
   end
   
 	def x
