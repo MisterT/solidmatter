@@ -255,7 +255,7 @@ class RegionSelectionTool < SelectionTool
 		@all_sketches = (manager.work_component.unused_sketches + [@op_sketch]).compact
 		@regions = @all_sketches.inject([]) do |regions, sketch|
 		  regions + sketch.all_chains.reverse.map do |chain|
-  	    poly = Polygon.from_chain chain.map{|seg| seg.tesselate }.flatten
+  	    poly = Polygon.from_chain chain #.map{|seg| seg.tesselate }.flatten
   	    face = PlanarFace.new
   	    face.plane = sketch.plane
   	    face.plane.build_displaylists #XXX kann man evtl weglassen

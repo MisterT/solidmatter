@@ -66,6 +66,14 @@ class Segment
   def trim_between( p1, p2 )
   	[self]
   end
+  
+  def +( vec )
+    raise "Segment #{self} does not make translated copies of itself"
+  end
+  
+  def draw
+    raise "Segment is not able to draw itself"
+  end
 end
 
 
@@ -88,17 +96,6 @@ class Line < Segment
     end
     return points.uniq
   end
-  
-=begin
-	def move( v )
-    for pos in own_and_neighbooring_points
-      pos.x += v.x
-      pos.y += v.y
-      pos.z += v.z
-    end
-    @sketch.build_displaylist
-	end
-=end
 
 	def bounding_box
 		return bounding_box_from [@pos1, @pos2]
@@ -116,6 +113,17 @@ class Line < Segment
 	  [self]
 	end
 	
+	def draw
+    GL.Begin( GL::LINES )
+      GL.Vertex( @pos1.x, @pos1.y, @pos1.z )
+      GL.Vertex( @pos2.x, @pos2.y, @pos2.z )
+    GL.End
+	end
+	
+	def +( vec )
+	  Line.new( @pos1 + vec, @pos2 + vec, @sketch )
+  end
+	
 	def dup
     copy = super
     copy.pos1 = @pos1.dup
@@ -126,7 +134,7 @@ end
 
 
 class Arc < Segment
-  attr_accessor :center, :radius, :start_angle, :end_angle
+  attr_accessor :center, :radius, :start_angle, :end_angle, :points
   def initialize( center, radius, start_angle, end_angle, sketch=nil )
     super sketch
     @center = center
@@ -169,14 +177,6 @@ class Arc < Segment
   
   def tesselate
     span = (@start_angle - @end_angle).abs
-   # if span > 0
-    #  @points.clear
-    #  min_angle = [@start_angle, @end_angle].min
-   #   max_angle = [@start_angle, @end_angle].max
-   #   min_angle.step( max_angle, span / @resolution ) do |angle|
-   #     @points.push point_at angle 
-   #   end
-  #  end
   	if span > 0
 		  angle = @start_angle
 		  increment = span / $preferences[:surface_resolution]
@@ -197,9 +197,25 @@ class Arc < Segment
     return @lines
   end
   
+	def draw
+	  tesselate #if @points.empty?
+	  GL.Begin( GL::LINE_STRIP )
+  	  for p in @points
+        GL.Vertex( p.x, p.y, p.z )
+      end
+    GL.End
+	end
+	
+	def +( vec )
+	  copy = dup
+	  copy.center = @center + vec
+	  copy
+  end
+  
   def dup
     copy = super
     copy.center = @center.dup
+    copy.points.clear
     copy
 	end
 end
@@ -396,12 +412,12 @@ module ChainCompletion
 		  runs += 1
 			changed = false
 			for seg in segments
-				if [seg.pos1, seg.pos2].include? pos and not seg == last_seg
+				if [seg.pos1, seg.pos2].any?{|p| p.near_to pos } and not seg == last_seg
 					chain.push seg
 					last_seg = seg
-					if pos == seg.pos1
+					if pos.near_to seg.pos1
 						pos = seg.pos2
-					elsif pos == seg.pos2
+					elsif pos.near_to seg.pos2
 						pos = seg.pos1
 					end
 					changed = true
@@ -473,7 +489,7 @@ class Sketch
 
 	def build_displaylist
 		GL.NewList( @displaylist, GL::COMPILE)
-			GL.Begin( GL::LINES )
+		#	GL.Begin( GL::LINES )
 				for seg in @segments
 					if @selection_pass
 						GL.Color3f( seg.selection_pass_color[0], seg.selection_pass_color[1], seg.selection_pass_color[2] )
@@ -484,12 +500,15 @@ class Sketch
 							GL.Color3f( @@sketchcolor[0], @@sketchcolor[1], @@sketchcolor[2] )
 						end
 					end
+					seg.draw
+=begin
 					for micro_seg in seg.tesselate
 					  GL.Vertex( micro_seg.pos1.x, micro_seg.pos1.y, micro_seg.pos1.z )
 					  GL.Vertex( micro_seg.pos2.x, micro_seg.pos2.y, micro_seg.pos2.z )
 				  end
+=end
 				end
-			GL.End
+		#	GL.End
 		GL.EndList	
 	end
 	
@@ -519,7 +538,7 @@ end
 class Polygon
   attr_accessor :points
   def Polygon::from_chain chain
-    redundant_chain_points = chain.map{|s| [s.pos1, s.pos2] }.flatten
+    redundant_chain_points = chain.map{|s| s.tesselate }.flatten.map{|line| [line.pos1, line.pos2] }.flatten
     chain_points = []
     for p in redundant_chain_points
       chain_points.push p unless chain_points.include? p
@@ -699,7 +718,7 @@ class Face
 	end
 	
 	def draw
-
+    raise "Face #{self} cannot draw itself"
 	end
 	
 	def area
@@ -771,13 +790,13 @@ class CircularFace < Face
 		@start_angle = start_angle
 		@end_angle   = end_angle
 		# build outlines
-		arc = Arc.new( @position, @radius, start_angle, end_angle)
-		upper_arc = arc.dup
+		lower_arc = Arc.new( @position, @radius, start_angle, end_angle)
+		upper_arc = lower_arc.dup
 		upper_arc.center = @position + @axis * @height
-		lower_edge = arc.tesselate
+		lower_edge = lower_arc.tesselate
 		upper_edge = upper_arc.tesselate
-		borders = [ Line.new( arc.pos1, upper_arc.pos1), Line.new( arc.pos2, upper_arc.pos2) ]
-		@segments =  lower_edge + upper_edge + borders
+		borders = [ Line.new( lower_arc.pos1, upper_arc.pos1), Line.new( lower_arc.pos2, upper_arc.pos2) ]
+		@segments =  [lower_arc, upper_arc] + borders
 	end
 	
 	def draw
@@ -1068,12 +1087,13 @@ class Part < Component
   		all_segs = @solid.faces.map{|face| face.segments }.flatten
   		GL.Disable(GL::LIGHTING)
   		GL.LineWidth( 1.5 )
-  		GL.Begin( GL::LINES )
-  		  for seg in all_segs
-  				GL.Vertex( seg.pos1.x, seg.pos1.y, seg.pos1.z )
-  				GL.Vertex( seg.pos2.x, seg.pos2.y, seg.pos2.z )
+  		#GL.Begin( GL::LINES )
+  			for seg in all_segs
+  			  seg.draw
+  				#GL.Vertex( seg.pos1.x, seg.pos1.y, seg.pos1.z )
+  				#GL.Vertex( seg.pos2.x, seg.pos2.y, seg.pos2.z )
   			end
-  		GL.End
+  		#GL.End
 		GL.EndList
 	end
 	

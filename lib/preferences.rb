@@ -11,7 +11,7 @@ Bookmark = Struct.new( :adress, :port, :login, :password )
 
 $preferences = { 
 	:project_dir => Dir.pwd,
-	:mouse_sensivity => 6.0,
+	:mouse_sensivity => 1.0,
 	:create_part_on_new_project => true,
 	:surface_resolution => 40,
 	:dynamic_tesselation => true,
