@@ -273,7 +273,7 @@ class OpenMachinistMainWin < Gtk::Window
 		sketch_toolbar.append( Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/big/fillet.png' ),    GetText._('Fillet') ) )    { @manager.activate_tool('fillet', true) }
 		sketch_toolbar.append( GetText._("Polygon"), "Create regular convex polygon with variable number of segments", "SketchToolbar/Polygon", Gtk::Image.new('../data/icons/big/polygon.png') ){}
 		sketch_toolbar.append( Gtk::SeparatorToolItem.new )
-		sketch_toolbar.append( GetText._("Dimension"), "Add dimensions to the sketch", "SketchToolbar/Dimension", Gtk::Image.new('../data/icons/big/dimension.png') ){}
+		sketch_toolbar.append( GetText._("Dimension"), "Add dimensions to the sketch", "SketchToolbar/Dimension", Gtk::Image.new('../data/icons/big/list-remove.png') ){ @manager.activate_tool('dimension', true) }
 		sketch_toolbar.append( GetText._("Constrain"), "Constrain the sketch", "SketchToolbar/Constrain", Gtk::Image.new('../data/icons/big/constrain.png') ){}
 		sketch_toolbar.append( Gtk::SeparatorToolItem.new )
 		sketch_toolbar.append( GetText._("Trim"), "Cut away parts of a segment", "SketchToolbar/Trim", Gtk::Image.new('../data/icons/big/trim.png') ){ @manager.activate_tool('trim', true) }

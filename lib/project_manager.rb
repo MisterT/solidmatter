@@ -676,6 +676,8 @@ public
 				tool = ArcTool.new( @glview, self, @work_sketch, &block )
 			when 'circle'
 				tool = TwoPointCircleTool.new( @glview, self, @work_sketch, &block )
+			when 'dimension'
+				tool = DimensionTool.new( @glview, self, @work_sketch, &block )
 			when 'trim'
 				tool = TrimTool.new( @glview, self, @work_sketch, &block )
 		end

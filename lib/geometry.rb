@@ -6,6 +6,7 @@
 require 'gtk2'
 require 'gtkglext'
 require 'opengl'
+require 'glut'
 require 'matrix.rb'
 require 'material_editor.rb'
 require 'part_dialog.rb'
@@ -470,7 +471,7 @@ end
 
 class Sketch
 	include ChainCompletion
-	attr_accessor :name, :parent, :op, :selection_pass, :visible, :selected, :glview, :displaylist, :segments, :plane
+	attr_accessor :name, :parent, :op, :selection_pass, :visible, :selected, :glview, :displaylist, :segments, :plane, :dimensions
 	@@sketchcolor = [0,1,0]
 	def initialize( name, parent, plane, glview )
 		@name = name
@@ -478,6 +479,7 @@ class Sketch
 		@op = nil
 		@glview = glview
 		@segments = []
+		@dimensions = []
 		@plane = WorkingPlane.new( glview, parent, plane )
 		@plane_id = parent.solid.faces.map{|f| (f.is_a? PlanarFace) ? f.plane : nil }.compact.index plane
 		parent.working_planes.push @plane
@@ -532,6 +534,53 @@ class Sketch
 	  copy.segments = @segments.dup
 	  copy
 	end
+end
+
+class Dimension
+  def self.draw_arrow( *points )
+    puts points.flatten.inspect
+    for p in points.flatten
+      GL.Begin( GL::LINE_STRIP )
+        GL.Vertex(p.x, p.y, p.z)
+      GL.End
+    end
+    p = points.last
+    #XXX
+  end
+  
+  def self.draw_text( t, pos )
+    GL.RasterPos3d(pos.x, pos.y, pos.z)
+  	t.each_byte{|b| Glut.glutBitmapCharacter(Glut::GLUT_BITMAP_9_BY_15, b) }
+  end
+  
+  def draw
+    GL.Color3f(0.7, 0.3, 0.9)
+    GL.LineWidth(1.0)
+  end
+end
+
+class RadialDimension < Dimension
+  def initialize( arc, position )
+    @arc = arc
+    @direction = arc.center.vector_to(position).normalize
+  end
+  
+  def radius= val
+    @arc.radius = val
+    @arc.sketch.build_displaylist
+  end
+  
+  def draw
+    super
+    pos3 = @arc.center + (@direction * @arc.radius)
+    pos2 = @arc.center + (@direction * (@arc.radius + $preferences[:dimension_offset]))
+    pos1 = Vector[pos2.x + $preferences[:dimension_offset], pos2.y, pos2.z]
+    pl = @arc.sketch.plane
+    Dimension.draw_arrow( Tool.sketch2world(pos1, pl), Tool.sketch2world(pos2, pl), Tool.sketch2world(pos3, pl) )
+    Dimension.draw_text( "R#{@arc.radius}", Tool.sketch2world(pos2, pl) )
+    #Dimension.draw_arrow( pos1, pos2, pos3)
+    #Dimension.draw_text( "R#{@arc.radius}", pos2 )
+  end
 end
 
 

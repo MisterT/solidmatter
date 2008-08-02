@@ -463,6 +463,11 @@ class SketchTool < Tool
 		@temp_segments = []
 	end
 	
+	def resume
+	  super
+	  @glview.rebuild_selection_pass_colors :select_segments
+	end
+	
 	# snap points to guides, then to other points, then to grid
 	def snapped( x,y, excluded=[] )
     guide = [@x_guide,@z_guide].compact.first
@@ -616,6 +621,7 @@ class SketchTool < Tool
 			end
 			GL.Enable(GL::DEPTH_TEST)
 			# draw additional temporary geometry
+			#XXX segs should draw themselves
 			for seg in @temp_segments
   		  for micro_seg in seg.tesselate
   			  GL.LineWidth(2)
@@ -807,6 +813,65 @@ class TwoPointCircleTool < SketchTool
 		@glview.redraw
 	end
 end
+
+
+class DimensionTool < SketchTool
+	def initialize( glview, manager, sketch )
+		super( GetText._("Choose a segment or two points to add a dimension:"), glview, manager, sketch )
+		@points = []
+		@selected_segments = []
+	end
+	
+	def click_left( x,y )
+	  super
+    if dim = dimension_for( @selected_segments, x,y )
+      @sketch.dimensions << dim
+    else
+      # use point instead of segment if we find one near
+      points = @sketch.segments.map{|s| s.snap_points }.flatten
+  		points = points.select do |p|
+  			dist = Point.new(x, @glview.allocation.height - y).distance_to @glview.world2screen(sketch2world p)
+  			dist < $preferences[:snap_dist]
+  		end
+  		if not points.empty?
+  		  @selected_segments << points.first
+  		  @manager.set_status_text( GetText._("Choose a point to position your dimension:") ) if @selected_segments.size == 2
+		  else
+		    # don't use segment if we have one point already
+		    unless @selected_segments.is_a? Array and @selected_segments.size == 1
+  		    if seg = @glview.select(x,y)
+  	        @selected_segments = seg
+  	        @manager.set_status_text( GetText._("Choose a point to position your dimension:") )
+	        end
+	      end
+	    end
+	  end
+	end
+	
+	def dimension_for( seg_or_points, x,y )
+	  if seg_or_points.is_a? Arc
+	    pos = @glview.screen2world( x,y )
+	    return pos ? RadialDimension.new( seg_or_points, world2sketch(pos) ) : nil
+    elsif seg_or_points.is_a? Array and seg_or_points.size == 2
+      #XXX create linear dimension
+      return nil
+    else
+      return nil
+    end
+	end
+	
+	def mouse_move( x,y )
+  	super
+  	if dim = dimension_for( @selected_segments, x,y )
+  	  @temp_dim = dim
+  	  @glview.redraw
+		end
+	end
+	
+	def draw
+	  @temp_dim.draw if @temp_dim
+	end
+end
   
 
 class EditSketchTool < SketchTool
@@ -815,11 +880,6 @@ class EditSketchTool < SketchTool
 		@draw_points = []
 		@does_snap = false
 		@points_to_drag = []
-	end
-	
-	def resume
-	  super
-	  @glview.rebuild_selection_pass_colors :select_segments
 	end
 	
 	def click_left( x,y )
@@ -936,7 +996,7 @@ class EditSketchTool < SketchTool
 	end
 	
 	def draw
-		super
+		super #XXX draw points may not need to be drawn here, as SketchTool already does this
 		unless @draw_points.empty?
 			point = sketch2world(@draw_points.first)
 			GL.Disable(GL::DEPTH_TEST)

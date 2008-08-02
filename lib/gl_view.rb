@@ -423,7 +423,7 @@ class GLView < Gtk::DrawingArea
   		### ------------------------ Assembly ------------------------ ###
   		if top_comp.class == Assembly
   			GL.Translate( top_comp.position.x, top_comp.position.y, top_comp.position.z )
-  			top_comp.components.each{|c| recurse_draw(c) }
+  			top_comp.components.each{|c| recurse_draw c }
   		### -------------------------- Part -------------------------- ###
   		elsif top_comp.class == Part
   			GL.Translate( top_comp.position.x, top_comp.position.y, top_comp.position.z )
@@ -476,7 +476,8 @@ class GLView < Gtk::DrawingArea
   			c = top_comp.selection_pass_color
   			GL.Color3f( c[0],c[1],c[2] ) if c
   			GL.Disable(GL::POLYGON_OFFSET_FILL)
-  			GL.CallList( (@picking_pass or @selection_pass == :select_planes or @selection_pass == :select_faces_and_planes) ? top_comp.pick_displaylist : top_comp.displaylist )
+  			#GL.CallList( (@picking_pass or @selection_pass == :select_planes or @selection_pass == :select_faces_and_planes) ? top_comp.pick_displaylist : top_comp.displaylist )
+  			GL.CallList( (@picking_pass or @selection_pass) ? top_comp.pick_displaylist : top_comp.displaylist )
   			GL.Enable(GL::POLYGON_OFFSET_FILL)
   		end
   		GL.PopMatrix

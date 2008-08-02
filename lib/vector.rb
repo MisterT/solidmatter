@@ -64,6 +64,7 @@ class Vector
 	def length=(new_len)
 		new_vec = self * (new_len / self.length )
 		3.times{|i| @elements[i] = new_vec[i]}
+		self
 	end
 	
 	def normalize!
