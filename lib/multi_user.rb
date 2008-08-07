@@ -3,7 +3,8 @@
 #  Created by Björn Breitgoff on 2008-01-06.
 #  Copyright (c) 2008. All rights reserved.
 
-require 'drb'
+#require 'drb'
+require 'socket'
 require 'project_manager.rb'
 require 'account_editor.rb'
 require 'save_request_dialog.rb'
@@ -38,12 +39,34 @@ class ProjectServer
   def initialize server_win
     @server_win = server_win
     $SAFE = 1
-    DRb.start_service( "druby://localhost:2222", self )
+    #DRb.start_service( "druby://localhost:2222", self )
     @projects = []
     @accounts = []
     @clients  = []
     @changes  = []
     @requests = []
+    @server = TCPServer.open $preferences[:server_port]
+    @thread = Thread.start{ listen }
+  end
+  
+  def listen
+    @do_listen = true
+    threads = []
+    while @do_listen
+      client = @server.accept
+      threads << Thread.start(client) do |c|
+        query = c.gets
+        if query
+          query.chop!
+          meth, args = Marshal.load( query )
+          ret_val = self.send( meth, *args )
+          c.puts Marshal.dump(ret_val)
+          c.flush
+        end
+        c.close
+      end
+    end
+    threads.each{|t| t.join }
   end
   
   def get_projects
@@ -203,15 +226,37 @@ class ProjectServer
     return id
   end
   
-  def exit
-    DRb.stop_service
+  def stop
+    #DRb.stop_service
+    @do_listen = false
+    # send one last signal so the server-loop can quit
+    TCPSocket.open( 'localhost', $preferences[:server_port]){}
+    @thread.join
+    @server.close
+  end
+end
+
+class ServerProxy
+  def initialize( address, port )
+    @address = address
+    @port = port
+  end
+  
+  def method_mising( meth, *args )
+    TCPSocket.open( @address, @port ) do |s|
+      query = Marshal.dump([meth,args])
+      s.puts query
+      ret_val = s.gets.chop
+    end
+    return ret_val
   end
 end
 
 class ProjectClient
   attr_reader :server, :working, :projectname
   def initialize( server, port, manager )
-    @server = DRbObject.new_with_uri "druby://#{server}:#{port}" 
+    #@server = DRbObject.new_with_uri "druby://#{server}:#{port}" 
+    @server = ServerProxy.new( server, port )
     @manager = manager
     # test if server is working
     begin

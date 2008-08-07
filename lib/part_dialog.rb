@@ -4,9 +4,11 @@
 #  Copyright (c) 2007. All rights reserved.
 
 require 'libglade2'
+require 'units.rb'
 
 
 class PartInformationDialog
+  include Units
 	def initialize( part, manager )
 	  @part = part
 	  @info = part.information
@@ -56,8 +58,8 @@ class PartInformationDialog
   
   def update_solid_info w 
     GC.enable # make sure the garbage collector is still on
-    @glade['area_label'].text = @part.solid.area.to_s
-    @glade['volume_label'].text = @part.solid.volume.to_s
-    @glade['mass_label'].text = @part.mass.to_s
+    @glade['area_label'].text = enunit(@part.area, 2).to_s
+    @glade['volume_label'].text = enunit(@part.volume, 2).to_s
+    @glade['mass_label'].text = enunit(@part.mass, 2).to_s
   end
 end

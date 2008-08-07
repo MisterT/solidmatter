@@ -826,6 +826,9 @@ class DimensionTool < SketchTool
 	  super
     if dim = dimension_for( @selected_segments, x,y )
       @sketch.dimensions << dim
+      @sketch.build_displaylist
+      @manager.cancel_current_tool
+      @glview.redraw
     else
       # use point instead of segment if we find one near
       points = @sketch.segments.map{|s| s.snap_points }.flatten

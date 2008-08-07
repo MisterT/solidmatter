@@ -32,7 +32,9 @@ $preferences = {
 	:snap_dist => 6,
 	:merge_threshold => 0.001,
 	:area_samples => 500,
-	:dimension_offset => 0.1
+	:dimension_offset => 0.1,
+	:server_port => 50010,
+	:default_unit_system => :mm
 }
 
 $non_gconf_types = [Bookmark]

@@ -7,14 +7,12 @@ require 'libglade2'
 require 'multi_user.rb'
 
 class ServerWin
-  attr_accessor :server
+  attr_accessor :server, :destroyed
   def initialize( server=nil )
     @glade = GladeXML.new( "../data/glade/server_win.glade", nil, 'openmachinist' ) {|handler| method(handler)}
-    unless server
-      @server = ProjectServer.new self
-      @glade['server_win'].signal_connect('destroy'){Gtk.main_quit}
-      @glade['server_win'].title = GetText._("Open Machinist dedicated server")
-    end
+    @server = server ? server : ProjectServer.new(self)
+    @glade['server_win'].signal_connect('destroy'){ @destroyed = true }
+    @glade['server_win'].title = GetText._("Open Machinist dedicated server")
     # ------- create projects view ------- #
     pix = Gtk::CellRendererPixbuf.new
 		text = Gtk::CellRendererText.new
@@ -107,5 +105,9 @@ class ServerWin
   		iter[1] = acc.login
 		end
 		@uview.model = model
+  end
+  
+  def destroy
+    @glade['server_win'].destroy
   end
 end

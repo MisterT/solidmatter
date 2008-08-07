@@ -7,6 +7,7 @@ require 'gtk2'
 require 'gtkglext'
 require 'opengl'
 require 'glut'
+Glut.glutInit
 require 'matrix.rb'
 require 'material_editor.rb'
 require 'part_dialog.rb'
@@ -491,26 +492,21 @@ class Sketch
 
 	def build_displaylist
 		GL.NewList( @displaylist, GL::COMPILE)
-		#	GL.Begin( GL::LINES )
-				for seg in @segments
-					if @selection_pass
-						GL.Color3f( seg.selection_pass_color[0], seg.selection_pass_color[1], seg.selection_pass_color[2] )
-					else
-						if seg.selected
-							GL.Color3f( @glview.selection_color[0], @glview.selection_color[1], @glview.selection_color[2] )
-						else
-							GL.Color3f( @@sketchcolor[0], @@sketchcolor[1], @@sketchcolor[2] )
-						end
-					end
-					seg.draw
-=begin
-					for micro_seg in seg.tesselate
-					  GL.Vertex( micro_seg.pos1.x, micro_seg.pos1.y, micro_seg.pos1.z )
-					  GL.Vertex( micro_seg.pos2.x, micro_seg.pos2.y, micro_seg.pos2.z )
+		  for seg in @segments
+			  if @selection_pass
+				  GL.Color3f( seg.selection_pass_color[0], seg.selection_pass_color[1], seg.selection_pass_color[2] )
+			  else
+				  if seg.selected
+					  GL.Color3f( @glview.selection_color[0], @glview.selection_color[1], @glview.selection_color[2] )
+				  else
+					  GL.Color3f( @@sketchcolor[0], @@sketchcolor[1], @@sketchcolor[2] )
 				  end
-=end
-				end
-		#	GL.End
+			  end
+			  seg.draw
+		  end
+		  for dim in @dimensions
+		    dim.draw
+		  end
 		GL.EndList	
 	end
 	
@@ -538,12 +534,11 @@ end
 
 class Dimension
   def self.draw_arrow( *points )
-    puts points.flatten.inspect
-    for p in points.flatten
-      GL.Begin( GL::LINE_STRIP )
-        GL.Vertex(p.x, p.y, p.z)
-      GL.End
-    end
+		GL.Begin( GL::LINE_STRIP )
+			for p in points.flatten
+		  	GL.Vertex(p.x, p.y, p.z)
+		  end
+		GL.End
     p = points.last
     #XXX
   end
@@ -554,8 +549,8 @@ class Dimension
   end
   
   def draw
-    GL.Color3f(0.7, 0.3, 0.9)
-    GL.LineWidth(1.0)
+    GL.Color3f(0.85, 0.5, 0.99)
+    GL.LineWidth(2.0)
   end
 end
 
@@ -577,9 +572,7 @@ class RadialDimension < Dimension
     pos1 = Vector[pos2.x + $preferences[:dimension_offset], pos2.y, pos2.z]
     pl = @arc.sketch.plane
     Dimension.draw_arrow( Tool.sketch2world(pos1, pl), Tool.sketch2world(pos2, pl), Tool.sketch2world(pos3, pl) )
-    Dimension.draw_text( "R#{@arc.radius}", Tool.sketch2world(pos2, pl) )
-    #Dimension.draw_arrow( pos1, pos2, pos3)
-    #Dimension.draw_text( "R#{@arc.radius}", pos2 )
+    Dimension.draw_text( "R#{ @arc.radius.to_s.gsub(/.[0-9]+/){|m| puts m ; m[0..4]} }", Tool.sketch2world(pos2, pl) )
   end
 end
 
@@ -684,7 +677,7 @@ class Polygon
 		tess = GLU::NewTess()
 		GLU::TessCallback( tess, GLU::TESS_VERTEX, lambda{|v| vertices << Vector[v[0],v[1],v[2]] if v } )
    	GLU::TessCallback( tess, GLU::TESS_BEGIN, lambda{|which| vertices << which.to_s } )
-   	GLU::TessCallback( tess, GLU::TESS_END, lambda{ GL::End() } )
+   	GLU::TessCallback( tess, GLU::TESS_END, lambda{ } )
    	GLU::TessCallback( tess, GLU::TESS_ERROR, lambda{|errCode| raise "Tessellation Error: #{GLU::ErrorString errCode}" } )
    	GLU::TessCallback( tess, GLU::TESS_COMBINE, 
      	lambda do |coords, vertex_data, weight|
@@ -1165,6 +1158,14 @@ class Part < Component
 	  end
 	end
 	
+	def area
+	  @solid.area
+	end
+	
+	def volume
+	  @solid.volume
+	end
+	
 	def mass
 	  @solid.volume * @information[:material].density
 	end
@@ -1236,10 +1237,22 @@ class Assembly < Component
 	end
 
 	def display_properties
-		dia = AssemblyInformationDialog.new( @information, @manager ) do |info|
+		dia = AssemblyInformationDialog.new( self, @manager ) do |info|
 		  @information = info if info
 			@manager.op_view.update
 	  end
+	end
+	
+	def area
+	  @components.inject(0.0){|area,c| area + c.area }
+	end
+	
+	def volume
+	  @components.inject(0.0){|area,c| area + c.volume }
+	end
+	
+	def mass
+	  @components.inject(0.0){|area,c| area + c.mass }
 	end
 	
 	def bounding_box
