@@ -466,7 +466,6 @@ class GLView < Gtk::DrawingArea
   				top_comp.build_displaylist
   			else
   				GL.LineWidth(4)
-  				puts "We have the sketch: #{top_comp.name}, with parent #{top_comp.parent.name}" unless top_comp.displaylist
   				GL.CallList( top_comp.displaylist )
   			end
   		### ---------------------- Working plane ---------------------- ###
@@ -476,8 +475,7 @@ class GLView < Gtk::DrawingArea
   			c = top_comp.selection_pass_color
   			GL.Color3f( c[0],c[1],c[2] ) if c
   			GL.Disable(GL::POLYGON_OFFSET_FILL)
-  			#GL.CallList( (@picking_pass or @selection_pass == :select_planes or @selection_pass == :select_faces_and_planes) ? top_comp.pick_displaylist : top_comp.displaylist )
-  			GL.CallList( (@picking_pass or @selection_pass) ? top_comp.pick_displaylist : top_comp.displaylist )
+  			GL.CallList( (@picking_pass or @selection_pass == :select_planes or @selection_pass == :select_faces_and_planes) ? top_comp.pick_displaylist : top_comp.displaylist )
   			GL.Enable(GL::POLYGON_OFFSET_FILL)
   		end
   		GL.PopMatrix

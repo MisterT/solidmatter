@@ -74,7 +74,7 @@ class ComponentMenu < Gtk::Menu
 		end
 		# visible
 		items[7].signal_connect("activate") do
-      part.visible = items[6].active?
+      part.visible = items[7].active?
       manager.glview.redraw
 		end
 		# properties
@@ -90,28 +90,83 @@ class OperatorMenu < Gtk::Menu
   def initialize( manager, operator )
     super()
     items = [
-			Gtk::CheckMenuItem.new( GetText._("Enabled")),
-			Gtk::SeparatorMenuItem.new,
 			Gtk::MenuItem.new( GetText._("Edit dimensions")),
+			Gtk::ImageMenuItem.new(GetText._("Edit operator")).set_image( Gtk::Image.new('../data/icons/small/wheel_small.png') ),
+			Gtk::ImageMenuItem.new(GetText._("Edit sketch")).set_image( Gtk::Image.new('../data/icons/small/sketch_small.png') ),
+			Gtk::SeparatorMenuItem.new,
+			Gtk::CheckMenuItem.new( GetText._("Enabled")),
 			Gtk::ImageMenuItem.new(Gtk::Stock::DELETE)
 		]
-		items[0].active = operator.enabled
-		# enable/disable
-		items[0].signal_connect("activate") do
-      manager.enable_selected_operator
-		end
 		# edit dimensions
+		items[0].signal_connect("activate") do
+		  operator.show_dimensions
+		end
+		# edit operators
+		items[1].signal_connect("activate") do
+		  $manager.exit_current_mode
+      $manager.operator_mode operator
+		end
+		# edit sketch
 		items[2].signal_connect("activate") do
-		  
+		  sk = operator.settings[:sketch]
+		  $manager.exit_current_mode
+      $manager.sketch_mode sk
+		end
+		# enable/disable
+		items[4].active = operator.enabled
+		items[4].signal_connect("activate") do
+      manager.enable_operator operator
 		end
 		# delete
-		items[3].signal_connect("activate") do
+		items[5].signal_connect("activate") do
+      manager.delete_object operator
+		end
+		items.each{|i| append i }
+		show_all
+  end
+end
+
+
+class OpViewOperatorMenu < Gtk::Menu
+  def initialize( manager, operator )
+    super()
+    items = [
+			Gtk::MenuItem.new( GetText._("Edit dimensions")),
+			Gtk::ImageMenuItem.new(GetText._("Edit operator")).set_image( Gtk::Image.new('../data/icons/small/wheel_small.png') ),
+			Gtk::ImageMenuItem.new(GetText._("Edit sketch")).set_image( Gtk::Image.new('../data/icons/small/sketch_small.png') ),
+			Gtk::SeparatorMenuItem.new,
+			Gtk::CheckMenuItem.new( GetText._("Enabled")),
+			Gtk::ImageMenuItem.new(Gtk::Stock::DELETE)
+		]
+		# edit dimensions
+		items[0].signal_connect("activate") do
+		  operator.show_dimensions
+		end
+		# edit operators
+		items[1].signal_connect("activate") do
+		  $manager.exit_current_mode
+      $manager.operator_mode operator
+		end
+		# edit sketch
+		items[2].signal_connect("activate") do
+		  sk = operator.settings[:sketch]
+		  $manager.exit_current_mode
+      $manager.sketch_mode sk
+		end
+		# enable/disable
+		items[4].active = operator.enabled
+		items[4].signal_connect("activate") do
+      manager.enable_selected_operator
+		end
+		# delete
+		items[5].signal_connect("activate") do
       manager.delete_op_view_selected
 		end
 		items.each{|i| append i }
 		show_all
   end
 end
+
 
 class SketchMenu < Gtk::Menu
   def initialize( manager, sketch )

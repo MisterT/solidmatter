@@ -22,7 +22,6 @@ class Selection
 	
 	def add( comp )
 		comp.selected = true
-		comp.build_displaylist if comp.respond_to? :build_displaylist
 		@sel.push comp
 		@sel.uniq!
 	end
@@ -35,13 +34,11 @@ class Selection
 			comp.selected = true
 			@sel.push(comp)
 		end
-		rebuild comp
 	end
 	
 	def subract( comp )
 		comp.selected = false
 		@sel.delete comp
-		rebuild comp
 	end
 	
 	def select( *comps )
@@ -330,12 +327,45 @@ public
       @all_instances.delete obj
       @all_assembly_instances.delete obj
       @all_part_instances.delete obj
-    elsif obj.is_a? Segment
-      obj.sketch.segments.delete obj
-      obj.sketch.build_displaylist
     elsif obj.is_a? Component
     	@all_instances.dup.each{|inst| delete_object inst if inst.real_component == obj }
     	@all_parts.delete obj
+    elsif obj.is_a? Operator 
+      sketch = obj.settings[:sketch]
+      if sketch
+     	  dia = Gtk::MessageDialog.new(@main_win, 
+                                     Gtk::Dialog::DESTROY_WITH_PARENT,
+                                     Gtk::MessageDialog::QUESTION,
+                                     Gtk::MessageDialog::BUTTONS_NONE,
+                                     GetText._("Delete Sketch?"))
+        dia.add_buttons( [Gtk::Stock::NO, Gtk::Dialog::RESPONSE_NO],
+         		             [Gtk::Stock::DELETE, Gtk::Dialog::RESPONSE_YES] )
+	      dia.secondary_text = GetText._("The operator includes an associated sketch.\nDo you want to delete it?")
+			  dia.run do |resp|
+					if resp == Gtk::Dialog::RESPONSE_YES
+						@all_sketches.delete sketch
+			  		sketch.clean_up	
+			  	else
+			  		@work_component.unused_sketches.push sketch
+			  		sketch.op = nil
+			  		sketch.visible = true
+					end
+					dia.destroy
+				end
+	    end
+	    @work_component.remove_operator obj
+    elsif obj.is_a? Sketch
+    	if obj.op
+    		obj.op.settings[:segments] = nil
+    		obj.op.settings[:sketch] = nil
+    		obj.op.part.build obj.op
+    	end
+    	obj.parent.unused_sketches.delete obj
+    	@all_sketches.delete obj
+			obj.clean_up	
+    elsif obj.is_a? Segment
+      obj.sketch.segments.delete obj
+      obj.sketch.build_displaylist
     end
     @op_view.update
     @glview.redraw
@@ -585,60 +615,23 @@ public
 	  op.part.move_operator_down op if op
 	end
 	
+	def enable_operator op
+	  op.enabled = (not op.enabled)
+	  op.part.build op
+	  @glview.redraw
+	end
+	
 	def enable_selected_operator
 	  op = @op_view.selections.first
 	  if op and op.is_a? Operator
-	    op.enabled = (not op.enabled)
-	    op.part.build op
-	    @glview.redraw
+      enable_operator op
     end
 	end
 	
 	def delete_op_view_selected
 		exit_current_mode
 	  sel = @op_view.selections.first
-	  if sel
-	    if sel.is_a? Operator 
-	      sketch = sel.settings[:sketch]
-	      if sketch
-       	  dia = Gtk::MessageDialog.new(@main_win, 
-                                       Gtk::Dialog::DESTROY_WITH_PARENT,
-                                       Gtk::MessageDialog::QUESTION,
-                                       Gtk::MessageDialog::BUTTONS_NONE,
-                                       GetText._("Delete Sketch?"))
-          dia.add_buttons( [Gtk::Stock::NO, Gtk::Dialog::RESPONSE_NO],
-           		             [Gtk::Stock::DELETE, Gtk::Dialog::RESPONSE_YES] )
-		      dia.secondary_text = GetText._("The operator includes an associated sketch.\nDo you want to delete it?")
-				  dia.run do |resp|
-						if resp == Gtk::Dialog::RESPONSE_YES
-							@all_sketches.delete sketch
-				  		sketch.clean_up	
-				  	else
-				  		@work_component.unused_sketches.push sketch
-				  		sketch.op = nil
-				  		sketch.visible = true
-						end
-						dia.destroy
-					end
-		    end
-		    @work_component.remove_operator sel
-      elsif sel.is_a? Instance and not sel == @op_view.base_component 
-	      sel.parent.remove_component sel 
-	      @all_part_instances.delete sel
-	      @all_assemblies.delete sel 
-      elsif sel.is_a? Sketch
-      	if sel.op
-      		sel.op.settings[:segments] = nil
-      		sel.op.settings[:sketch] = nil
-      		sel.op.part.build sel.op
-      	end
-      	sel.parent.unused_sketches.delete sel
-      	@all_sketches.delete sel
-				sel.clean_up	
-      end
-	    exit_current_mode or @glview.redraw
-	    @op_view.update
-    end
+    delete_object sel if sel
 	end
 	
 	def activate_tool( name, temporary=false )

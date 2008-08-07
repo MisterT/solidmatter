@@ -72,12 +72,13 @@ public
 	end
 	
 	def resume
-		@glview.immediate_draw_routines.push lambda{ draw }
+	  @draw_routine = lambda{ draw }
+		@glview.immediate_draw_routines.push @draw_routine
 		@manager.set_status_text( @status_text )
 	end
 	
 	def exit
-		@glview.immediate_draw_routines.pop
+		@glview.immediate_draw_routines.delete @draw_routine
 		@manager.glview.window.cursor = nil
 	end
 	
@@ -226,8 +227,12 @@ class OperatorSelectionTool < SelectionTool
 	
 	def click_right( x,y, time )
 	  super
-		click_left( x,y )
-		BackgroundMenu.new(@manager).popup(nil, nil, 3,  time)
+	  mouse_move( x,y )
+	  if @current_face
+		  OperatorMenu.new(@manager, @current_face.created_by_op).popup(nil, nil, 3,  time)
+		else
+		  BackgroundMenu.new(@manager).popup(nil, nil, 3,  time)
+	  end
 	end
 	
 	def draw
@@ -900,6 +905,8 @@ class EditSketchTool < SketchTool
 	    @manager.selection.deselect_all
 	    @selection = nil
 		end
+		@sketch.build_displaylist
+		@glview.redraw
 	end
 	
   def press_left( x,y )

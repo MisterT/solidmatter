@@ -48,7 +48,7 @@ class OpView < Gtk::ScrolledWindow
 			  sel = self.selections[0]
 			  menu = case sel
 		    when Operator
-		      OperatorMenu.new(@manager, sel)
+		      OpViewOperatorMenu.new(@manager, sel)
 	      when Instance
 	        ComponentMenu.new(@manager, sel, :op_view)
         when Sketch

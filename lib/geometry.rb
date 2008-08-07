@@ -47,6 +47,19 @@ class Point
 	end
 end
 
+class InfiniteLine
+  def initialize( pos, dir )
+    @pos = pos
+    @dir = dir
+  end
+  
+  def intersect_with plane
+    po, pn = plane.origin, plane.normal
+    t = (po-@pos).dot_product(pn) / @dir.dot_product(pn)
+    @pos + (t*@dir)
+  end
+end
+
 
 class Segment
   include Selectable
@@ -608,7 +621,7 @@ class Polygon
   end
   
   def mesh_area
-    tesselate.inject(0) do |area, triangle|
+    tesselate.inject(0.0) do |area, triangle|
       edge_vec1 = triangle[0].vector_to triangle[1]
       edge_vec2 = triangle[0].vector_to triangle[2]
       tr_area = (edge_vec1.cross_product edge_vec2).length * 0.5
@@ -955,6 +968,19 @@ class Operator
 		@settings = @save_settings
 		ok
 	end
+  
+	def show_dimensions
+	  @dimension_drawer = lambda do
+	    for dim in (@settings[:sketch].dimension + @dimensions)
+	      dim.draw
+	    end
+	  end
+	  $manager.glview.immediate_draw_routines.push @dimension_drawer
+	end
+	
+	def hide_dimensions
+	  $manager.glview.immediate_draw_routines.delete @dimension_drawer
+	end
 
 	def create_toolbar
 		@toolbar = Gtk::Toolbar.new
@@ -1020,7 +1046,6 @@ class Part < Component
 		super()
 		@manager = manager
 		@unused_sketches = []
-		@all_sketches = []
 		@working_planes = [ WorkingPlane.new( manager.glview, self) ]
 		@operators = []
 		@history_limit = 0
@@ -1089,6 +1114,7 @@ class Part < Component
 			build_displaylist
 			@manager.glview.rebuild_selection_pass_colors
 			@manager.component_changed self
+			self.all_sketches.each{|sk| sk.refetch_plane_from_solid }
 		else
 			dia = Gtk::MessageDialog.new( nil, Gtk::Dialog::DESTROY_WITH_PARENT,
 							                           Gtk::MessageDialog::WARNING,
@@ -1177,6 +1203,10 @@ class Part < Component
 	  @displaylist = nil
 	  @wire_displaylist = nil
 	  @selection_displaylist = nil
+	end
+	
+	def all_sketches
+	  (@unused_sketches + @operators.map{|op| op.settings[:sketch] }).compact
 	end
 	
 
