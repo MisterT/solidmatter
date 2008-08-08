@@ -101,7 +101,7 @@ end
 
 
 class MeasureEntry < Gtk::VBox
-	def initialize( label )
+	def initialize( label=nil )
 		super false
 		@entry = Gtk::SpinButton.new( 0, 10, 0.05 )
 		@btn = Gtk::Button.new
@@ -113,8 +113,10 @@ class MeasureEntry < Gtk::VBox
 		add hbox
 		hbox.add @entry
 		hbox.add @btn
-		@label = Gtk::Label.new label
-		add @label
+		if label
+		  @label = Gtk::Label.new label
+		  add @label
+	  end
 		# create popup menu
 		menu = Gtk::Menu.new
 		[Gtk::MenuItem.new(GetText._("Measure value")),
@@ -136,5 +138,51 @@ class MeasureEntry < Gtk::VBox
 	 @entry.signal_connect('value_changed'){|w| yield w.value }
 	end
 end
+
+
+class FloatingEntry < Gtk::Window
+  def initialize( x,y, value )
+    super()
+    # set style
+    #self.modal = true
+    self.transient_for = $manager.main_win
+    self.keep_above = true
+    self.decorated = false
+    # create widgets
+    main_box = Gtk::HBox.new false
+		add main_box
+		entry = MeasureEntry.new
+		entry.value = value
+		main_box.add entry
+		ok_btn = Gtk::Button.new 
+		ok_btn.image = Gtk::Image.new(Gtk::Stock::APPLY, Gtk::IconSize::MENU)
+		ok_btn.relief = Gtk::RELIEF_NONE
+		main_box.add ok_btn
+		cancel_btn = Gtk::Button.new
+		cancel_btn.image = Gtk::Image.new(Gtk::Stock::CLOSE, Gtk::IconSize::MENU)
+		cancel_btn.relief = Gtk::RELIEF_NONE
+		main_box.add cancel_btn
+		# connect actions
+		ok_btn.signal_connect('clicked'){ yield entry.value if block_given? ; destroy }
+		cancel_btn.signal_connect('clicked'){ yield value ; destroy }
+		entry.on_change_value{ yield entry.value if block_given? }
+		# position right next to cursor
+		x,y = convert2screen( x,y )
+    move( x,y )
+    show_all
+    # we position again after showing, as the window manager may ignore the first call
+    move( x,y )
+  end
+  
+  # convert glview to screen coords
+  def convert2screen( x,y )
+    win = $manager.main_win
+    glv = $manager.glview
+    x_offset = win.allocation.width - glv.allocation.width
+    y_offset = win.allocation.height - glv.parent.allocation.height
+    return $manager.main_win.position.first + x + x_offset, $manager.main_win.position.last + y + y_offset
+  end
+end
+
 
 

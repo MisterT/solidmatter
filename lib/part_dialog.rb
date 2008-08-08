@@ -26,7 +26,7 @@ class PartInformationDialog
 	  @manager.materials.each{|m| combo.append_text m.name }
 	  combo.active = @manager.materials.index @info[:material]
 	  # set multi-user status
-	  
+	  @glade['part_dialog'].transient_for = $manager.main_win
   end
   
   def ok_handle w 

@@ -30,6 +30,7 @@ Gtk.main_with_queue 100
 # undo/redo stack
 # vererbung von parts
 # use gtkuimanager for the menu
+# use gtkbuilder instead of libglade
 # extrusion toolbar wird nicht auf aktuellen depthwert gesetzt
 # op_view klappzustand speichern
 # direkt die iters manipulieren in server_win damit beim update scrollstand erhalten belibt
@@ -50,4 +51,5 @@ Gtk.main_with_queue 100
 # polygon from chain should tesselate segments => dann RegionTool#init verändern und poly aus regionstruct nehmen
 # typechecking => Bekommen faces WorkingPlanes zugewiesen?
 # unterscheidung von instanzen bei selection unmöglich da beide die selbe displaylist haben
+# rebuild selectionpasscolors sollte für alle objekttypen farben erstellen, nur select sollte nach typ unterscheiden
 

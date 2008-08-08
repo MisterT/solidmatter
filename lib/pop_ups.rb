@@ -99,7 +99,10 @@ class OperatorMenu < Gtk::Menu
 		]
 		# edit dimensions
 		items[0].signal_connect("activate") do
-		  operator.show_dimensions
+		  sk = operator.settings[:sketch]
+		  dims = (operator.dimensions + (sk ? sk.dimensions : [])).flatten
+		  dims.each{|d| d.visible = true }
+		  $manager.glview.redraw
 		end
 		# edit operators
 		items[1].signal_connect("activate") do

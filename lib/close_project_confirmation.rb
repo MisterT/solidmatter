@@ -13,6 +13,7 @@ class CloseProjectConfirmation
     @glade['main_label'].markup = "<b>" + GetText._("Save changes to ") + "'#{manager.project_name}'?</b>"
     if manager.has_been_changed
       @glade['close_project_confirmation'].show_all
+      @glade['close_project_confirmation'].transient_for = $manager.main_win
     else
       close
     end

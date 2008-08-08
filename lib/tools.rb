@@ -909,7 +909,7 @@ class EditSketchTool < SketchTool
 		    @selection = [sel]
 	    end
 	  when Dimension
-	    #XXX
+	    FloatingEntry.new( x,y, sel.value ){|value| sel.value = value }
 	  else
 	    @manager.selection.deselect_all
 	    @selection = nil
@@ -923,7 +923,7 @@ class EditSketchTool < SketchTool
     @does_snap = true
     pos = @glview.screen2world( x,y )
     new_selection = @glview.select( x,y )
-    if pos
+    if pos and not new_selection.is_a? Dimension
       pos = world2sketch(pos)
       @drag_start = @draw_points.empty? ? pos : @draw_points.first.dup
     	@old_draw_points = Marshal.load(Marshal.dump( @draw_points ))

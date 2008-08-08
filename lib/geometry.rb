@@ -573,6 +573,10 @@ class Dimension
   	GL.PopMatrix
   end
   
+  def value
+    raise "Dimension #{self} cannot report its value"
+  end
+  
   def draw
     c = @selection_pass ? @selection_pass_color : [0.85, 0.5, 0.99]
     GL.Color3f( *c )
@@ -586,9 +590,15 @@ class RadialDimension < Dimension
     @direction = arc.center.vector_to(position).normalize
   end
   
-  def radius= val
+  def value
+     @arc.radius
+  end
+  
+  def value= val
     @arc.radius = val
     @arc.sketch.build_displaylist
+    @arc.sketch.parent.build( @arc.sketch.op ) if @arc.sketch.op
+    $manager.glview.redraw
   end
   
   def draw
