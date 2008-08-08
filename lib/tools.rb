@@ -470,7 +470,7 @@ class SketchTool < Tool
 	
 	def resume
 	  super
-	  @glview.rebuild_selection_pass_colors :select_segments
+	  @glview.rebuild_selection_pass_colors :select_segments_and_dimensions
 	end
 	
 	# snap points to guides, then to other points, then to grid
@@ -681,6 +681,11 @@ class LineTool < SketchTool
 		@glview.redraw
 	end
 	
+	def pause
+	  super
+	  @manager.glview.window.cursor = nil
+	end
+	
 	def resume
 	  super
 	  @manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if @manager.glview.window
@@ -830,8 +835,9 @@ class DimensionTool < SketchTool
 	def click_left( x,y )
 	  super
     if dim = dimension_for( @selected_segments, x,y )
+      dim.visible = true
       @sketch.dimensions << dim
-      @sketch.build_displaylist
+      #@sketch.build_displaylist
       @manager.cancel_current_tool
       @glview.redraw
     else
@@ -893,7 +899,8 @@ class EditSketchTool < SketchTool
 	def click_left( x,y )
 	  super
 	  sel = @glview.select( x,y )
-	 	if sel
+	 	case sel
+	 	when Segment
 	 	  if @manager.key_pressed? :Shift
 	 	    @manager.selection.add sel
 	 	    @selection ? (@selection.push sel) : (@selection = [])
@@ -901,6 +908,8 @@ class EditSketchTool < SketchTool
 	 	    @manager.selection.select sel
 		    @selection = [sel]
 	    end
+	  when Dimension
+	    #XXX
 	  else
 	    @manager.selection.deselect_all
 	    @selection = nil

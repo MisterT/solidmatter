@@ -3,6 +3,7 @@
 #  Created by Björn Breitgoff on 2008-02-06.
 #  Copyright (c) 2008. All rights reserved.
 
+require 'rubygems'
 require 'server_win.rb'
 require 'about_dialog'
 require 'preferences'

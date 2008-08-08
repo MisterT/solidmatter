@@ -15,9 +15,11 @@ require 'assembly_dialog.rb'
 require 'progress_dialog.rb'
 
 
+
 module Selectable
 	attr_accessor :selection_pass_color, :selected
 end
+
 
 def bounding_box_from points
 	xs = points.map{|p| p.x }
@@ -46,6 +48,7 @@ class Point
 		@y = y
 	end
 end
+
 
 class InfiniteLine
   def initialize( pos, dir )
@@ -91,7 +94,6 @@ class Segment
   end
 end
 
-
 class Line < Segment
 	attr_accessor :pos1, :pos2
 	def initialize( start, ende, sketch=nil )
@@ -99,7 +101,7 @@ class Line < Segment
 		@pos1 = start.dup
 		@pos2 = ende.dup
 	end
-	
+
 	def own_and_neighbooring_points
 	  points = []
 	  for seg in @sketch.segments
@@ -115,30 +117,30 @@ class Line < Segment
 	def bounding_box
 		return bounding_box_from [@pos1, @pos2]
 	end
-	
+
 	def midpoint
 		(@pos1 + @pos2) / 2.0
 	end
-	
+
 	def snap_points
 		super + [pos1, pos2, midpoint]
 	end
-	
+
 	def tesselate
 	  [self]
 	end
-	
+
 	def draw
     GL.Begin( GL::LINES )
       GL.Vertex( @pos1.x, @pos1.y, @pos1.z )
       GL.Vertex( @pos2.x, @pos2.y, @pos2.z )
     GL.End
 	end
-	
+
 	def +( vec )
 	  Line.new( @pos1 + vec, @pos2 + vec, @sketch )
   end
-	
+
 	def dup
     copy = super
     copy.pos1 = @pos1.dup
@@ -146,7 +148,6 @@ class Line < Segment
     copy
 	end
 end
-
 
 class Arc < Segment
   attr_accessor :center, :radius, :start_angle, :end_angle, :points
@@ -288,7 +289,6 @@ class Plane
 			@v_vec = plane.v_vec
 	end
 end
-
 
 class WorkingPlane < Plane
   include Selectable
@@ -482,10 +482,10 @@ module ChainCompletion
 end
 
 
-
 class Sketch
 	include ChainCompletion
-	attr_accessor :name, :parent, :op, :selection_pass, :visible, :selected, :glview, :displaylist, :segments, :plane, :dimensions
+	attr_accessor :name, :parent, :op, :selection_pass, :selected, :glview, :displaylist, :segments, :plane, :dimensions
+	attr_reader :visible
 	@@sketchcolor = [0,1,0]
 	def initialize( name, parent, plane, glview )
 		@name = name
@@ -502,6 +502,11 @@ class Sketch
     @selected = false
 		@selection_pass = false
 	end
+	
+	def visible= bool
+	  @dimensions.each{|dim| dim.visible = bool }
+	  @visible = bool
+	end
 
 	def build_displaylist
 		GL.NewList( @displaylist, GL::COMPILE)
@@ -517,9 +522,9 @@ class Sketch
 			  end
 			  seg.draw
 		  end
-		  for dim in @dimensions
-		    dim.draw
-		  end
+		#  for dim in @dimensions
+		#    dim.draw
+		#  end
 		GL.EndList	
 	end
 	
@@ -545,7 +550,10 @@ class Sketch
 	end
 end
 
+
 class Dimension
+  include Selectable
+  attr_accessor :selection_pass, :visible
   def self.draw_arrow( *points )
 		GL.Begin( GL::LINE_STRIP )
 			for p in points.flatten
@@ -557,13 +565,18 @@ class Dimension
   end
   
   def self.draw_text( t, pos )
-    GL.RasterPos3d(pos.x, pos.y, pos.z)
-  	t.each_byte{|b| Glut.glutBitmapCharacter(Glut::GLUT_BITMAP_9_BY_15, b) }
+    GL.PushMatrix
+      GL.Translate( pos.x, pos.y, pos.z )
+      GL.Scale(0.0005, 0.0005, 0.0005)
+      GL.Rotate(-90,1,0,0)
+    	t.each_byte{|b| GLUT.StrokeCharacter(GLUT::STROKE_ROMAN, b) }
+  	GL.PopMatrix
   end
   
   def draw
-    GL.Color3f(0.85, 0.5, 0.99)
-    GL.LineWidth(2.0)
+    c = @selection_pass ? @selection_pass_color : [0.85, 0.5, 0.99]
+    GL.Color3f( *c )
+    GL.LineWidth( @selection_pass ? 6.0 : 3.0 )
   end
 end
 
@@ -585,7 +598,7 @@ class RadialDimension < Dimension
     pos1 = Vector[pos2.x + $preferences[:dimension_offset], pos2.y, pos2.z]
     pl = @arc.sketch.plane
     Dimension.draw_arrow( Tool.sketch2world(pos1, pl), Tool.sketch2world(pos2, pl), Tool.sketch2world(pos3, pl) )
-    Dimension.draw_text( "R#{ @arc.radius.to_s.gsub(/.[0-9]+/){|m| puts m ; m[0..4]} }", Tool.sketch2world(pos2, pl) )
+    Dimension.draw_text( "R#{ @arc.radius.to_s.gsub(/.[0-9]+/){|m| m[0..$preferences[:decimal_places]]} }", Tool.sketch2world(pos2, pl) )
   end
 end
 
@@ -914,7 +927,7 @@ end
 
 # abstract base class for operators
 class Operator
-	attr_reader :settings, :solid, :part
+	attr_reader :settings, :solid, :part, :dimensions
 	attr_accessor :name, :enabled, :previous, :manager, :toolbar
 	def initialize( part, manager )
 		@name ||= "operator"
@@ -923,6 +936,7 @@ class Operator
 		@solid = nil
 		@part = part
 		@manager = manager
+		@dimensions = []
 		@enabled = true
 		@previous = nil
 		create_toolbar
@@ -967,19 +981,6 @@ class Operator
 	def cancel
 		@settings = @save_settings
 		ok
-	end
-  
-	def show_dimensions
-	  @dimension_drawer = lambda do
-	    for dim in (@settings[:sketch].dimension + @dimensions)
-	      dim.draw
-	    end
-	  end
-	  $manager.glview.immediate_draw_routines.push @dimension_drawer
-	end
-	
-	def hide_dimensions
-	  $manager.glview.immediate_draw_routines.delete @dimension_drawer
 	end
 
 	def create_toolbar
@@ -1037,7 +1038,6 @@ class Component
 	  information[:name]
 	end
 end
-
 
 class Part < Component
   attr_accessor :manager, :displaylist, :wire_displaylist, :selection_displaylist, :history_limit, :solid, :information
@@ -1155,13 +1155,9 @@ class Part < Component
   		all_segs = @solid.faces.map{|face| face.segments }.flatten
   		GL.Disable(GL::LIGHTING)
   		GL.LineWidth( 1.5 )
-  		#GL.Begin( GL::LINES )
   			for seg in all_segs
   			  seg.draw
-  				#GL.Vertex( seg.pos1.x, seg.pos1.y, seg.pos1.z )
-  				#GL.Vertex( seg.pos2.x, seg.pos2.y, seg.pos2.z )
   			end
-  		#GL.End
 		GL.EndList
 	end
 	
@@ -1196,6 +1192,10 @@ class Part < Component
 	  @solid.volume * @information[:material].density
 	end
 	
+	def dimensions
+	  (all_sketches.map{|sk| sk.dimensions } + @operators.map{|op| op.dimensions }).flatten.uniq
+	end
+	
 	def clean_up
 		@manager.glview.delete_displaylist @displaylist
 		@manager.glview.delete_displaylist @wire_displaylist
@@ -1222,7 +1222,6 @@ class Part < Component
 		@selection_displaylist = @manager.glview.add_displaylist
 	end
 end
-
 
 class Assembly < Component
 	attr_accessor :components, :manager
@@ -1288,7 +1287,12 @@ class Assembly < Component
 	def bounding_box
 		@components.map{|c| c.bounding_box }.flatten.compact
 	end
+	
+	def dimensions
+	  @components.map{|c| c.dimensions }.flatten
+	end
 end
+
 
 class Instance
   include Selectable

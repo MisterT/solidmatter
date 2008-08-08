@@ -11,12 +11,12 @@ module Units
   }
 
   def enunit( value, power=1, usys=$manager.unit_system )
-    power.times{ value *= CONVERSION_FACTORS[usys] }
+    power.times{ value *= CONVERSION_FACTORS[usys.to_sym] }
     value.to_s + usys.to_s + (power > 1 ? power.to_s : '')
   end
 
   def ununit( value, power=1, usys=$manager.unit_system )
-    power.times{ value /= CONVERSION_FACTORS[usys] }
+    power.times{ value /= CONVERSION_FACTORS[usys.to_sym] }
     value
   end
 end

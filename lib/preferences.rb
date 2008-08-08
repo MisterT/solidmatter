@@ -34,7 +34,8 @@ $preferences = {
 	:area_samples => 500,
 	:dimension_offset => 0.1,
 	:server_port => 50010,
-	:default_unit_system => :mm
+	:default_unit_system => 'mm',
+	:decimal_places => 2
 }
 
 $non_gconf_types = [Bookmark]

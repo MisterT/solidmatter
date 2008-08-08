@@ -67,7 +67,7 @@ class Camera
 	
 	def look_at_plane( plane=Plane.new )
     @target = plane.origin
-    @position = plane.origin + plane.normal_vector * 3 + Vector[0,0,-0.1]
+    @position = plane.origin + plane.normal_vector * 3 + Vector[0,0,0.1]
 	end
 
 	def rotate_around_up( value )
@@ -353,15 +353,14 @@ class GLView < Gtk::DrawingArea
 			GL.ShadeModel(GL::SMOOTH)
 			GL.Enable(GL::TEXTURE_2D)
 			GL.Enable(GL::DITHER)
+			GL.Enable(GL::BLEND)
+			GL.BlendFunc(GL::SRC_ALPHA, GL::ONE_MINUS_SRC_ALPHA)
 			# setup line antialiasing
 			if $preferences[:anti_aliasing]
 				GL.Enable(GL::LINE_SMOOTH)
-	  		GL.Enable(GL::BLEND)
-				GL.BlendFunc(GL::SRC_ALPHA, GL::ONE_MINUS_SRC_ALPHA)
 				GL.Hint(GL::LINE_SMOOTH_HINT, GL::NICEST)
 			else
 				GL.Disable(GL::LINE_SMOOTH)
-	  		GL.Disable(GL::BLEND)
 			end
 		end
 	end
@@ -408,7 +407,8 @@ class GLView < Gtk::DrawingArea
 			GL.Disable(GL::LIGHTING)
 			draw_coordinate_axes unless @do_not_swap
 			GL.LineStipple(5, 0x1C47)
-			recurse_draw( @manager.main_assembly )
+			recurse_draw @manager.main_assembly
+			$manager.work_component.dimensions.each{|dim| recurse_draw dim }
 			# draw 3d interface stuff
 			GL.Disable(GL::LIGHTING)
 			@immediate_draw_routines.each{|r| r.call } unless @selection_pass or @picking_pass
@@ -477,6 +477,11 @@ class GLView < Gtk::DrawingArea
   			GL.Disable(GL::POLYGON_OFFSET_FILL)
   			GL.CallList( (@picking_pass or @selection_pass == :select_planes or @selection_pass == :select_faces_and_planes) ? top_comp.pick_displaylist : top_comp.displaylist )
   			GL.Enable(GL::POLYGON_OFFSET_FILL)
+  		### ---------------------- Dimension ---------------------- ###
+  		elsif top_comp.is_a? Dimension
+  		  top_comp.selection_pass = true if @selection_pass
+  		  top_comp.draw
+  		  top_comp.selection_pass = false
   		end
   		GL.PopMatrix
 	  end
@@ -531,23 +536,28 @@ class GLView < Gtk::DrawingArea
 	
 	def rebuild_selection_pass_colors type=nil
 	  if type or @manager.current_tool.is_a?(SelectionTool)
-  	 	if @manager.work_sketch
-  		  @selectables = @manager.work_sketch.segments 
-  	  else
-  	    case type or @manager.current_tool.selection_mode
-  	    when :select_faces
-  	      @selectables = @manager.all_part_instances.select{|inst| inst.visible }.map{|inst| inst.solid.faces }.flatten
-  	    when :select_planes
-  	      @selectables = @manager.work_component.working_planes
-  	    when :select_faces_and_planes
-  	    	@selectables = @manager.work_component.working_planes
-  	      @selectables += @manager.all_part_instances.select{|inst| inst.visible }.map{|inst| inst.solid.faces }.flatten
-        when :select_instances
-          @selectables = @manager.all_part_instances.select{|inst| inst.visible }
-        when :select_segments
+	    case type or @manager.current_tool.selection_mode
+	    when :select_faces
+	      @selectables = @manager.all_part_instances.select{|inst| inst.visible }.map{|inst| inst.solid.faces }.flatten
+	    when :select_planes
+	      @selectables = @manager.work_component.working_planes
+	    when :select_faces_and_planes
+	    	@selectables = @manager.work_component.working_planes.dup
+	      @selectables += @manager.all_part_instances.select{|inst| inst.visible }.map{|inst| inst.solid.faces }.flatten
+      when :select_instances
+        @selectables = @manager.all_part_instances.select{|inst| inst.visible }
+      when :select_segments
+        if @manager.work_sketch
+    		  @selectables = @manager.work_sketch.segments
+    		else
           @selectables = @manager.work_component.unused_sketches.map{|sk| sk.segments }.flatten if @manager.work_component.class == Part
-  	    end
-      end
+        end
+      when :select_dimensions
+        @selectables = @manager.work_component.dimensions
+      when :select_segments_and_dimensions
+        @selectables = @manager.work_sketch.segments.dup
+        @selectables += @manager.work_component.dimensions
+	    end
       # create colors to represent selectable objects
   		current_color = [0, 0, 0]
   		@color_increment = 1.0 / 255
