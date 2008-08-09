@@ -52,4 +52,4 @@ Gtk.main_with_queue 100
 # typechecking => Bekommen faces WorkingPlanes zugewiesen?
 # unterscheidung von instanzen bei selection unmöglich da beide die selbe displaylist haben
 # rebuild selectionpasscolors sollte für alle objekttypen farben erstellen, nur select sollte nach typ unterscheiden
-
+# linetool erstellt constraint nur für letzten punkt

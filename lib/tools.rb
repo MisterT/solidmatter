@@ -649,6 +649,11 @@ class SketchTool < Tool
 	def sketch2world( v )
     Tool.sketch2world( v, @sketch.plane)
 	end
+	
+	def exit
+	  super
+	  @sketch.update_constraints
+	end
 end
 
 
@@ -662,8 +667,11 @@ class LineTool < SketchTool
 	def click_left( x,y )
 	  super
 		if @temp_line
-			@sketch.segments.push @temp_line unless @temp_line.pos1 == @temp_line.pos2
-			@sketch.build_displaylist
+		  unless @temp_line.pos1 == @temp_line.pos2
+			  @sketch.segments << @temp_line 
+			  @sketch.constraints << CoincidentConstraint.new( @temp_line.pos2, @draw_dot ) if @draw_dot
+			  @sketch.build_displaylist
+		  end
 		end
     @last_point, dummy = snapped( x,y )
     @last_reference_points.push @last_point
@@ -702,7 +710,6 @@ class ArcTool < SketchTool
 	end
 
 	def click_left( x,y )
-	  super
 	  point, was_snapped = snapped( x,y )
 	  if point
       case @step
@@ -725,6 +732,7 @@ class ArcTool < SketchTool
       end
       @step += 1
     end
+    super
 	end
 
 	def mouse_move( x,y )
@@ -756,7 +764,6 @@ class CircleTool < SketchTool
 	end
 	
 	def click_left( x,y )
-	  super
 	  point, was_snapped = snapped( x,y )
 	  if point
       case @step
@@ -771,6 +778,7 @@ class CircleTool < SketchTool
       end
       @step += 1
     end
+    super
 	end
 
 	def mouse_move( x,y )
@@ -797,7 +805,6 @@ class TwoPointCircleTool < SketchTool
 	end
 	
 	def click_left( x,y )
-	  super
 	  point, was_snapped = snapped( x,y )
 	  if point
       case @step
@@ -811,6 +818,7 @@ class TwoPointCircleTool < SketchTool
       end
       @step += 1
     end
+    super
 	end
 
 	def mouse_move( x,y )
@@ -833,11 +841,9 @@ class DimensionTool < SketchTool
 	end
 	
 	def click_left( x,y )
-	  super
     if dim = dimension_for( @selected_segments, x,y )
       dim.visible = true
-      @sketch.dimensions << dim
-      #@sketch.build_displaylist
+      @sketch.constraints << dim
       @manager.cancel_current_tool
       @glview.redraw
     else
@@ -860,12 +866,18 @@ class DimensionTool < SketchTool
 	      end
 	    end
 	  end
+	  super
 	end
 	
 	def dimension_for( seg_or_points, x,y )
 	  if seg_or_points.is_a? Arc
 	    pos = @glview.screen2world( x,y )
-	    return pos ? RadialDimension.new( seg_or_points, world2sketch(pos) ) : nil
+	    return RadialDimension.new( seg_or_points, world2sketch(pos) ) if pos
+	    return nil
+    elsif seg_or_points.is_a? Line
+      pos = @glview.screen2world( x,y )
+	    return LinearDimension.new( seg_or_points, :horizontal, world2sketch(pos) ) if pos
+      return nil
     elsif seg_or_points.is_a? Array and seg_or_points.size == 2
       #XXX create linear dimension
       return nil
@@ -897,7 +909,6 @@ class EditSketchTool < SketchTool
 	end
 	
 	def click_left( x,y )
-	  super
 	  sel = @glview.select( x,y )
 	 	case sel
 	 	when Segment
@@ -909,13 +920,19 @@ class EditSketchTool < SketchTool
 		    @selection = [sel]
 	    end
 	  when Dimension
-	    FloatingEntry.new( x,y, sel.value ){|value| sel.value = value }
+	    FloatingEntry.new( x,y, sel.value ) do |value| 
+	      sel.value = value
+	      @sketch.update_constraints
+	      @sketch.build_displaylist
+	      @glview.redraw
+      end
 	  else
 	    @manager.selection.deselect_all
 	    @selection = nil
 		end
 		@sketch.build_displaylist
 		@glview.redraw
+		super
 	end
 	
   def press_left( x,y )
@@ -967,16 +984,8 @@ class EditSketchTool < SketchTool
 	def release_left
 	  super
 	  @does_snap = false
-	  # close loops that broke because of imprecision
-	  for dynamic_pos in @sketch.segments.select{|s| s.is_a? Line }.map{|line| [line.pos1, line.pos2] }.flatten
-	  	for static_pos in @sketch.segments.select{|s| not s.is_a? Line }.map{|seg| seg.snap_points }.flatten
-	  		if dynamic_pos.near_to static_pos
-	  			dynamic_pos.x = static_pos.x
-	  			dynamic_pos.y = static_pos.y
-	  			dynamic_pos.z = static_pos.z
-	  		end
-	  	end
-	  end
+    @sketch.close_broken_loops
+    #@sketch.update_constraints
   end
   
   def mouse_move( x,y, only_super=false, excluded=[] )

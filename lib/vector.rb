@@ -20,15 +20,15 @@ class Vector
   end
   
 	def x
-		self[0]
+		@elements[0]
 	end
 	
 	def y
-		self[1]
+		@elements[1]
 	end
 	
 	def z
-		self[2]
+		@elements[2]
 	end
 	
 	def x=(v)
@@ -55,9 +55,9 @@ class Vector
 	
 	def cross_product(vec)
 		Vector[
-			(self[1] * vec[2]) - (self[2] * vec[1]),
-			(self[2] * vec[0]) - (self[0] * vec[2]),
-			(self[0] * vec[1]) - (self[1] * vec[0])
+			(@elements[1] * vec[2]) - (@elements[2] * vec[1]),
+			(@elements[2] * vec[0]) - (@elements[0] * vec[2]),
+			(@elements[0] * vec[1]) - (@elements[1] * vec[0])
 		]
 	end
 	
@@ -108,6 +108,10 @@ class Vector
 		distance_to(other) < $preferences[:merge_threshold]
 	end
 	
+	def take_coords_from vec
+	  vec.elements.size.times{|i| @elements[i] = vec[i] }
+	end
+	
 	def project_xy
 	 Vector[ self[0], self[1], 0 ]
 	end
@@ -125,6 +129,12 @@ class Vector
 	  copy.elements = @elements.dup
 	  return copy
 	end
+end
+
+class Numeric
+  def nearly_equals other
+    (self - other).abs < $preferences[:merge_threshold]
+  end
 end
 
 

@@ -9,6 +9,7 @@ require 'opengl'
 require 'glut'
 Glut.glutInit
 require 'matrix.rb'
+require 'units.rb'
 require 'material_editor.rb'
 require 'part_dialog.rb'
 require 'assembly_dialog.rb'
@@ -42,11 +43,21 @@ end
 
 
 class Point
-	attr_accessor :x, :y
+	attr_accessor :x, :y, :constraints
 	def initialize( x=0, y=0 )
 		@x = x
 		@y = y
+		@constraints = []
 	end
+end
+
+
+class Vector # should be discarded in favor of point
+  attr_writer :constraints
+  def constraints
+    @constraints ||= []
+    @constraints
+  end
 end
 
 
@@ -58,18 +69,19 @@ class InfiniteLine
   
   def intersect_with plane
     po, pn = plane.origin, plane.normal
-    t = (po-@pos).dot_product(pn) / @dir.dot_product(pn)
-    @pos + (t*@dir)
+    t = (po - @pos).dot_product(pn) / @dir.dot_product(pn)
+    @pos + (t * @dir)
   end
 end
 
 
 class Segment
   include Selectable
-	attr_accessor :reference, :sketch, :resolution
+	attr_accessor :reference, :sketch, :resolution, :constraints
   def initialize( sketch )
 		@sketch = sketch
 		@reference = false
+		@constraints = []
 		@selection_pass_color = [1.0, 1.0, 1.0]
   end
   
@@ -90,7 +102,7 @@ class Segment
   end
   
   def draw
-    raise "Segment is not able to draw itself"
+    raise "Segment #{self} is not able to draw itself"
   end
 end
 
@@ -128,6 +140,10 @@ class Line < Segment
 
 	def tesselate
 	  [self]
+	end
+	
+	def length
+	  @pos1.vector_to(@pos2).length
 	end
 
 	def draw
@@ -479,12 +495,26 @@ module ChainCompletion
     end
 		return ordered_polys.reverse
 	end
+	
+	# close loops that broke because of imprecision
+	def close_broken_loops
+	  for dynamic_pos in @segments.select{|s| s.is_a? Line }.map{|line| [line.pos1, line.pos2] }.flatten
+	  	for static_pos in @segments.select{|s| not s.is_a? Line }.map{|seg| seg.snap_points }.flatten
+	  		if dynamic_pos.near_to static_pos
+	  			dynamic_pos.x = static_pos.x
+	  			dynamic_pos.y = static_pos.y
+	  			dynamic_pos.z = static_pos.z
+	  		end
+	  	end
+	  end
+	end
+	alias repair_broken_loops close_broken_loops
 end
 
 
 class Sketch
 	include ChainCompletion
-	attr_accessor :name, :parent, :op, :selection_pass, :selected, :glview, :displaylist, :segments, :plane, :dimensions
+	attr_accessor :name, :parent, :op, :selection_pass, :selected, :glview, :displaylist, :segments, :plane, :constraints
 	attr_reader :visible
 	@@sketchcolor = [0,1,0]
 	def initialize( name, parent, plane, glview )
@@ -493,7 +523,7 @@ class Sketch
 		@op = nil
 		@glview = glview
 		@segments = []
-		@dimensions = []
+		@constraints = []
 		@plane = WorkingPlane.new( glview, parent, plane )
 		@plane_id = parent.solid.faces.map{|f| (f.is_a? PlanarFace) ? f.plane : nil }.compact.index plane
 		parent.working_planes.push @plane
@@ -504,8 +534,12 @@ class Sketch
 	end
 	
 	def visible= bool
-	  @dimensions.each{|dim| dim.visible = bool }
+	  @constraints.each{|c| c.visible = bool }
 	  @visible = bool
+	end
+	
+	def dimensions
+	  @constraints.select{|c| c.is_a? Dimension }
 	end
 
 	def build_displaylist
@@ -536,6 +570,19 @@ class Sketch
 		end
 	end
 	
+	def update_constraints immutable_obj=nil
+	  #constraints = immutable_obj.constraints
+	  changed = true
+	  safety = 200
+	  while changed and safety > 0
+	    changed = false
+	    @constraints.each{|c| changed = true if c.update immutable_obj }
+	    #constraints = constraints.map{|c| c.connected_constraints }.flatten.uniq
+	    safety -= 1
+    end
+    safety != 0
+	end
+	
 	def clean_up
 		@glview.delete_displaylist @displaylist
 		@displaylist = nil
@@ -546,22 +593,65 @@ class Sketch
 	  copy.displaylist = @glview.add_displaylist
 	  copy.op = nil
 	  copy.segments = @segments.dup
+	  copy.constraints = []
 	  copy
 	end
 end
 
 
-class Dimension
+class SketchConstraint
   include Selectable
   attr_accessor :selection_pass, :visible
-  def self.draw_arrow( *points )
+  def connected_constraints
+    constrained_objects.map{|o| o.constraints }.flatten - [self]
+  end
+  
+  def constrained_objects
+    raise "#{self.class} does not constrain objects"
+  end
+end
+
+class CoincidentConstraint < SketchConstraint
+  def initialize( p1, p2 )
+    super()
+    @p1 = p1
+    @p2 = p2
+    p1.constraints << self
+    p2.constraints << self
+  end
+  
+  def constrained_objects
+    [@p1, @p2]
+  end
+  
+  def update immutable_obj=nil
+    if @p1 == @p2
+      return false
+    else
+      objs = constrained_objects
+      if objs.include? immutable_obj
+        mutable_obj = (objs - [immutable_obj])[0]
+        mutable_obj.take_coords_from immutable_obj
+      else
+        rand > 0.5 ? @p2.take_coords_from(@p1) : @p1.take_coords_from(@p2)
+      end
+      return true
+    end
+  end
+end
+
+class Dimension < SketchConstraint
+  include Units
+  def self.draw_arrow( points, draw_tip=true )
 		GL.Begin( GL::LINE_STRIP )
 			for p in points.flatten
 		  	GL.Vertex(p.x, p.y, p.z)
 		  end
 		GL.End
-    p = points.last
-    #XXX
+    if draw_tip  
+      p = points.last
+      #XXX
+    end
   end
   
   def self.draw_text( t, pos )
@@ -577,6 +667,22 @@ class Dimension
     raise "Dimension #{self} cannot report its value"
   end
   
+  def value= val
+    # descandand code here
+    sk = constrained_objects.first.sketch
+    if sk.update_constraints
+      sk.build_displaylist
+      sk.parent.build( sk.op ) if sk.op
+      $manager.glview.redraw
+      true
+    end
+    false
+  end
+  
+  def update immutable_obj=nil
+    
+  end
+  
   def draw
     c = @selection_pass ? @selection_pass_color : [0.85, 0.5, 0.99]
     GL.Color3f( *c )
@@ -586,8 +692,10 @@ end
 
 class RadialDimension < Dimension
   def initialize( arc, position )
+    super()
     @arc = arc
     @direction = arc.center.vector_to(position).normalize
+    @radius = value
   end
   
   def value
@@ -595,10 +703,22 @@ class RadialDimension < Dimension
   end
   
   def value= val
-    @arc.radius = val
-    @arc.sketch.build_displaylist
-    @arc.sketch.parent.build( @arc.sketch.op ) if @arc.sketch.op
-    $manager.glview.redraw
+    @radius = val
+    super
+  end
+  
+  def constrained_objects
+    [@arc]
+  end
+  
+  def update immutable_obj=nil
+    super
+    if @arc.radius == @radius
+      return false
+    else
+      @arc.radius = @radius
+      return true
+    end
   end
   
   def draw
@@ -607,8 +727,78 @@ class RadialDimension < Dimension
     pos2 = @arc.center + (@direction * (@arc.radius + $preferences[:dimension_offset]))
     pos1 = Vector[pos2.x + $preferences[:dimension_offset], pos2.y, pos2.z]
     pl = @arc.sketch.plane
-    Dimension.draw_arrow( Tool.sketch2world(pos1, pl), Tool.sketch2world(pos2, pl), Tool.sketch2world(pos3, pl) )
-    Dimension.draw_text( "R#{ @arc.radius.to_s.gsub(/.[0-9]+/){|m| m[0..$preferences[:decimal_places]]} }", Tool.sketch2world(pos2, pl) )
+    Dimension.draw_arrow [Tool.sketch2world(pos1, pl), Tool.sketch2world(pos2, pl), Tool.sketch2world(pos3, pl)]
+    Dimension.draw_text( "R#{enunit @arc.radius}", Tool.sketch2world(pos2, pl) )
+  end
+end
+
+class LinearDimension < Dimension
+  def initialize( line, orientation, pos )
+    super()
+    @line = line
+    @orientation = orientation
+    p1 = @line.pos1
+    p2 = @line.pos2
+    upper = [p1.z, p2.z].max
+    lower = [p1.z, p2.z].min
+    @offset = (pos.z > @line.midpoint.z ? pos.z - upper : pos.z - lower)
+    @length = value
+  end
+  
+  def value
+    if @orientation == :horizontal
+      (@line.pos1.x - @line.pos2.x).abs
+    elsif @orientation == :vertical
+      (@line.pos1.y - @line.pos2.y).abs
+    end
+  end
+  
+  def value= val
+    @length = val
+    super
+  end
+  
+  def update immutable_obj=nil
+    super
+    if @length.nearly_equals value
+      return false
+    else
+      diff = @length - value
+      @line.pos1.x -= diff/2.0
+      @line.pos2.x += diff/2.0
+      return true
+    end
+  end
+  
+  def constrained_objects
+    [@line]
+  end
+  
+  def draw
+    super
+    pl = @line.sketch.plane
+    p1 = Tool.sketch2world(@line.pos1, pl)
+    p2 = Tool.sketch2world(@line.pos2, pl)
+    left  = [p1.x, p2.x].min
+    right = [p1.x, p2.x].max
+    upper = [p1.z, p2.z].max
+    lower = [p1.z, p2.z].min
+    # draw boundaries
+    if @offset >= 0
+      lbound = [Vector[left,  p1.y, upper], Vector[left,  p1.y, upper + @offset]]
+      rbound = [Vector[right, p1.y, upper], Vector[right, p1.y, upper + @offset]]
+    else
+      lbound = [Vector[left,  p1.y, lower], Vector[left,  p1.y, lower + @offset]]
+      rbound = [Vector[right, p1.y, lower], Vector[right, p1.y, lower + @offset]]
+    end
+    Dimension.draw_arrow( lbound, false )
+    Dimension.draw_arrow( rbound, false )
+		# draw arrows
+		midpoint = lbound.last + lbound.last.vector_to(rbound.last) * 0.5
+    Dimension.draw_arrow [midpoint - Vector[0.01,0,0], lbound.last]
+    Dimension.draw_arrow [midpoint + Vector[0.01,0,0], rbound.last]
+    # draw text
+    Dimension.draw_text( enunit(value), midpoint )
   end
 end
 

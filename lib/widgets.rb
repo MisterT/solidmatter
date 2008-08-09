@@ -104,6 +104,8 @@ class MeasureEntry < Gtk::VBox
 	def initialize( label=nil )
 		super false
 		@entry = Gtk::SpinButton.new( 0, 10, 0.05 )
+		@entry.update_policy = Gtk::SpinButton::UPDATE_IF_VALID
+		@entry.activates_default = true
 		@btn = Gtk::Button.new
 		@btn.image = Gtk::Image.new('../data/icons/small/preferences-system_small.png')
 		@btn.relief = Gtk::RELIEF_NONE
@@ -148,6 +150,8 @@ class FloatingEntry < Gtk::Window
     self.transient_for = $manager.main_win
     self.keep_above = true
     self.decorated = false
+    self.skip_taskbar_hint = true
+    self.skip_pager_hint = true
     # create widgets
     main_box = Gtk::HBox.new false
 		add main_box
@@ -162,6 +166,10 @@ class FloatingEntry < Gtk::Window
 		cancel_btn.image = Gtk::Image.new(Gtk::Stock::CLOSE, Gtk::IconSize::MENU)
 		cancel_btn.relief = Gtk::RELIEF_NONE
 		main_box.add cancel_btn
+		# set ok button to react to pressing enter
+		ok_btn.can_default = true
+		ok_btn.has_default = true
+		self.default = ok_btn
 		# connect actions
 		ok_btn.signal_connect('clicked'){ yield entry.value if block_given? ; destroy }
 		cancel_btn.signal_connect('clicked'){ yield value ; destroy }
