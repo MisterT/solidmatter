@@ -599,46 +599,46 @@ class SketchTool < Tool
 	# draw guides as stippeled lines
 	def draw
     super
-    if @manager.use_sketch_guides and @does_snap
-      GL.Disable(GL::DEPTH_TEST)
-		  [@x_guide, @z_guide].compact.each do |guide|
-		    first = sketch2world(guide.first)
-		    last = sketch2world( guide.last )
-		    GL.Enable GL::LINE_STIPPLE
-		    GL.LineWidth(2)
-		    GL.Enable GL::LINE_STIPPLE
-				GL.LineStipple(5, 0x1C47)
-				GL.Color3f(0.5,0.5,1)
-				GL.Begin( GL::LINES )
-					GL.Vertex( first.x, first.y, first.z )
-					GL.Vertex( last.x, last.y, last.z )
-				GL.End
-				GL.Disable GL::LINE_STIPPLE
-				if @draw_dot
-					# draw dot at snap location
-					dot = sketch2world @draw_dot
-  				GL.Color3f(1,0.3,0.1)
-  				GL.PointSize(8.0)
-  				GL.Begin( GL::POINTS )
-  					GL.Vertex( dot.x, dot.y, dot.z )
-  				GL.End
-				end
-			end
-			GL.Enable(GL::DEPTH_TEST)
-			# draw additional temporary geometry
-			#XXX segs should draw themselves
-			for seg in @temp_segments
-  		  for micro_seg in seg.tesselate
-  			  GL.LineWidth(2)
-  			  GL.Color3f(1,1,1)
-  			  GL.Begin( GL::LINES )
-  			    pos1 = sketch2world( micro_seg.pos1 )
-  			    pos2 = sketch2world( micro_seg.pos2 )
-  				  GL.Vertex( pos1.x, pos1.y, pos1.z )
-  				  GL.Vertex( pos2.x, pos2.y, pos2.z )
-  			  GL.End
-  		  end
-  		end
+    GL.Disable(GL::DEPTH_TEST)
+    if @manager.use_sketch_guides
+      [@x_guide, @z_guide].compact.each do |guide|
+        first = sketch2world(guide.first)
+        last = sketch2world( guide.last )
+        GL.Enable GL::LINE_STIPPLE
+        GL.LineWidth(2)
+        GL.Enable GL::LINE_STIPPLE
+        GL.LineStipple(5, 0x1C47)
+        GL.Color3f(0.5,0.5,1)
+        GL.Begin( GL::LINES )
+	        GL.Vertex( first.x, first.y, first.z )
+	        GL.Vertex( last.x, last.y, last.z )
+        GL.End
+        GL.Disable GL::LINE_STIPPLE
+      end
+    end
+		if @manager.point_snap and @draw_dot
+      # draw dot at snap location
+      dot = sketch2world @draw_dot
+      GL.Color3f(1,0.3,0.1)
+      GL.PointSize(8.0)
+      GL.Begin( GL::POINTS )
+        GL.Vertex( dot.x, dot.y, dot.z )
+      GL.End
+		end
+	  GL.Enable(GL::DEPTH_TEST)
+	  # draw additional temporary geometry
+	  #XXX segs should draw themselves
+	  for seg in @temp_segments
+		  for micro_seg in seg.tesselate
+			  GL.LineWidth(2)
+			  GL.Color3f(1,1,1)
+			  GL.Begin( GL::LINES )
+			    pos1 = sketch2world( micro_seg.pos1 )
+			    pos2 = sketch2world( micro_seg.pos2 )
+				  GL.Vertex( pos1.x, pos1.y, pos1.z )
+				  GL.Vertex( pos2.x, pos2.y, pos2.z )
+			  GL.End
+		  end
 		end
 	end
 	
@@ -661,6 +661,7 @@ class LineTool < SketchTool
 	def initialize( glview, manager, sketch )
 		super( GetText._("Click left to create a point, middle click to move points:"), glview, manager, sketch )
 		@manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if @manager.glview.window
+		@first_line = true
 	end
 	
 	# add temporary line to sketch and add a new one
@@ -668,8 +669,11 @@ class LineTool < SketchTool
 	  super
 		if @temp_line
 		  unless @temp_line.pos1 == @temp_line.pos2
-			  @sketch.segments << @temp_line 
-			  @sketch.constraints << CoincidentConstraint.new( @temp_line.pos2, @draw_dot ) if @draw_dot
+			  snap_p, snapped = point_snapped( world2sketch( @glview.screen2world(x,y)))
+			  @sketch.constraints << CoincidentConstraint.new( @temp_line.pos2, snap_p ) if snapped
+			  @sketch.constraints << CoincidentConstraint.new( @temp_line.pos1, @sketch.segments.last.pos2 ) unless @first_line
+			  @sketch.segments << @temp_line
+			  @first_line = false
 			  @sketch.build_displaylist
 		  end
 		end
@@ -838,6 +842,7 @@ class DimensionTool < SketchTool
 		super( GetText._("Choose a segment or two points to add a dimension:"), glview, manager, sketch )
 		@points = []
 		@selected_segments = []
+		@does_snap = false
 	end
 	
 	def click_left( x,y )
@@ -848,13 +853,18 @@ class DimensionTool < SketchTool
       @glview.redraw
     else
       # use point instead of segment if we find one near
+=begin
       points = @sketch.segments.map{|s| s.snap_points }.flatten
   		points = points.select do |p|
   			dist = Point.new(x, @glview.allocation.height - y).distance_to @glview.world2screen(sketch2world p)
   			dist < $preferences[:snap_dist]
   		end
-  		if not points.empty?
-  		  @selected_segments << points.first
+=end
+  		p, was_snapped = point_snapped( world2sketch(@glview.screen2world(x,y)) )
+  		#if not points.empty?
+  		if was_snapped
+  		  #p = points.first
+  		  @selected_segments << p
   		  @manager.set_status_text( GetText._("Choose a point to position your dimension:") ) if @selected_segments.size == 2
 		  else
 		    # don't use segment if we have one point already
@@ -888,13 +898,15 @@ class DimensionTool < SketchTool
 	
 	def mouse_move( x,y )
   	super
-  	if dim = dimension_for( @selected_segments, x,y )
-  	  @temp_dim = dim
-  	  @glview.redraw
-		end
+  	p = @glview.screen2world(x,y)
+  	p, snapped = point_snapped( world2sketch(p) ) if p
+  	@draw_dot = snapped ? p : nil
+  	@temp_dim = dimension_for( @selected_segments, x,y )
+  	@glview.redraw
 	end
 	
 	def draw
+	  super
 	  @temp_dim.draw if @temp_dim
 	end
 end
@@ -971,9 +983,11 @@ class EditSketchTool < SketchTool
 		    end
 		  else
 			  @draw_points.zip( @old_draw_points ).each do |neu, original|
-			    neu.x = original.x + move.x
-			    neu.y = original.y + move.y
-			    neu.z = original.z + move.z
+			    if neu and original
+  			    neu.x = original.x + move.x
+			      neu.y = original.y + move.y
+			      neu.z = original.z + move.z
+			     end
 		    end
 		  end
 		  @sketch.build_displaylist
@@ -984,8 +998,8 @@ class EditSketchTool < SketchTool
 	def release_left
 	  super
 	  @does_snap = false
-    @sketch.close_broken_loops
-    #@sketch.update_constraints
+    #@sketch.close_broken_loops
+    @sketch.update_constraints
   end
   
   def mouse_move( x,y, only_super=false, excluded=[] )
@@ -1024,17 +1038,8 @@ class EditSketchTool < SketchTool
 	end
 	
 	def draw
-		super #XXX draw points may not need to be drawn here, as SketchTool already does this
-		unless @draw_points.empty?
-			point = sketch2world(@draw_points.first)
-			GL.Disable(GL::DEPTH_TEST)
-			GL.Color3f(1,0.3,0.1)
-			GL.PointSize(8.0)
-			GL.Begin( GL::POINTS )
-				GL.Vertex( point.x, point.y, point.z )
-			GL.End
-			GL.Enable(GL::DEPTH_TEST)
-		end
+	  @draw_dot = @draw_points.first
+		super
 	end
 end
 

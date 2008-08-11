@@ -574,10 +574,12 @@ class Sketch
 	  #constraints = immutable_obj.constraints
 	  changed = true
 	  safety = 200
+	  constraints = @constraints
 	  while changed and safety > 0
 	    changed = false
-	    @constraints.each{|c| changed = true if c.update immutable_obj }
+	    constraints.sort_by{rand}.each{|c| changed = true if c.update immutable_obj }
 	    #constraints = constraints.map{|c| c.connected_constraints }.flatten.uniq
+	    puts safety
 	    safety -= 1
     end
     safety != 0
