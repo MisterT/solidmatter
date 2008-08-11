@@ -123,6 +123,7 @@ class Line < Segment
         end
       end
     end
+    return [@pos1, @pos2]
     return points.uniq
   end
 
