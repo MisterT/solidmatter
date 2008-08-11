@@ -653,6 +653,7 @@ class SketchTool < Tool
 	def exit
 	  super
 	  @sketch.update_constraints
+	  @sketch.build_displaylist
 	end
 end
 
@@ -915,7 +916,6 @@ end
 class EditSketchTool < SketchTool
 	def initialize( glview, manager, sketch )
 		super( GetText._("Click left to select points, drag to move points, right click for options:"), glview, manager, sketch )
-		@draw_points = []
 		@does_snap = false
 		@points_to_drag = []
 	end
@@ -954,11 +954,11 @@ class EditSketchTool < SketchTool
     new_selection = @glview.select( x,y )
     if pos and not new_selection.is_a? Dimension
       pos = world2sketch(pos)
-      @drag_start = @draw_points.empty? ? pos : @draw_points.first.dup
-    	@old_draw_points = Marshal.load(Marshal.dump( @draw_points ))
+      @drag_start = @draw_dot ? @draw_dot.dup : pos
+    	@old_draw_dot = Marshal.load(Marshal.dump(@draw_dot))
     	# if drag starts on an already selected segment
 		  if @selection and @selection.include? new_selection	   
-		    @points_to_drag = @selection.map{|e| e.own_and_neighbooring_points }.flatten.uniq
+		    @points_to_drag = @selection.map{|e| e.dynamic_points }.flatten.uniq
 		    @old_points = Marshal.load(Marshal.dump( @points_to_drag ))
 		  elsif new_selection
 		    click_left( x,y )
@@ -971,8 +971,8 @@ class EditSketchTool < SketchTool
 	
 	def drag_left( x,y )
 	  super
-	  mouse_move( x,y, true, @draw_points )
-	  pos, dummy = snapped( x,y, @draw_points )
+	  mouse_move( x,y, true, [@draw_dot] )
+	  pos, dummy = snapped( x,y, [@draw_dot] )
 	  if pos and @drag_start
 	  	move = @drag_start.vector_to pos
 	  	if @selection
@@ -981,14 +981,12 @@ class EditSketchTool < SketchTool
 			    neu.y = original.y + move.y
 			    neu.z = original.z + move.z
 		    end
-		  else
-			  @draw_points.zip( @old_draw_points ).each do |neu, original|
-			    if neu and original
-  			    neu.x = original.x + move.x
-			      neu.y = original.y + move.y
-			      neu.z = original.z + move.z
-			     end
-		    end
+		    @sketch.update_constraints @points_to_drag
+		  elsif @draw_dot
+		    @draw_dot.x = @old_draw_dot.x + move.x
+	      @draw_dot.y = @old_draw_dot.y + move.y
+	      @draw_dot.z = @old_draw_dot.z + move.z
+	      @sketch.update_constraints [@draw_dot]
 		  end
 		  @sketch.build_displaylist
 	    @glview.redraw
@@ -998,18 +996,19 @@ class EditSketchTool < SketchTool
 	def release_left
 	  super
 	  @does_snap = false
-    #@sketch.close_broken_loops
     @sketch.update_constraints
+    @sketch.build_displaylist
+	  @glview.redraw
   end
   
   def mouse_move( x,y, only_super=false, excluded=[] )
   	super( x,y, excluded )
   	unless only_super
   		points = @sketch.segments.map{|s| [s.pos1, s.pos2] }.flatten
-  		@draw_points = points.select do |point|
+  		@draw_dot = points.select{|point|
   			dist = Point.new(x, @glview.allocation.height - y).distance_to @glview.world2screen(sketch2world(point))
   			dist < $preferences[:snap_dist]
-  		end
+  		}.first #XXX use point_snapped instead
   		@glview.redraw
 		end
   end
@@ -1035,11 +1034,6 @@ class EditSketchTool < SketchTool
 	  @glview.redraw
 	  menu = SketchSelectionToolMenu.new @manager
 	  menu.popup(nil, nil, 3,  time)
-	end
-	
-	def draw
-	  @draw_dot = @draw_points.first
-		super
 	end
 end
 

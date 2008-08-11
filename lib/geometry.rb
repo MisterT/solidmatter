@@ -113,7 +113,7 @@ class Line < Segment
 		@pos1 = start.dup
 		@pos2 = ende.dup
 	end
-
+=begin
 	def own_and_neighbooring_points
 	  points = []
 	  for seg in @sketch.segments
@@ -125,7 +125,7 @@ class Line < Segment
     end
     return points.uniq
   end
-
+=end
 	def bounding_box
 		return bounding_box_from [@pos1, @pos2]
 	end
@@ -135,7 +135,11 @@ class Line < Segment
 	end
 
 	def snap_points
-		super + [pos1, pos2, midpoint]
+		super + [@pos1, @pos2, midpoint]
+	end
+	
+	def dynamic_points
+	   [@pos1, @pos2]
 	end
 
 	def tesselate
@@ -205,6 +209,10 @@ class Arc < Segment
 
   def snap_points
   	super + [pos1, pos2, @center]
+  end
+  
+  def dynamic_points
+    [@center]
   end
   
   def tesselate
@@ -570,18 +578,18 @@ class Sketch
 		end
 	end
 	
-	def update_constraints immutable_obj=nil
+	def update_constraints immutable_objs=[]
 	  #constraints = immutable_obj.constraints
 	  changed = true
 	  safety = 200
 	  constraints = @constraints
 	  while changed and safety > 0
 	    changed = false
-	    constraints.sort_by{rand}.each{|c| changed = true if c.update immutable_obj }
+	    constraints.sort_by{rand}.each{|c| changed = true if c.update immutable_objs }
 	    #constraints = constraints.map{|c| c.connected_constraints }.flatten.uniq
-	    puts safety
 	    safety -= 1
     end
+    puts "WARNING: Sketch solver reached safety constraint" if safety == 0
     safety != 0
 	end
 	
@@ -626,14 +634,15 @@ class CoincidentConstraint < SketchConstraint
     [@p1, @p2]
   end
   
-  def update immutable_obj=nil
+  def update immutable_objs
     if @p1 == @p2
       return false
     else
       objs = constrained_objects
-      if objs.include? immutable_obj
-        mutable_obj = (objs - [immutable_obj])[0]
-        mutable_obj.take_coords_from immutable_obj
+      if objs.any?{|o| immutable_objs.include? o }
+        mutable_obj = (objs - immutable_objs)[0]
+        immutable = (objs - [mutable_obj])[0]
+        mutable_obj.take_coords_from immutable
       else
         rand > 0.5 ? @p2.take_coords_from(@p1) : @p1.take_coords_from(@p2)
       end
@@ -681,10 +690,6 @@ class Dimension < SketchConstraint
     false
   end
   
-  def update immutable_obj=nil
-    
-  end
-  
   def draw
     c = @selection_pass ? @selection_pass_color : [0.85, 0.5, 0.99]
     GL.Color3f( *c )
@@ -713,8 +718,7 @@ class RadialDimension < Dimension
     [@arc]
   end
   
-  def update immutable_obj=nil
-    super
+  def update immutable_objs
     if @arc.radius == @radius
       return false
     else
@@ -760,14 +764,22 @@ class LinearDimension < Dimension
     super
   end
   
-  def update immutable_obj=nil
-    super
+  def update immutable_objs
     if @length.nearly_equals value
       return false
     else
       diff = @length - value
-      @line.pos1.x -= diff/2.0
-      @line.pos2.x += diff/2.0
+      points = [@line.pos1, @line.pos2]
+      #@line.pos1.x -= diff/2.0
+      #@line.pos2.x += diff/2.0
+      if points.any?{|p| immutable_objs.include? p }
+        mutable = (points - immutable_objs)[0]
+        immutable = (points - [mutable])[0]
+      else
+        mutable, immutable = (rand > 0.5 ? [points.first, points.last] : [points.last, points.first])
+      end
+      diff = -diff if mutable.x < immutable.x
+      mutable.x += diff
       return true
     end
   end
