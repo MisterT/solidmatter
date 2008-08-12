@@ -40,44 +40,46 @@ class AccountEditor
 		@uview.append_column column 
 		@sview.selection.mode = Gtk::SELECTION_MULTIPLE
 		@uview.selection.mode = Gtk::SELECTION_MULTIPLE
+		@callback = Proc.new if block_given?
 		update
   end
   
   def ok_handle
     @account.login    = @glade['login_entry'].text
     @account.password = @glade['password_entry'].text
-    @account.server_win.update
+    @callback.call
     @glade['account_editor'].destroy
   end
   
   def move_to_user
-    selected_server_projects.each{|pr| @account.registered_projects.push pr }
+    selected_server_project_ids.each{|id| @account.project_ids.push id }
     update
   end
   
   def remove_from_user
-    selected_user_projects.each{|pr| @account.registered_projects.delete pr }
+    selected_user_project_ids.each{|id| @account.project_ids.delete id }
     update
   end
   
-  def selected_server_projects
+  def selected_server_project_ids
     sel = []
     @sview.selection.selected_each do |model, path, iter|
-      sel.push( (@account.server.projects - @account.registered_projects)[path.indices[0]] )
+      sel.push( (@account.server.projects.map{|p| p.project_id } - @account.project_ids)[path.indices[0]] )
     end
     return sel
   end
   
-  def selected_user_projects
+  def selected_user_project_ids
     sel = []
     @uview.selection.selected_each do |model, path, iter|
-      sel.push( @account.registered_projects[path.indices[0]] )
+      sel.push( @account.project_ids[path.indices[0]] )
     end
     return sel
   end
   
   def update
-    server_projects = @account.server.projects - @account.registered_projects
+    all_projects = @account.server.projects
+    server_projects = all_projects.reject{|p| @account.project_ids.include? p.project_id }
     # projects view
     model = Gtk::ListStore.new(Gdk::Pixbuf, String)
     im = Gtk::Image.new('../data/icons/middle/user-home_middle.png').pixbuf
@@ -89,7 +91,7 @@ class AccountEditor
 		@sview.model = model
 		# users view
 		model = Gtk::ListStore.new(Gdk::Pixbuf, String)
-    for project in @account.registered_projects
+    for project in @account.project_ids.map{|id| all_projects.select{|p| p.project_id == id }.first }
 		  iter = model.append
   		iter[0] = im
   		iter[1] = project.name

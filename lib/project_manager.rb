@@ -62,9 +62,9 @@ class Selection
 end
 
 class ProjectManager
-	attr_accessor :filename, :focus_view, :materials, :save_btn, :return_btn, :previous_btn, :next_btn,
+	attr_accessor :filename, :project_id, :focus_view, :materials, :save_btn, :return_btn, :previous_btn, :next_btn,
 	              :main_assembly, :all_assemblies, :all_parts, :all_instances, :all_assembly_instances, 
-	              :all_part_instances, :all_sketches, :name, :author, :server_win, :main_win,
+	              :all_part_instances, :all_sketches, :name, :author, :main_win,
 	              :point_snap, :grid_snap, :use_sketch_guides, :clipboard, :unit_system
 	attr_reader :selection, :work_component, :work_sketch,
 	            :glview, :op_view, :has_been_changed, :keys_pressed, :keymap, :work_operator
@@ -84,7 +84,6 @@ class ProjectManager
 		@point_snap = true
 		@grid_snap = true
 		@use_sketch_guides = true
-		@server_win = nil
 		@materials = [ Material.new( GetText._("Aluminum")),
                    Material.new( GetText._("Steel")),
                    Material.new( GetText._("Copper")),
@@ -483,7 +482,7 @@ public
 	end
 	
   def display_properties
-    ProjectInformationDialog.new self
+    ProjectInformationDialog.new(self){ yield if block_given? ; puts "found myself having the name #{@name}" }
   end
 ###                                                                                      ###
 ######---------------------- Working level and mode transitions ----------------------######

@@ -3,7 +3,7 @@
 #  Created by Björn Breitgoff on 2008-01-06.
 #  Copyright (c) 2008. All rights reserved.
 
-#require 'drb'
+require 'drb'
 require 'socket'
 require 'project_manager.rb'
 require 'account_editor.rb'
@@ -12,18 +12,17 @@ require 'wait_for_save_dialog.rb'
 
 
 class UserAccount
-  attr_accessor :server_win, :server, :login, :password, :registered_projects
-  def initialize( server_win, login="", password="", projects=[] )
-    @server_win = server_win
-    @server = server_win.server
+  attr_accessor :server, :login, :password, :project_ids, :account_id
+  def initialize( server, login="", password="", project_ids=[] )
+    @server = server
     @login = login
     @password = password
-    @registered_projects = projects
-    display_properties
+    @project_ids = project_ids
+    @account_id = server.new_id
   end
   
   def display_properties
-    AccountEditor.new self
+    AccountEditor.new(self){ yield }
   end
 end
 
@@ -35,67 +34,94 @@ Request = Struct.new( :type, :what, :client_ids_to_serve, :client_ids_received, 
 
 
 class ProjectServer
-  attr_accessor :projects, :accounts, :clients, :server_win
-  def initialize server_win
-    @server_win = server_win
-    $SAFE = 1
-    #DRb.start_service( "druby://localhost:2222", self )
+  attr_accessor :accounts, :clients, :thread
+  def initialize
+    DRb.start_service( "druby://localhost:#{$preferences[:server_port]}", self )
     @projects = []
     @accounts = []
     @clients  = []
     @changes  = []
     @requests = []
-    @server = TCPServer.open $preferences[:server_port]
-    @thread = Thread.start{ listen }
+    #@server = TCPServer.open $preferences[:server_port]
+    #@thread = Thread.start{ listen }
   end
-  
+=begin
   def listen
     @do_listen = true
     threads = []
     while @do_listen
       client = @server.accept
       threads << Thread.start(client) do |c|
-        query = c.gets
-        if query
-          query.chop!
-          meth, args = Marshal.load( query )
-          ret_val = self.send( meth, *args )
-          c.puts Marshal.dump(ret_val)
-          c.flush
+        #$SAFE = 1
+        query = c.recvfrom(100000000)[0].chomp
+        unless query == "dummy"
+          puts "SERVER: trying to unmarshal query"
+          meth, args = Marshal.load query
+          puts "SERVER: got #{meth} and #{args}"
+          if meth.to_s == "stop"
+            @do_listen = false
+            # send one last signal so the server-loop can quit
+            TCPSocket.open( 'localhost', $preferences[:server_port]){|s| s.puts "dummy" }
+            (threads - [Thread.current]).each{|t| t.join }
+          else
+            ret_val = self.send( meth, *args )
+            puts "SERVER: sending return value...#{ret_val.class}"
+            c.puts Marshal.dump(ret_val)
+            c.flush
+          end
         end
         c.close
       end
     end
-    threads.each{|t| t.join }
+    @server.close
   end
-  
-  def get_projects
+=end
+  def projects
     # make sure objects get dumped
     prs = @projects.map{|p| p.strip_non_dumpable ; p.dup }
     for pr in prs
-      pr.server_win = nil
       Marshal.dump pr
     end
     prs
   end
   
-  def add_project( pr="Untitled Project" )
-    # if there is no project with same name on server
-    if not @projects.map{|p| p.name }.include?((pr.is_a? String) ? pr : pr.name)
-      if pr.is_a? ProjectManager
-        @projects.push pr
-        pr.server_win = @server_win
-      else
-        new_pr = ProjectManager.new( nil, nil, nil, nil, nil, nil, nil, nil, nil )
-        new_pr.name = pr
-        new_pr.server_win = @server_win
-        @projects.push new_pr
-      end
-    end
+  def add_project
+    pr = ProjectManager.new( nil, nil, nil, nil, nil, nil, nil, nil, nil )
+    pr.name = "Untitled project"
+    pr.project_id = new_id
+    @projects.push pr
+    nil
   end
   
-  def remove_project pr
-    @projects.delete pr
+  def remove_project id
+    @projects.delete_if{|p| p.project_id == id }
+    nil
+  end
+  
+  def change_project new_proj
+    my_proj = @projects.select{|p| p.project_id == new_proj.project_id }.first
+    my_proj.name   = new_proj.name
+    my_proj.author = new_proj.author
+    nil
+  end
+  
+  def add_account
+    @accounts << UserAccount.new(DRbObject.new_with_uri "druby://localhost:#{$preferences[:server_port]}")
+    
+    nil
+  end
+  
+  def remove_account id
+    @accounts.delete_if{|a| a.account_id == id }
+    nil
+  end
+  
+  def change_account new_acc
+    my_acc = @accounts.select{|a| a.account_id == new_acc.account_id }.first
+    my_acc.login = new_acc.login
+    my_acc.password = new_acc.password
+    my_acc.project_ids = new_acc.project_ids
+    nil
   end
   
   def add_client( login, password )
@@ -219,44 +245,48 @@ class ProjectServer
     return requests
   end
   
+  def stop
+    DRb.stop_service
+  end
+  
   def new_id
     @used_ids ||= []
     id = rand 99999999999999999999999999999999999999999 while @used_ids.include? id
     @used_ids.push id
     return id
   end
-  
-  def stop
-    #DRb.stop_service
-    @do_listen = false
-    # send one last signal so the server-loop can quit
-    TCPSocket.open( 'localhost', $preferences[:server_port]){}
-    @thread.join
-    @server.close
-  end
 end
 
+=begin
 class ServerProxy
   def initialize( address, port )
     @address = address
     @port = port
   end
   
-  def method_mising( meth, *args )
+  def method_missing( meth, *args )
+    ret_val = nil
     TCPSocket.open( @address, @port ) do |s|
       query = Marshal.dump([meth,args])
+      puts "generated query with meth:#{meth} and args:#{args}"
       s.puts query
-      ret_val = s.gets.chop
+      puts "sent query"
+      unless meth.to_s == "stop"
+        ret_val = s.recvfrom(100000000)[0].chomp
+        ret_val = Marshal.load(ret_val)
+        puts "got return value #{ret_val}"
+      end
     end
     return ret_val
   end
 end
+=end
 
 class ProjectClient
   attr_reader :server, :working, :projectname
   def initialize( server, port, manager )
-    #@server = DRbObject.new_with_uri "druby://#{server}:#{port}" 
-    @server = ServerProxy.new( server, port )
+    @server = DRbObject.new_with_uri "druby://#{server}:#{port}" 
+    #@server = ServerProxy.new( server, port )
     @manager = manager
     # test if server is working
     begin

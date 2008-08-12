@@ -16,14 +16,16 @@ class ProjectInformationDialog
 	  @glade['n_parts_label'].text = @manager.all_parts.size.to_s
 	  @glade['tn_assemblies_label'].text = @manager.all_assembly_instances.size.to_s
 	  @glade['n_assemblies_label'].text = @manager.all_assemblies.size.to_s
+	  @callback = Proc.new if block_given?
   end
   
   def ok_handle( w )
     @manager.name   = @glade['name_entry'].text    
     @manager.author = @glade['author_entry'].text  
-    @manager.server_win.update if @manager.server_win
     @manager.correct_title
     @manager.has_been_changed = true
+    @callback.call if @callback
+    puts "called callback" if @callback
     @glade['project_dialog'].destroy
   end
 end

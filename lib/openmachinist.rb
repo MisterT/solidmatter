@@ -16,6 +16,7 @@ GetText.bindtextdomain 'openmachinist'
 Gtk.init
 Gtk::GL.init
 win = OpenMachinistMainWin.new
+$main_win = win
 win.show_all
 Gtk.main_with_queue 100
 
@@ -53,3 +54,4 @@ Gtk.main_with_queue 100
 # unterscheidung von instanzen bei selection unmöglich da beide die selbe displaylist haben
 # rebuild selectionpasscolors sollte für alle objekttypen farben erstellen, nur select sollte nach typ unterscheiden
 # linetool erstellt constraint nur für letzten punkt
+# menu selection should be shown in statusbar

@@ -8,7 +8,7 @@ require 'libglade2'
 class AboutDialog
   def initialize
     @glade = GladeXML.new( "../data/glade/about.glade", nil, 'openmachinist' ) {|handler| method(handler)}
-    @glade['aboutdialog'].transient_for = $manager.main_win
+    @glade['aboutdialog'].transient_for = $main_win unless $main_win.destroyed?
   end
   
   def close

@@ -4,13 +4,12 @@
 #  Copyright (c) 2008. All rights reserved.
 
 require 'libglade2'
-require 'multi_user.rb'
 
 class ServerWin
   attr_accessor :server, :destroyed
-  def initialize( server=nil )
+  def initialize server
     @glade = GladeXML.new( "../data/glade/server_win.glade", nil, 'openmachinist' ) {|handler| method(handler)}
-    @server = server ? server : ProjectServer.new(self)
+    @server = server
     @glade['server_win'].signal_connect('destroy'){ @destroyed = true }
     @glade['server_win'].title = GetText._("Open Machinist dedicated server")
     # ------- create projects view ------- #
@@ -43,18 +42,24 @@ class ServerWin
   end
   
   def add_project
-    @server = ProjectServer.new unless @server
     @server.add_project
     update
   end
   
   def remove_project
-    @server.remove_project selected_project
+    @server.remove_project selected_project.project_id
     update
   end
   
   def edit_project
-    selected_project.display_properties if selected_project
+    if pr = selected_project
+      pr.display_properties do
+        @server.change_project pr
+        puts "sent update request to server"
+        puts pr.name
+        update
+      end
+    end
   end
   
   def selected_project
@@ -65,18 +70,22 @@ class ServerWin
   end
   
   def add_user
-    user = UserAccount.new self
-    @server.accounts.push user
+    @server.add_account
     update
   end
   
   def remove_user
-    @server.accounts.delete selected_user
+    @server.remove_account selected_user.account_id
     update
   end
   
   def edit_user
-    selected_user.display_properties if selected_user
+    if user = selected_user
+      user.display_properties do
+        @server.change_account user
+        update
+      end
+    end
   end
   
   def selected_user
@@ -84,6 +93,14 @@ class ServerWin
       return @server.accounts[path.indices[0]]
     end
     return nil
+  end
+  
+  def run
+    
+  end
+  
+  def stop
+    
   end
   
   def update
@@ -107,7 +124,24 @@ class ServerWin
 		@uview.model = model
   end
   
-  def destroy
-    @glade['server_win'].destroy
+  def show_about
+    AboutDialog.new
+  end
+  
+  def choose_project_dir
+    
+  end
+  
+  def exit
+    @server.stop
+    Gtk.main_quit
+  end
+  
+  def real_win
+    @glade['server_win']
+  end
+  
+  def method_missing( meth, *args)
+    @glade['server_win'].send( meth, *args )
   end
 end
