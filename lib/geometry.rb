@@ -581,7 +581,7 @@ class Sketch
 	def update_constraints immutable_objs=[]
 	  #constraints = immutable_obj.constraints
 	  changed = true
-	  safety = 200
+	  safety = 1000
 	  constraints = @constraints
 	  while changed and safety > 0
 	    changed = false
