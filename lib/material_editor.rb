@@ -45,7 +45,7 @@ end
 
 
 class MaterialEditor
-	def initialize( materials )
+	def initialize materials 
 	  @materials = materials
 	  @glade = GladeXML.new( "../data/glade/material_editor.glade", nil, 'openmachinist' ) {|handler| method(handler)}
 	  @combo = @glade['material_combo']

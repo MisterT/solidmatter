@@ -99,7 +99,6 @@ class GLView < Gtk::DrawingArea
 	attr_reader :displaymode
 	def initialize
 		super
-		@manager = nil
 		@selection_color = [1,0,1]
 		@displaymode = :overlay
 		# these are called for immediate mode drawing
@@ -183,12 +182,12 @@ class GLView < Gtk::DrawingArea
 	end
 	
 	def mouse_move( x,y )
-		@manager.current_tool.mouse_move( x,y )
+		$manager.current_tool.mouse_move( x,y )
 	end
 	
 	def button_release( x,y )
 	  @last_button_down = nil
-	  @manager.current_tool.button_release
+	  $manager.current_tool.button_release
 	  if $preferences[:manage_gc]
 	  	GC.enable
 	  	GC.start
@@ -198,64 +197,64 @@ class GLView < Gtk::DrawingArea
 	def press_left( x,y )
 	  @last_button_down = :left
 		@last_down = Point.new( x, y )
-		if @manager.current_tool.is_a? CameraTool
+		if $manager.current_tool.is_a? CameraTool
 			add_view
 			@last_mouse_down_cam = @cameras[@current_cam_index].clone
 		end
-		@manager.current_tool.press_left( x,y )
+		$manager.current_tool.press_left( x,y )
     @button_press_time = Time.now
 	end
 	
 	def release_left( x,y )
-	  @manager.current_tool.release_left
+	  $manager.current_tool.release_left
 	 	click_left( x, y ) if @button_press_time and Time.now - @button_press_time < 1
 	end
 	
 	def click_left( x,y )
-		@manager.current_tool.click_left( x,y )
+		$manager.current_tool.click_left( x,y )
 		redraw
 	end
 	
 	def double_click( x,y )
-		case @manager.current_tool
+		case $manager.current_tool
 			when CameraTool then 
 				target = screen2world( x,y )
 				look_at target if target
 		else
-			@manager.current_tool.double_click( x,y )
+			$manager.current_tool.double_click( x,y )
 		end
 	end
 	
 	def click_middle( x,y )
-		if @manager.current_tool.is_a? CameraTool
+		if $manager.current_tool.is_a? CameraTool
 			add_view
 			@last_mouse_down_cam = @cameras[@current_cam_index].clone
 		end
-		@manager.current_tool.click_middle( x,y )
+		$manager.current_tool.click_middle( x,y )
 	end
 	
 	def press_right( x,y, time )
 	  @last_button_down = :right
 		@last_down = Point.new( x, y )
-		if @manager.current_tool.is_a? CameraTool
+		if $manager.current_tool.is_a? CameraTool
 			add_view
 			@last_mouse_down_cam = @cameras[@current_cam_index].clone
 		end
-		@manager.current_tool.press_right( x,y, time )
+		$manager.current_tool.press_right( x,y, time )
     @button_press_time = Time.now
 	end
 	
 	def release_right( x,y, time )
-	  @manager.current_tool.release_right
+	  $manager.current_tool.release_right
 	 	click_right( x, y, time ) if @button_press_time and Time.now - @button_press_time < 1
 	end
 	
 	def click_right( x,y, time )
-		@manager.current_tool.click_right( x,y, time )
+		$manager.current_tool.click_right( x,y, time )
 	end
 	
 	def drag_left( x,y )
-		case @manager.current_tool
+		case $manager.current_tool
 			when CameraTool then
 			  drag_x = (x - @last_down.x).to_f / allocation.width
 				drag_y = (y - @last_down.y).to_f / allocation.height
@@ -265,12 +264,12 @@ class GLView < Gtk::DrawingArea
 				@cameras[@current_cam_index] = cam
 				redraw
 		else
-			@manager.current_tool.drag_left( x,y )
+			$manager.current_tool.drag_left( x,y )
 		end
 	end
 	
 	def drag_middle( x,y )
-		case @manager.current_tool
+		case $manager.current_tool
 			when CameraTool then
 			  drag_x = (x - @last_down.x).to_f / allocation.width
   			drag_y = (y - @last_down.y).to_f / allocation.height
@@ -281,12 +280,12 @@ class GLView < Gtk::DrawingArea
 					redraw
 				end
 		else
-			@manager.current_tool.drag_middle( x,y )
+			$manager.current_tool.drag_middle( x,y )
 		end
 	end
 	
 	def drag_right( x,y )
-		case @manager.current_tool
+		case $manager.current_tool
 			when CameraTool then
 			  drag_x = (x - @last_down.x).to_f / allocation.width
 				drag_y = (y - @last_down.y).to_f / allocation.height
@@ -296,7 +295,7 @@ class GLView < Gtk::DrawingArea
 				@cameras[@current_cam_index] = cam
 				redraw
 		else
-			@manager.current_tool.drag_right( x,y )
+			$manager.current_tool.drag_right( x,y )
 		end
 	end
 	
@@ -407,7 +406,7 @@ class GLView < Gtk::DrawingArea
 			GL.Disable(GL::LIGHTING)
 			draw_coordinate_axes unless @do_not_swap
 			GL.LineStipple(5, 0x1C47)
-			recurse_draw @manager.main_assembly
+			recurse_draw $manager.main_assembly
 			$manager.work_component.dimensions.each{|dim| recurse_draw dim }
 			# draw 3d interface stuff
 			GL.Disable(GL::LIGHTING)
@@ -429,7 +428,7 @@ class GLView < Gtk::DrawingArea
   			GL.Translate( top_comp.position.x, top_comp.position.y, top_comp.position.z )
   			if @selection_pass
   			  GL.Disable GL::LIGHTING
-  				GL.CallList top_comp.selection_displaylist unless @manager.work_sketch
+  				GL.CallList top_comp.selection_displaylist unless $manager.work_sketch
   			else
   				[:shaded,  :overlay].any?{|e| e == @displaymode} ? (GL.Enable GL::LIGHTING) : (GL.Disable GL::LIGHTING)
   				if top_comp.transparent and $preferences[:stencil_transparency]
@@ -438,7 +437,7 @@ class GLView < Gtk::DrawingArea
   				  GL.LineStipple(5, 0x1C47)
     		  end
   				GL.Color4f( *@background_color )
-  			  unless @picking_pass and @manager.work_sketch
+  			  unless @picking_pass and $manager.work_sketch
   			    GL.CallList top_comp.displaylist      if [:shaded,  :overlay,   :hidden_lines ].any?{|e| e == @displaymode}
   			    top_comp.selected ? GL.Color3f(1,0,0) : GL.Color3f(1,1,1)
   			    GL.CallList top_comp.wire_displaylist if [:overlay, :wireframe, :hidden_lines ].any?{|e| e == @displaymode} or top_comp.selected
@@ -448,11 +447,11 @@ class GLView < Gtk::DrawingArea
   			end
   			top_comp.working_planes.each{|wp| recurse_draw wp }
   			top_comp.unused_sketches.each{|sketch| recurse_draw sketch }
-  			if @manager.work_operator
-  				op_sketch = @manager.work_operator.settings[:sketch] 
+  			if $manager.work_operator
+  				op_sketch = $manager.work_operator.settings[:sketch] 
   				recurse_draw op_sketch if op_sketch
   			end
-  			recurse_draw @manager.work_sketch if @manager.work_sketch
+  			recurse_draw $manager.work_sketch if $manager.work_sketch
   		### ------------------------- Sketch ------------------------- ###
   		elsif top_comp.class == Sketch
   			GL.Translate( top_comp.plane.origin.x, top_comp.plane.origin.y, top_comp.plane.origin.z )
@@ -516,7 +515,7 @@ class GLView < Gtk::DrawingArea
   		pos = GLU.UnProject( x, y, z, modelview, projection, viewport )
   		pos = Vector[ pos[0], pos[1], pos[2] ]
   		# resolution of the depth buffer is low, so we correct the point position
-  		pos = @manager.work_sketch.plane.closest_point pos if @manager.work_sketch
+  		pos = $manager.work_sketch.plane.closest_point pos if $manager.work_sketch
 		else
 		  pos = nil
 	  end
@@ -535,28 +534,28 @@ class GLView < Gtk::DrawingArea
 	end
 	
 	def rebuild_selection_pass_colors type=nil
-	  if type or @manager.current_tool.is_a?(SelectionTool)
-	    case type or @manager.current_tool.selection_mode
+	  if type or $manager.current_tool.is_a?(SelectionTool)
+	    case type or $manager.current_tool.selection_mode
 	    when :select_faces
-	      @selectables = @manager.all_part_instances.select{|inst| inst.visible }.map{|inst| inst.solid.faces }.flatten
+	      @selectables = $manager.all_part_instances.select{|inst| inst.visible }.map{|inst| inst.solid.faces }.flatten
 	    when :select_planes
-	      @selectables = @manager.work_component.working_planes
+	      @selectables = $manager.work_component.working_planes
 	    when :select_faces_and_planes
-	    	@selectables = @manager.work_component.working_planes.dup
-	      @selectables += @manager.all_part_instances.select{|inst| inst.visible }.map{|inst| inst.solid.faces }.flatten
+	    	@selectables = $manager.work_component.working_planes.dup
+	      @selectables += $manager.all_part_instances.select{|inst| inst.visible }.map{|inst| inst.solid.faces }.flatten
       when :select_instances
-        @selectables = @manager.all_part_instances.select{|inst| inst.visible }
+        @selectables = $manager.all_part_instances.select{|inst| inst.visible }
       when :select_segments
-        if @manager.work_sketch
-    		  @selectables = @manager.work_sketch.segments
+        if $manager.work_sketch
+    		  @selectables = $manager.work_sketch.segments
     		else
-          @selectables = @manager.work_component.unused_sketches.map{|sk| sk.segments }.flatten if @manager.work_component.class == Part
+          @selectables = $manager.work_component.unused_sketches.map{|sk| sk.segments }.flatten if $manager.work_component.class == Part
         end
       when :select_dimensions
-        @selectables = @manager.work_component.dimensions
+        @selectables = $manager.work_component.dimensions
       when :select_segments_and_dimensions
-        @selectables = @manager.work_sketch.segments.dup
-        @selectables += @manager.work_component.dimensions
+        @selectables = $manager.work_sketch.segments.dup
+        @selectables += $manager.work_component.dimensions
 	    end
       # create colors to represent selectable objects
   		current_color = [0, 0, 0]
@@ -605,7 +604,7 @@ class GLView < Gtk::DrawingArea
   			end
   		end
   		obj = nil unless best_diff < @color_increment
-  		@manager.work_component.unused_sketches.each{|sk| sk.build_displaylist } if @manager.work_component.class == Part
+  		$manager.work_component.unused_sketches.each{|sk| sk.build_displaylist } if $manager.work_component.class == Part
   		# reset regular rendering style
   		render_style :regular
   		restore_backbuffer
@@ -672,7 +671,7 @@ class GLView < Gtk::DrawingArea
 	end
 	
 	def zoom_selection
-		sel = @manager.selection.empty? ? [@manager.main_assembly] : @manager.selection
+		sel = $manager.selection.empty? ? [$manager.main_assembly] : $manager.selection
 		zoom_onto sel
 	end
 	
@@ -715,8 +714,8 @@ class GLView < Gtk::DrawingArea
 	end
 	
 	def set_view_buttons
-	  @manager.previous_btn.sensitive = (@current_cam_index > 0)
-	  @manager.next_btn.sensitive = (@current_cam_index < (@cameras.size - 1))
+	  $manager.previous_btn.sensitive = (@current_cam_index > 0)
+	  $manager.next_btn.sensitive = (@current_cam_index < (@cameras.size - 1))
 	end
 	
 	def draw_coordinate_axes
@@ -739,17 +738,17 @@ class GLView < Gtk::DrawingArea
 	  # find an instance of each part for rendering
 	  temp = []
 	  instances = parts.map do |part|
-		  inst = @manager.all_part_instances.select{|inst| inst.real_component == part }.first
+		  inst = $manager.all_part_instances.select{|inst| inst.real_component == part }.first
 		  if inst
 		    inst
 	    else
-	      temp_inst = @manager.new_instance( part, false )
+	      temp_inst = $manager.new_instance( part, false )
 	      temp.push temp_inst
 	      temp_inst
       end
 	  end
 	  im = image_of_instances instances
-		temp.each{|t| @manager.delete_object t }
+		temp.each{|t| $manager.delete_object t }
 		redraw
 		return im
 	end
@@ -758,13 +757,13 @@ class GLView < Gtk::DrawingArea
 	  name = name ? name.shorten(16) : (instances.size == 1 ? instances.first.name.shorten(16) : "")
 	 	# make screenshot of parts
 		visible = {}
-		@manager.all_part_instances.each{|p| visible[p] = p.visible ; p.visible = false }
+		$manager.all_part_instances.each{|p| visible[p] = p.visible ; p.visible = false }
 		instances.each{|i| i.visible = true }
 		@do_not_swap = true
 		zoom_onto instances
 		screen = screenshot step
 		previous_view
-		@manager.all_part_instances.each{|p| p.visible = visible[p] }
+		$manager.all_part_instances.each{|p| p.visible = visible[p] }
 		@do_not_swap = false
 		# render reflection and normalize size
 		res ||= $preferences[:thumb_res]

@@ -7,8 +7,7 @@ require 'libglade2'
 
 
 class JoinProjectDialog
-	def initialize manager
-	  @manager = manager
+	def initialize
 	  @glade = GladeXML.new( "../data/glade/join_project.glade", nil, 'openmachinist' ) {|handler| method(handler)}
 	  update_combo
   end
@@ -19,7 +18,7 @@ class JoinProjectDialog
     projectname  = @glade['project_combo'].active_iter[0]
     login        = @glade['login_entry'].text
     password     = @glade['password_entry'].text
-    @manager.join_project( adress, port, projectname, login, password )
+    $manager.join_project( adress, port, projectname, login, password )
     @glade['join_project'].destroy
   end
   
@@ -30,7 +29,7 @@ class JoinProjectDialog
   def connect w
     adress = @glade['adress_entry'].text
     port   = @glade['port_entry'].text
-    client = ProjectClient.new( adress, port, @manager )
+    client = ProjectClient.new( adress, port )
     if client.working
       available = client.available_projects.map{|pr| pr.name }
       client.exit
@@ -38,8 +37,10 @@ class JoinProjectDialog
       available.each{|name| @glade['project_combo'].append_text name }
       @glade['project_combo'].active = 0
       @glade['ok_button'].sensitive = true
+      @glade['project_combo'].sensitive = true
     else
       @glade['ok_button'].sensitive = false
+      @glade['project_combo'].sensitive = false
     end
   end
   

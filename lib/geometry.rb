@@ -126,9 +126,9 @@ class Line < Segment
     return points.uniq
   end
 =end
-	def bounding_box
-		return bounding_box_from [@pos1, @pos2]
-	end
+#	def bounding_box
+#		return bounding_box_from [@pos1, @pos2]
+#	end
 
 	def midpoint
 		(@pos1 + @pos2) / 2.0
@@ -317,8 +317,8 @@ end
 class WorkingPlane < Plane
   include Selectable
 	attr_reader :plane, :parent
-	attr_accessor :size, :spacing, :visible, :glview, :displaylist, :pick_displaylist
-	def initialize( glview, parent, plane=nil )
+	attr_accessor :size, :spacing, :visible, :displaylist, :pick_displaylist
+	def initialize( parent, plane=nil )
 		if plane
 		  @origin = plane.origin
 		  @u_vec = plane.u_vec
@@ -326,9 +326,8 @@ class WorkingPlane < Plane
 	  else
 		  super()
 	  end
-		@glview = glview
-		@displaylist = glview.add_displaylist
-		@pick_displaylist = glview.add_displaylist
+		@displaylist = $manager.glview.add_displaylist
+		@pick_displaylist = $manager.glview.add_displaylist
 		@selection_pass_color = [1.0, 1.0, 1.0]
 		@spacing = 0.05
 		@size = 2
@@ -346,7 +345,7 @@ class WorkingPlane < Plane
 				@size.step( new_size, step ) do |size|
 					@size = size
 					build_displaylists
-					@glview.redraw
+					$manager.glview.redraw
 				end
 			end
 		end
@@ -360,7 +359,7 @@ class WorkingPlane < Plane
   		start.step( ende, (@size / $preferences[:animation_duration]) * direction ) do |i|
   			@size = i
   			build_displaylists
-  			@glview.redraw
+  			$manager.glview.redraw
   		end
   		GC.enable if $preferences[:manage_gc]
   		@size = original_size
@@ -431,8 +430,8 @@ class WorkingPlane < Plane
 	end
 	
 	def clean_up
-		@glview.delete_displaylist @displaylist
-		@glview.delete_displaylist @pick_displaylist
+		$manager.glview.delete_displaylist @displaylist
+		$manager.glview.delete_displaylist @pick_displaylist
 		@displaylist = nil
 		@pick_displaylist = nil
 		self
@@ -522,20 +521,19 @@ end
 
 class Sketch
 	include ChainCompletion
-	attr_accessor :name, :parent, :op, :selection_pass, :selected, :glview, :displaylist, :segments, :plane, :constraints
+	attr_accessor :name, :parent, :op, :selection_pass, :selected, :displaylist, :segments, :plane, :constraints
 	attr_reader :visible
 	@@sketchcolor = [0,1,0]
-	def initialize( name, parent, plane, glview )
+	def initialize( name, parent, plane )
 		@name = name
 		@parent = parent
 		@op = nil
-		@glview = glview
 		@segments = []
 		@constraints = []
-		@plane = WorkingPlane.new( glview, parent, plane )
+		@plane = WorkingPlane.new( parent, plane )
 		@plane_id = parent.solid.faces.map{|f| (f.is_a? PlanarFace) ? f.plane : nil }.compact.index plane
 		parent.working_planes.push @plane
-		@displaylist = glview.add_displaylist
+		@displaylist = $manager.glview.add_displaylist
 		@visible = false
     @selected = false
 		@selection_pass = false
@@ -557,7 +555,7 @@ class Sketch
 				  GL.Color3f( seg.selection_pass_color[0], seg.selection_pass_color[1], seg.selection_pass_color[2] )
 			  else
 				  if seg.selected
-					  GL.Color3f( @glview.selection_color[0], @glview.selection_color[1], @glview.selection_color[2] )
+					  GL.Color3f( $manager.glview.selection_color[0], $manager.glview.selection_color[1], $manager.glview.selection_color[2] )
 				  else
 					  GL.Color3f( @@sketchcolor[0], @@sketchcolor[1], @@sketchcolor[2] )
 				  end
@@ -594,13 +592,13 @@ class Sketch
 	end
 	
 	def clean_up
-		@glview.delete_displaylist @displaylist
+		$manager.glview.delete_displaylist @displaylist
 		@displaylist = nil
 	end
 	
 	def dup
 	  copy = super
-	  copy.displaylist = @glview.add_displaylist
+	  copy.displaylist = $manager.glview.add_displaylist
 	  copy.op = nil
 	  copy.segments = @segments.dup
 	  copy.constraints = []
@@ -680,14 +678,7 @@ class Dimension < SketchConstraint
   
   def value= val
     # descandand code here
-    sk = constrained_objects.first.sketch
-    if sk.update_constraints
-      sk.build_displaylist
-      sk.parent.build( sk.op ) if sk.op
-      $manager.glview.redraw
-      true
-    end
-    false
+    constrained_objects.first.sketch.update_constraints
   end
   
   def draw
@@ -1128,7 +1119,64 @@ class Solid
 	alias area surface_area
 	
 	def volume
-	  0.0
+	  bbox = bounding_box
+	  if bbox
+	    left  = bbox.map{|v| v.x }.min
+	    right = bbox.map{|v| v.x }.max
+	    upper = bbox.map{|v| v.y }.max
+	    lower = bbox.map{|v| v.y }.min
+	    front = bbox.map{|v| v.z }.max
+	    back  = bbox.map{|v| v.z }.min
+	    divisions = 6
+	    max_change = 0.001
+	    # divide bounding volume into subvolumes
+	    x_span = (right - left)  / divisions
+	    y_span = (upper - lower) / divisions
+	    z_span = (front - back)  / divisions
+	    subvolumes = []
+	    for ix in 0...divisions
+	      box_left = left + (ix * x_span)
+	      for iy in 0...divisions
+	        box_lower = lower + (iy * y_span)
+	        for iz in 0...divisions
+	          box_back = back + (iz * z_span)
+	          # shoot samples into each subvolume until it converges
+	          subvolumes << Thread.start(box_left, box_lower, box_back) do |le,lo,ba|
+	            shots_fired = 0.0
+	            hits = 0.0
+	            change = 1
+	            old_share = 0.0
+	            while change > max_change
+	              sx = le + (rand * x_span)
+	              sy = lo + (rand * y_span)
+	              sz = ba + (rand * z_span)
+	              hits += 1 if self.contains? Vector[sx,sy,sz]
+	              shots_fired += 1
+	              if shots_fired % 50 == 0
+	                share = hits / shots_fired
+	                change = (share - old_share).abs
+	                old_share = share
+                end
+	            end
+	            #puts "Fired #{shots_fired} shots"
+	            (x_span * y_span * z_span) * (hits / shots_fired)
+            end
+	        end
+        end
+	    end
+	    subvolumes.inject(0){|total,v| total + v.value }
+    else
+      0.0
+    end
+	end
+	
+	def contains? p
+	  return rand > 0.5
+	end
+	
+	def bounding_box
+		points = @faces.map{|f| f.segments.map{|seg| seg.snap_points } }.flatten
+		return bounding_box_from points
 	end
 	
 	def dup
@@ -1142,14 +1190,13 @@ end
 # abstract base class for operators
 class Operator
 	attr_reader :settings, :solid, :part, :dimensions
-	attr_accessor :name, :enabled, :previous, :manager, :toolbar
-	def initialize( part, manager )
+	attr_accessor :name, :enabled, :previous, :toolbar
+	def initialize part
 		@name ||= "operator"
 		@settings ||= {}
-		@save_settings = @settings
+		@save_settings = @settings.dup
 		@solid = nil
 		@part = part
-		@manager = manager
 		@dimensions = []
 		@enabled = true
 		@previous = nil
@@ -1188,8 +1235,8 @@ class Operator
 	
 	def ok
 	  @part.build( self )
-	  @manager.working_level_up
-	  @manager.glview.redraw
+	  $manager.working_level_up
+	  $manager.glview.redraw
 	end
 	
 	def cancel
@@ -1213,7 +1260,7 @@ private
 	
 	def show_changes
 		@part.build self
-		@manager.glview.redraw 
+		$manager.glview.redraw 
 	end
 end
 
@@ -1254,23 +1301,22 @@ class Component
 end
 
 class Part < Component
-  attr_accessor :manager, :displaylist, :wire_displaylist, :selection_displaylist, :history_limit, :solid, :information
+  attr_accessor :displaylist, :wire_displaylist, :selection_displaylist, :history_limit, :solid, :information
 	attr_reader :operators, :working_planes, :unused_sketches, :solid
-	def initialize(name, manager)
+	def initialize name
 		super()
-		@manager = manager
 		@unused_sketches = []
-		@working_planes = [ WorkingPlane.new( manager.glview, self) ]
+		@working_planes = [ WorkingPlane.new(self) ]
 		@operators = []
 		@history_limit = 0
 		@information = {:name     => name,
 		                :author   => "",
 							      :approved => "",
 							      :version  => "0.1",
-							      :material => @manager.materials.first}
-		@displaylist = @manager.glview.add_displaylist
-		@wire_displaylist = @manager.glview.add_displaylist
-		@selection_displaylist = @manager.glview.add_displaylist
+							      :material => $manager.materials.first}
+		@displaylist = $manager.glview.add_displaylist
+		@wire_displaylist = $manager.glview.add_displaylist
+		@selection_displaylist = $manager.glview.add_displaylist
 		@solid = Solid.new
 	end
 
@@ -1326,8 +1372,8 @@ class Part < Component
 		if solid
 			@solid = solid
 			build_displaylist
-			@manager.glview.rebuild_selection_pass_colors
-			@manager.component_changed self
+			$manager.glview.rebuild_selection_pass_colors
+			$manager.component_changed self
 			self.all_sketches.each{|sk| sk.refetch_plane_from_solid }
 		else
 			dia = Gtk::MessageDialog.new( nil, Gtk::Dialog::DESTROY_WITH_PARENT,
@@ -1341,8 +1387,7 @@ class Part < Component
 	end
 	
 	def bounding_box
-		points = @solid.faces.map{|f| f.segments.map{|seg| [seg.pos1, seg.pos2] } }.flatten
-		return bounding_box_from points
+    @solid.bounding_box
 	end
 
 	def build_displaylist
@@ -1386,11 +1431,11 @@ class Part < Component
 	end
 	
 	def display_properties
-		dia = PartInformationDialog.new( self, @manager ) do |info|
+		dia = PartInformationDialog.new(self) do |info|
 		  @information = info if info
-			@manager.op_view.update
+			$manager.op_view.update
 			#XXX build_displaylist if @solid
-			@manager.glview.redraw
+			$manager.glview.redraw
 	  end
 	end
 	
@@ -1411,9 +1456,9 @@ class Part < Component
 	end
 	
 	def clean_up
-		@manager.glview.delete_displaylist @displaylist
-		@manager.glview.delete_displaylist @wire_displaylist
-		@manager.glview.delete_displaylist @selection_displaylist
+		$manager.glview.delete_displaylist @displaylist
+		$manager.glview.delete_displaylist @wire_displaylist
+		$manager.glview.delete_displaylist @selection_displaylist
 	  @displaylist = nil
 	  @wire_displaylist = nil
 	  @selection_displaylist = nil
@@ -1431,18 +1476,17 @@ class Part < Component
 	  copy.operators = @operators.dup
 	  copy.information = @information.dup
 	  copy.solid = @solid.dup
-	  @displaylist = @manager.glview.add_displaylist
-		@wire_displaylist = @manager.glview.add_displaylist
-		@selection_displaylist = @manager.glview.add_displaylist
+	  @displaylist = $manager.glview.add_displaylist
+		@wire_displaylist = $manager.glview.add_displaylist
+		@selection_displaylist = $manager.glview.add_displaylist
 	end
 end
 
 class Assembly < Component
-	attr_accessor :components, :manager
-	def initialize( name, manager )
+	attr_accessor :components
+	def initialize name
 		super()
 		@component_id = component_id() 
-		@manager = manager
 		@components = []
 		@contact_set = []
 		@information = {:name      => name,
@@ -1480,9 +1524,9 @@ class Assembly < Component
 	end
 
 	def display_properties
-		dia = AssemblyInformationDialog.new( self, @manager ) do |info|
+		dia = AssemblyInformationDialog.new(self) do |info|
 		  @information = info if info
-			@manager.op_view.update
+			$manager.op_view.update
 	  end
 	end
 	

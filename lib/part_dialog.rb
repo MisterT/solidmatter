@@ -9,10 +9,9 @@ require 'units.rb'
 
 class PartInformationDialog
   include Units
-	def initialize( part, manager )
+	def initialize part
 	  @part = part
 	  @info = part.information
-    @manager = manager
 	  @return_handler = Proc.new
 	  @glade = GladeXML.new( "../data/glade/part_dialog.glade", nil, 'openmachinist' ) {|handler| method(handler)}
 	  # feed entries with part information
@@ -23,8 +22,8 @@ class PartInformationDialog
 	  # load materials into combo box
 	  combo = @glade['material_combo']
 	  combo.remove_text 0
-	  @manager.materials.each{|m| combo.append_text m.name }
-	  combo.active = @manager.materials.index @info[:material]
+	  $manager.materials.each{|m| combo.append_text m.name }
+	  combo.active = $manager.materials.index @info[:material]
 	  # set multi-user status
 	  @glade['part_dialog'].transient_for = $manager.main_win
   end
@@ -36,9 +35,9 @@ class PartInformationDialog
     info[:author]   = @glade['author_entry'].text
     info[:approved] = @glade['approved_entry'].text
     info[:version]  = @glade['version_entry'].text
-    info[:material] = @manager.materials[ @glade['material_combo'].active ]
+    info[:material] = $manager.materials[ @glade['material_combo'].active ]
     @glade['part_dialog'].destroy
-    @manager.has_been_changed = true
+    $manager.has_been_changed = true
     @return_handler.call info
   end
   

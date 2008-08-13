@@ -7,9 +7,8 @@ require 'libglade2'
 
 
 class MakePublicDialog
-	def initialize manager
+	def initialize
 	  @block = Proc.new if block_given?
-	  @manager = manager
 	  @glade = GladeXML.new( "../data/glade/make_public_dialog.glade", nil, 'openmachinist' ) {|handler| method(handler)}
 	  update_combo
   end

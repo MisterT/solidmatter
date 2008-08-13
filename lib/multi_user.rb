@@ -38,7 +38,7 @@ class ProjectServer
   def initialize
     DRb.start_service( "druby://localhost:#{$preferences[:server_port]}", self )
     @projects = []
-    @accounts = []
+    @accounts = [UserAccount.new( DRbObject.new_with_uri("druby://localhost:#{$preferences[:server_port]}"), "synthetic", "bla")]
     @clients  = []
     @changes  = []
     @requests = []
@@ -155,7 +155,9 @@ class ProjectServer
   end
   
   def add_object( projectname, new_object, client_id )
+    puts "received new object"
     on_project_if_valid( projectname, client_id ) do |pr|
+      puts "clinet was valid"
       pr.add_object new_object
       client_ids_to_serve = @clients.select{|c| c.account.registered_projects.include? pr }.map{|c| c.client_id } - [client_id]
       @changes.push Change.new( new_object, :add, client_ids_to_serve )
@@ -287,12 +289,11 @@ class ProjectClient
   def initialize( server, port, manager )
     @server = DRbObject.new_with_uri "druby://#{server}:#{port}" 
     #@server = ServerProxy.new( server, port )
-    @manager = manager
     # test if server is working
     begin
-      @server.get_projects
+      @server.projects
     rescue
-      dialog = Gtk::MessageDialog.new(@manager.main_win, 
+      dialog = Gtk::MessageDialog.new($manager.main_win, 
                                       Gtk::Dialog::DESTROY_WITH_PARENT,
                                       Gtk::MessageDialog::WARNING,
                                       Gtk::MessageDialog::BUTTONS_CLOSE,
@@ -307,7 +308,7 @@ class ProjectClient
   end
   
   def available_projects
-    @server.get_projects
+    @server.projects
   end
   
   def join_project( projectname, login, password )
@@ -316,20 +317,21 @@ class ProjectClient
     @client_id = @server.add_client( login, password )
     if @client_id
       project = available_projects.select{|p| p.name == projectname }.first
-      @manager.exchange_all_gl_components do 
-        @manager.main_assembly      = project.main_assembly
-        @manager.all_assemblies     = project.all_assemblies
-        @manager.all_parts          = project.all_parts
-        @manager.all_part_instances = project.all_part_instances
-        @manager.all_sketches       = project.all_sketches
+      $manager.exchange_all_gl_components do 
+        $manager.main_assembly          = project.main_assembly
+        $manager.all_assemblies         = project.all_assemblies
+        $manager.all_parts              = project.all_parts
+        $manager.all_assembly_instances = project.all_assembly_instances
+        $manager.all_part_instances     = project.all_part_instances
+        $manager.all_sketches           = project.all_sketches
       end
-      @manager.readd_non_dumpable
-      @manager.op_view.update
-      @manager.glview.redraw
+      $manager.readd_non_dumpable
+      $manager.op_view.update
+      $manager.glview.redraw
       start_polling
       return true
     else
-      dialog = Gtk::MessageDialog.new(@manager.main_win, 
+      dialog = Gtk::MessageDialog.new($manager.main_win, 
                                       Gtk::Dialog::DESTROY_WITH_PARENT,
                                       Gtk::MessageDialog::WARNING,
                                       Gtk::MessageDialog::BUTTONS_CLOSE,
@@ -342,8 +344,9 @@ class ProjectClient
   end
   
   def start_polling
+    @polling = true
     @poller = Thread.start do
-      loop do
+      while @polling do
         # get model changes from server
         for changes in @server.get_changes_for @client_id
           for obj_or_id, type in changes
@@ -351,9 +354,9 @@ class ProjectClient
             when :change then
               exchange_object obj_or_id
             when :add then
-              @manager.add_object obj_or_id
+              $manager.add_object obj_or_id
             when :delete then
-              @manager.delete_object obj_or_id
+              $manager.delete_object obj_or_id
             end
           end
         end
@@ -367,7 +370,7 @@ class ProjectClient
           when :cancel 
             @wait_dialog.close if @wait_dialog
             @save_dialog.close if @save_dialog
-            dialog = Gtk::MessageDialog.new(@manager.main_win, 
+            dialog = Gtk::MessageDialog.new($manager.main_win, 
                                             Gtk::Dialog::DESTROY_WITH_PARENT,
                                             Gtk::MessageDialog::INFO,
                                             Gtk::MessageDialog::BUTTONS_CLOSE,
@@ -387,16 +390,16 @@ class ProjectClient
 
   def exchange_object new_object
     # find all occurences of object with same id and replace them
-    for inst in @manager.all_instances
+    for inst in $manager.all_instances
         if inst.real_component.component_id == new_object.component_id
           inst.clean_up
           inst.real_component = new_object
         end
     end
     # setup open gl
-    new_object.displaylist = @manager.glview.add_displaylist
+    new_object.displaylist = $manager.glview.add_displaylist
     new_object.build_displaylist
-    @manager.glview.redraw
+    $manager.glview.redraw
   end
   
   def save_request
@@ -425,6 +428,8 @@ class ProjectClient
   end
   
   def component_added comp
+    puts "trying to dump"
+    Marshal.dump comp
     @server.add_object( @projectname, comp, @client_id )
   end
   
@@ -433,7 +438,7 @@ class ProjectClient
   end
   
   def exit
-    @poller.kill if @poller
+    @polling = false or @poller.join if @poller
     @server.remove_client @client_id if @client_id
   end
 end

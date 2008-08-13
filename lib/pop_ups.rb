@@ -5,24 +5,24 @@
 
 
 class BackgroundMenu < Gtk::Menu
-  def initialize manager
+  def initialize
     super()
     items = [
 			Gtk::ImageMenuItem.new(Gtk::Stock::PASTE),
 			Gtk::SeparatorMenuItem.new,
 			Gtk::ImageMenuItem.new(GetText._("_Return")).set_image( Gtk::Image.new(Gtk::Stock::UNDO, Gtk::IconSize::MENU) )
 		]
-		items[0].sensitive = manager.clipboard ? true : false
-		items[2].sensitive = (manager.work_sketch or 
-												 manager.work_operator or 
-												 manager.work_component != manager.main_assembly) ? true : false
+		items[0].sensitive = $manager.clipboard ? true : false
+		items[2].sensitive = ($manager.work_sketch or 
+												 $manager.work_operator or 
+												 $manager.work_component != $manager.main_assembly) ? true : false
 		# paste
 		items[0].signal_connect("activate") do
-			manager.paste_from_clipboard
+			$manager.paste_from_clipboard
 		end
 		# return
 		items[2].signal_connect("activate") do
-			manager.working_level_up
+			$manager.working_level_up
 		end
 		items.each{|i| append i }
 		show_all
@@ -31,7 +31,7 @@ end
 
 
 class ComponentMenu < Gtk::Menu
-  def initialize( manager, part, location )
+  def initialize( part, location )
     super()
     items = [
 			Gtk::MenuItem.new( GetText._("Duplicate instance")),
@@ -45,11 +45,11 @@ class ComponentMenu < Gtk::Menu
 			Gtk::SeparatorMenuItem.new,
 			Gtk::ImageMenuItem.new(Gtk::Stock::PROPERTIES)
 		]
-		items[4].sensitive = manager.clipboard ? true : false
+		items[4].sensitive = $manager.clipboard ? true : false
 		items[7].active = part.visible
 		# duplicate instance
 		items[0].signal_connect("activate") do
-      manager.duplicate_instance
+      $manager.duplicate_instance
 		end
 		# duplicate original
 		items[1].signal_connect("activate") do
@@ -57,25 +57,25 @@ class ComponentMenu < Gtk::Menu
 		end
 		# cut
 		items[3].signal_connect("activate") do
-			manager.cut_to_clipboard
+			$manager.cut_to_clipboard
 		end
 		# copy
 		items[3].signal_connect("activate") do
-			manager.copy_to_clipboard
+			$manager.copy_to_clipboard
 		end
 		# paste
 		items[4].signal_connect("activate") do
-			manager.paste_from_clipboard
+			$manager.paste_from_clipboard
 		end
 		# delete
 		items[5].signal_connect("activate") do
-			manager.delete_op_view_selected if location == :op_view
-			manager.delete_selected 				if location == :glview
+			$manager.delete_op_view_selected if location == :op_view
+			$manager.delete_selected 				if location == :glview
 		end
 		# visible
 		items[7].signal_connect("activate") do
       part.visible = items[7].active?
-      manager.glview.redraw
+      $manager.glview.redraw
 		end
 		# properties
 		items[9].signal_connect("activate") do
@@ -87,7 +87,7 @@ class ComponentMenu < Gtk::Menu
 end
 
 class OperatorMenu < Gtk::Menu
-  def initialize( manager, operator )
+  def initialize operator
     super()
     items = [
 			Gtk::MenuItem.new( GetText._("Edit dimensions")),
@@ -118,11 +118,11 @@ class OperatorMenu < Gtk::Menu
 		# enable/disable
 		items[4].active = operator.enabled
 		items[4].signal_connect("activate") do
-      manager.enable_operator operator
+      $manager.enable_operator operator
 		end
 		# delete
 		items[5].signal_connect("activate") do
-      manager.delete_object operator
+      $manager.delete_object operator
 		end
 		items.each{|i| append i }
 		show_all
@@ -131,7 +131,7 @@ end
 
 
 class OpViewOperatorMenu < Gtk::Menu
-  def initialize( manager, operator )
+  def initialize operator
     super()
     items = [
 			Gtk::MenuItem.new( GetText._("Edit dimensions")),
@@ -159,11 +159,11 @@ class OpViewOperatorMenu < Gtk::Menu
 		# enable/disable
 		items[4].active = operator.enabled
 		items[4].signal_connect("activate") do
-      manager.enable_selected_operator
+      $manager.enable_selected_operator
 		end
 		# delete
 		items[5].signal_connect("activate") do
-      manager.delete_op_view_selected
+      $manager.delete_op_view_selected
 		end
 		items.each{|i| append i }
 		show_all
@@ -172,7 +172,7 @@ end
 
 
 class SketchMenu < Gtk::Menu
-  def initialize( manager, sketch )
+  def initialize sketch
     super()
     items = [
 			Gtk::MenuItem.new( GetText._("Duplicate sketch")),
@@ -181,11 +181,11 @@ class SketchMenu < Gtk::Menu
 		]
 		# duplicate
 		items[0].signal_connect("activate") do
-		  manager.new_sketch sketch
+		  $manager.new_sketch sketch
 		end
 		# delete
 		items[2].signal_connect("activate") do
-      manager.delete_op_view_selected
+      $manager.delete_op_view_selected
 		end
 		items.each{|i| append i }
 		show_all
@@ -193,7 +193,7 @@ class SketchMenu < Gtk::Menu
 end
 
 class SketchToolMenu < Gtk::Menu
-  def initialize( manager, tool )
+  def initialize tool
     super()
     items = [
 			Gtk::CheckMenuItem.new( GetText._("Snap to points")),
@@ -203,21 +203,21 @@ class SketchToolMenu < Gtk::Menu
 			Gtk::SeparatorMenuItem.new,
 			Gtk::ImageMenuItem.new(Gtk::Stock::STOP)
 		]
-		items[0].active = manager.point_snap
-		items[1].active = manager.grid_snap
-		items[2].active = manager.use_sketch_guides
+		items[0].active = $manager.point_snap
+		items[1].active = $manager.grid_snap
+		items[2].active = $manager.use_sketch_guides
 		items[3].active = tool.create_reference_geometry
 		# snap points
 		items[0].signal_connect("activate") do |w|
-      manager.point_snap = w.active?
+      $manager.point_snap = w.active?
 		end
 		# snap grid
 		items[1].signal_connect("activate") do |w|
-      manager.grid_snap = w.active?
+      $manager.grid_snap = w.active?
 		end
 		# guides
 		items[2].signal_connect("activate") do |w|
-			manager.use_sketch_guides = w.active?
+			$manager.use_sketch_guides = w.active?
 		end
 		# reference
 		items[3].signal_connect("activate") do |w|
@@ -225,7 +225,7 @@ class SketchToolMenu < Gtk::Menu
 		end
 		# stop
 		items[5].signal_connect("activate") do |w|
-      manager.cancel_current_tool
+      $manager.cancel_current_tool
 		end
 		items.each{|i| append i }
 		show_all
@@ -233,7 +233,7 @@ class SketchToolMenu < Gtk::Menu
 end
 
 class SketchSelectionToolMenu < Gtk::Menu
-  def initialize manager
+  def initialize
     super()
     items = [
 			Gtk::CheckMenuItem.new( GetText._("Snap to points")),
@@ -247,47 +247,47 @@ class SketchSelectionToolMenu < Gtk::Menu
 			Gtk::SeparatorMenuItem.new,
 			Gtk::ImageMenuItem.new(GetText._("_Return")).set_image( Gtk::Image.new(Gtk::Stock::UNDO, Gtk::IconSize::MENU) )
 		]
-		items[0].active = manager.point_snap
-		items[1].active = manager.grid_snap
-		items[2].active = manager.use_sketch_guides
-		items[4].sensitive = (not manager.selection.empty?)
-		items[5].sensitive = (not manager.selection.empty?)
-		items[6].sensitive = manager.clipboard ? true : false
-		items[7].sensitive = manager.selection.empty? ? false : true
-		items[9].sensitive = (manager.work_sketch or 
-												  manager.work_operator or 
-												  manager.work_component != manager.main_assembly) ? true : false
+		items[0].active = $manager.point_snap
+		items[1].active = $manager.grid_snap
+		items[2].active = $manager.use_sketch_guides
+		items[4].sensitive = (not $manager.selection.empty?)
+		items[5].sensitive = (not $manager.selection.empty?)
+		items[6].sensitive = $manager.clipboard ? true : false
+		items[7].sensitive = $manager.selection.empty? ? false : true
+		items[9].sensitive = ($manager.work_sketch or 
+												  $manager.work_operator or 
+												  $manager.work_component != $manager.main_assembly) ? true : false
 		# snap points
 		items[0].signal_connect("activate") do |w|
-      manager.point_snap = w.active?
+      $manager.point_snap = w.active?
 		end
 		# snap grid
 		items[1].signal_connect("activate") do |w|
-      manager.grid_snap = w.active?
+      $manager.grid_snap = w.active?
 		end
 		# guides
 		items[2].signal_connect("activate") do |w|
-			manager.use_sketch_guides = w.active?
+			$manager.use_sketch_guides = w.active?
 		end
 		# cut
 		items[4].signal_connect("activate") do |w|
-      manager.cut_to_clipboard
+      $manager.cut_to_clipboard
 		end
 		# copy
 		items[5].signal_connect("activate") do |w|
-      manager.copy_to_clipboard
+      $manager.copy_to_clipboard
 		end
 		# paste
 		items[6].signal_connect("activate") do |w|
-      manager.paste_from_clipboard
+      $manager.paste_from_clipboard
 		end
 		# delete
 		items[7].signal_connect("activate") do |w|
-      manager.delete_selected
+      $manager.delete_selected
 		end
 		# return
 		items[9].signal_connect("activate") do |w|
-      manager.working_level_up
+      $manager.working_level_up
 		end
 		items.each{|i| append i }
 		show_all

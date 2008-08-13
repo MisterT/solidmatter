@@ -7,23 +7,22 @@ require 'libglade2'
 require 'new_project_dialog.rb'
 
 class NewDialog
-  def initialize( manager )
-    @manager = manager
+  def initialize
     @glade = GladeXML.new( "../data/glade/new_dialog.glade", nil, 'openmachinist' ) {|handler| method(handler)}
   end
   
   def new_project
     close
-    NewProjectDialog.new(@manager)
+    NewProjectDialog.new
   end
   
   def new_assembly
-    @manager.new_assembly
+    $manager.new_assembly
     close
   end
   
   def new_part
-    @manager.new_part
+    $manager.new_part
     close
   end
   

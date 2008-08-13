@@ -63,12 +63,13 @@ end
 
 class ProjectManager
 	attr_accessor :filename, :project_id, :focus_view, :materials, :save_btn, :return_btn, :previous_btn, :next_btn,
-	              :main_assembly, :all_assemblies, :all_parts, :all_instances, :all_assembly_instances, 
+	              :main_assembly, :all_assemblies, :all_parts, :all_assembly_instances, 
 	              :all_part_instances, :all_sketches, :name, :author, :main_win,
 	              :point_snap, :grid_snap, :use_sketch_guides, :clipboard, :unit_system
 	attr_reader :selection, :work_component, :work_sketch,
 	            :glview, :op_view, :has_been_changed, :keys_pressed, :keymap, :work_operator
 	def initialize( main_win, op_view, glview, asm_toolbar, prt_toolbar, sketch_toolbar, statusbar, main_vbox, op_view_controls )
+	  $manager = self
 	  @main_win = main_win
 		@op_view = op_view
 		@asm_toolbar = asm_toolbar
@@ -102,6 +103,10 @@ class ProjectManager
 	end
 	
 public
+  def all_instances
+    @all_part_instances + @all_assembly_instances
+  end
+
   def project_name
     if @client
       @client.projectname
@@ -126,20 +131,19 @@ public
   end
   
 	def new_project
-	  CloseProjectConfirmation.new self do |response|
+	  CloseProjectConfirmation.new do |response|
 	    save_file if response == :save
       @client.exit if @client
       @client = nil
     	@name = GetText._("Untitled project")
     	@author = ""
-    	@main_assembly = Instance.new( Assembly.new( GetText._("Untitled assembly"), self ) )
+    	@main_assembly = Instance.new( Assembly.new( GetText._("Untitled assembly") ) )
     	@selection = Selection.new
     	@work_component = @main_assembly
     	@work_sketch = nil
     	exchange_all_gl_components do
       	@all_assemblies         = [@main_assembly.real_component]
       	@all_parts              = []
-      	@all_instances          = []
       	@all_part_instances     = []
       	@all_assembly_instances = [@main_assembly]
       	@all_sketches           = []
@@ -149,7 +153,7 @@ public
     	@filename = nil
     	self.has_been_changed = false
     	@op_view.set_base_component( @main_assembly ) if @op_view
-    	@toolstack = [ PartSelectionTool.new( glview, self ) ] if @glview
+    	@toolstack = [ PartSelectionTool.new ] if @glview
     	display_properties if @not_starting_up
     	@glview.redraw if @not_starting_up
     	@not_starting_up = true
@@ -215,6 +219,7 @@ public
 	  if @client.working
 	    valid = @client.join_project( projectname, login, password ) 
 	    if valid
+	      puts "successfully joined project"
 	      self.has_been_changed = false
       else
 	      @client.exit
@@ -234,18 +239,18 @@ public
 		working_level_up while @work_component.class == Part
 		# make component instance the work component
 		instance = Instance.new( component, @work_component )
-		@work_component.components.push instance
-		@all_instances.push instance
-		@all_part_instances.push instance if instance.class == Part
-		@all_assembly_instances.push instance if instance.class == Assembly
-		change_working_level instance 
+		#@work_component.components.push instance
+		#@all_part_instances.push instance if instance.class == Part
+		#@all_assembly_instances.push instance if instance.class == Assembly
+		add_object instance
+		change_working_level instance
 		instance.display_properties if show_properties
 		instance
 	end
 	
 	def new_part
 		# create part and make its instance the work part
-		part = Part.new( unique_name( GetText._("part") ), self)
+		part = Part.new( unique_name( GetText._("part") ) )
 		@all_parts.push part
 		new_instance( part )
 	end
@@ -262,7 +267,7 @@ public
 	  activate_tool('plane_select', true) do |plane|
 	    if plane
     		# create sketch and make it the work sketch
-    		sketch = Sketch.new( unique_name( GetText._("sketch") ), @work_component, plane, @glview )
+    		sketch = Sketch.new( unique_name( GetText._("sketch") ), @work_component, plane )
     		if template
     		  sketch.segments = template.segments.map{|s| seg = s.dup ; seg.sketch = sketch ; seg }
     		  sketch.build_displaylist
@@ -305,29 +310,28 @@ public
           inst.components.each{|c| add_object( c, false ) }
         end
       end
-      @all_instances.push inst
+      if insert
+        working_level_up while @work_component.class == Part
+        @work_component.components.push inst
+        @op_view.update
+      end
+      @client.component_added inst if @client and @client.working
     # add segment
     elsif inst.is_a? Segment and @work_sketch
       @work_sketch.segments.push inst
       @work_sketch.build_displaylist
     end
-    if insert and not @work_sketch
-      working_level_up while @work_component.class == Part
-      @work_component.components.push inst
-      @op_view.update
-    end
     @glview.redraw
 	end
 	
 	def delete_object obj_or_id
-	  obj = (obj_or_id.is_a? Integer) ? @all_instances.select{|inst| inst.instance_id == obj_or_id }.first : obj_or_id
+	  obj = (obj_or_id.is_a? Integer) ? all_instances.select{|inst| inst.instance_id == obj_or_id }.first : obj_or_id
 	  if obj.is_a? Instance and obj.parent
       obj.parent.remove_component obj
-      @all_instances.delete obj
       @all_assembly_instances.delete obj
       @all_part_instances.delete obj
     elsif obj.is_a? Component
-    	@all_instances.dup.each{|inst| delete_object inst if inst.real_component == obj }
+    	all_instances.each{|inst| delete_object inst if inst.real_component == obj }
     	@all_parts.delete obj
     elsif obj.is_a? Operator 
       sketch = obj.settings[:sketch]
@@ -388,10 +392,9 @@ public
 							@main_assembly          = scene[2]
 							@all_assemblies         = scene[3]
 							@all_parts              = scene[4]
-      				@all_instances          = scene[5]
-      				@all_part_instances     = scene[6]
-      				@all_assembly_instances = scene[7]
-							@all_sketches           = scene[8]
+      				@all_part_instances     = scene[5]
+      				@all_assembly_instances = scene[6]
+							@all_sketches           = scene[7]
 							readd_non_dumpable
 						end
 					end
@@ -440,8 +443,8 @@ public
   			  strip_non_dumpable
   			  puts "projectname: " + project_name
   				Marshal::dump( [@glview.image_of_instances(@all_part_instances,8,100,project_name).to_tiny, 
-  												@name, @main_assembly, @all_assemblies,	@all_parts, @all_instances, 
-  												@all_part_instances, @all_assembly_instances, @all_sketches], file )
+  												@name, @main_assembly, @all_assemblies,	@all_parts, @all_part_instances,
+  												@all_assembly_instances, @all_sketches], file )
   				readd_non_dumpable 
   				@all_parts.each{|p| p.build } 
   			end
@@ -455,34 +458,22 @@ public
 	
 	def strip_non_dumpable
 	  @all_parts.each do |p| 
-	    p.manager = nil
-	    p.working_planes.each{|pl| pl.glview = nil }
-	    p.unused_sketches.each{|sk| sk.glview = nil; sk.plane.glview = nil }
 	    p.operators.each do |op|
-	      op.manager = nil
 	      op.toolbar = nil
-	      op.settings[:sketch].glview = nil if op.settings[:sketch]
       end
 	  end
-	  @all_assemblies.each{|a| a.manager = nil }
 	end
 	
 	def readd_non_dumpable
 	  @all_parts.each do |p| 
-	    p.manager = self
-	    p.working_planes.each{|pl| pl.glview = @glview }
-	    p.unused_sketches.each{|sk| sk.glview = @glview; sk.plane.glview = @glview }
 	    p.operators.each do |op|
-	      op.manager = self
 	      op.create_toolbar
-	      op.settings[:sketch].glview = @glview if op.settings[:sketch]
       end
 	  end
-	  @all_assemblies.each{|a| a.manager = self }
 	end
 	
   def display_properties
-    ProjectInformationDialog.new(self){ yield if block_given? ; puts "found myself having the name #{@name}" }
+    ProjectInformationDialog.new{ yield if block_given? ; puts "found myself having the name #{@name}" }
   end
 ###                                                                                      ###
 ######---------------------- Working level and mode transitions ----------------------######
@@ -595,9 +586,9 @@ public
 	def add_operator( type )
 		case type
 			when 'extrude'
-				op = ExtrudeOperator.new( @work_component, self )
+				op = ExtrudeOperator.new @work_component
 			when 'revolve'
-				op = RevolveOperator.new( @work_component, self )
+				op = RevolveOperator.new @work_component
 		end
 		@work_component.add_operator op 
 		@op_view.update
@@ -642,37 +633,37 @@ public
 		end
 		case name
 			when 'camera'
-				tool = CameraTool.new( @glview, self, &block )
+				tool = CameraTool.new( &block )
 			when 'select'
 			  if @work_sketch
-			    tool = EditSketchTool.new( @glview, self, @work_sketch, &block )
+			    tool = EditSketchTool.new( @work_sketch, &block )
 		    elsif @work_component.class == Part
-		      tool = OperatorSelectionTool.new( @glview, self, &block )
+		      tool = OperatorSelectionTool.new( &block )
 	      elsif @work_component.class == Assembly
-	        tool = PartSelectionTool.new( @glview, self, &block )
+	        tool = PartSelectionTool.new( &block )
         end
 			when 'part_select'
-				tool = PartSelectionTool.new( @glview, self, &block )
+				tool = PartSelectionTool.new( &block )
 			when 'operator_select'
-  			tool = OperatorSelectionTool.new( @glview, self, &block )
+  			tool = OperatorSelectionTool.new( &block )
 			when 'region_select'
-				tool = RegionSelectionTool.new( @glview, self, &block )
+				tool = RegionSelectionTool.new( &block )
 			when 'sketch_select'
-  			tool = SketchSelectionTool.new( @glview, self, &block )
+  			tool = SketchSelectionTool.new( &block )
 			when 'plane_select'
-				tool = PlaneSelectionTool.new( @glview, self, &block )
+				tool = PlaneSelectionTool.new( &block )
 			when 'measure_distance'
-				tool = MeasureDistanceTool.new( @glview, self, &block )
+				tool = MeasureDistanceTool.new( &block )
 			when 'line'
-				tool = LineTool.new( @glview, self, @work_sketch, &block )
+				tool = LineTool.new( @work_sketch, &block )
 			when 'arc'
-				tool = ArcTool.new( @glview, self, @work_sketch, &block )
+				tool = ArcTool.new( @work_sketch, &block )
 			when 'circle'
-				tool = TwoPointCircleTool.new( @glview, self, @work_sketch, &block )
+				tool = TwoPointCircleTool.new( @work_sketch, &block )
 			when 'dimension'
-				tool = DimensionTool.new( @glview, self, @work_sketch, &block )
+				tool = DimensionTool.new( @work_sketch, &block )
 			when 'trim'
-				tool = TrimTool.new( @glview, self, @work_sketch, &block )
+				tool = TrimTool.new( @work_sketch, &block )
 		end
 		tool_mode tool
 		@toolstack.push tool

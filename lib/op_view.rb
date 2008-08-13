@@ -18,7 +18,6 @@ class OpView < Gtk::ScrolledWindow
 	attr_accessor :manager, :base_component
 	def initialize
 		super
-		@manager = nil
 		@base_component = nil
 		self.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_ALWAYS)
 		# set up view
@@ -48,24 +47,24 @@ class OpView < Gtk::ScrolledWindow
 			  sel = self.selections[0]
 			  menu = case sel
 		    when Operator
-		      OpViewOperatorMenu.new(@manager, sel)
+		      OpViewOperatorMenu.new sel
 	      when Instance
-	        ComponentMenu.new(@manager, sel, :op_view)
+	        ComponentMenu.new sel, :op_view
         when Sketch
-          SketchMenu.new(@manager, sel)
+          SketchMenu.new sel
 		    end
 			  menu.popup(nil, nil, event.button, event.time) if menu
 			end
 		end
 	   @tv.signal_connect('row_activated') do 
 	   	sel = self.selections[0]
-	   	@manager.exit_current_mode
+	   	$manager.exit_current_mode
 	   	if sel.is_a? Sketch
-	   		@manager.sketch_mode sel 
+	   		$manager.sketch_mode sel 
 	   	elsif sel.is_a? Operator
-	   		@manager.operator_mode sel
+	   		$manager.operator_mode sel
 	   	else
-	   		@manager.change_working_level sel 
+	   		$manager.change_working_level sel 
 	   	end
 	   end
 	end

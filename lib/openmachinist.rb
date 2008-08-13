@@ -55,3 +55,4 @@ Gtk.main_with_queue 100
 # rebuild selectionpasscolors sollte für alle objekttypen farben erstellen, nur select sollte nach typ unterscheiden
 # linetool erstellt constraint nur für letzten punkt
 # menu selection should be shown in statusbar
+# wennn neues projekt mit part erstellt wird sollte danach auf part gewechselt werden

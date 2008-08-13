@@ -6,10 +6,9 @@
 require 'gnome2'
 
 class SearchEntry < Gtk::ToolItem 
-	def initialize( manager )
+	def initialize
 		super()
 		no_show_all = true
-		@manager = manager
 		@icon = Gtk::Image.new( Gtk::Stock::FIND, Gtk::IconSize::SMALL_TOOLBAR )
 		@entry = Gtk::ComboBoxEntry.new
 		@label = Gtk::Label.new GetText._("Search") 
@@ -35,21 +34,21 @@ class SearchEntry < Gtk::ToolItem
 	
 	def select_matching_objects( str )
 	  str.downcase!
-	  if @manager.work_component.class == Assembly
-  		@manager.selection.deselect_all
+	  if $manager.work_component.class == Assembly
+  		$manager.selection.deselect_all
   		unless str.empty?
-  			comps_to_check = [@manager.work_component]
+  			comps_to_check = [$manager.work_component]
   			while not comps_to_check.empty?
   				new_comps = []
   				comps_to_check.each do |c|
-  					@manager.selection.add c if c.information[:name].downcase.include? str
+  					$manager.selection.add c if c.information[:name].downcase.include? str
   					new_comps += c.components if c.class == Assembly
   				end
   				comps_to_check = new_comps
   			end
   		end
-  		@manager.glview.zoom_selection
-  		@manager.glview.redraw
+  		$manager.glview.zoom_selection
+  		$manager.glview.redraw
 	  end
 	end
 end

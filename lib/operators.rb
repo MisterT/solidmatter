@@ -8,7 +8,7 @@ require 'vector.rb'
 require 'widgets.rb'
 
 class ExtrudeOperator < Operator
-	def initialize( part, manager )
+	def initialize part
 		@name = "extrusion"
 		@settings = {}
 		@settings[:depth] = 0.2
@@ -84,7 +84,7 @@ class ExtrudeOperator < Operator
 		sketch_button.label = GetText._("Sketch")
 		sketch_button.signal_connect("clicked") do |b| 
 		  if sketch_button.active?
-  			@manager.activate_tool("region_select", true) do |segments|
+  			$manager.activate_tool("region_select", true) do |segments|
   			  if segments
     				@settings[:segments] = segments
     				sketch = segments.first.sketch
@@ -95,7 +95,7 @@ class ExtrudeOperator < Operator
     				@settings[:sketch] = sketch
     				sketch.op = self
     				@part.unused_sketches.delete sketch
-    				@manager.op_view.update
+    				$manager.op_view.update
     				show_changes
   			  end
   			  sketch_button.active = false

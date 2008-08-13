@@ -12,8 +12,7 @@ class String
 end
                   
 class ComponentBrowser
-	def initialize manager
-	  @manager = manager
+	def initialize
 	  @glade = GladeXML.new( "../data/glade/component_browser.glade", nil, 'openmachinist' ) {|handler| method(handler)}
 	  @parts = {}
     # generate Radiobuttons for thumbnails
@@ -28,8 +27,8 @@ class ComponentBrowser
   
   def build_buttons( regen_thumbs=false )
 	  # generate Gtk::Images for all parts
-    @thumbs = @manager.all_parts.dup.map do |part|
-    	im = (regen_thumbs or not part.thumbnail) ? @manager.glview.image_of_parts( part ) : part.thumbnail
+    @thumbs = $manager.all_parts.dup.map do |part|
+    	im = (regen_thumbs or not part.thumbnail) ? $manager.glview.image_of_parts( part ) : part.thumbnail
     	part.thumbnail = im
       gtkim = native2gtk(im)
       @parts[gtkim] = part
@@ -68,13 +67,13 @@ class ComponentBrowser
   
   def remove_selected
   	btn = @buttons.select{|b| b.active? }.first
-  	@manager.delete_object @parts[btn] if btn
+  	$manager.delete_object @parts[btn] if btn
   	build_buttons
   end
   
 	def insert part
 	  close
-    @manager.new_instance part
+    $manager.new_instance part
 	end
 	
 	def rebuild

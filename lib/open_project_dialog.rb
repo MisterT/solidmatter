@@ -8,15 +8,14 @@ require 'join_project_dialog.rb'
 
 
 class OpenProjectDialog
-	def initialize manager
-	  @manager = manager
+	def initialize
 	  @glade = GladeXML.new( "../data/glade/open_project.glade", nil, 'openmachinist' ) {|handler| method(handler)}
   end
   
   def ok_handle( w )
     @glade['open_project'].destroy
-    @manager.open_file if @choice == 'local_radio'
-    JoinProjectDialog.new @manager if @choice == 'multi_radio'
+    $manager.open_file if @choice == 'local_radio'
+    JoinProjectDialog.new if @choice == 'multi_radio'
   end
   
   def cancel_handle w 

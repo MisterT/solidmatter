@@ -8,10 +8,9 @@ require 'pop_ups.rb'
 
 class Tool
   attr_reader :toolbar, :uses_toolbar
-	def initialize( status_text, glview, manager )
+	def initialize status_text
 		@status_text = status_text
-		@glview = glview
-		@manager = manager
+		@glview = $manager.glview
 		create_toolbar
 		@uses_toolbar = false
 		resume
@@ -28,7 +27,7 @@ public
 	end
 
 	def click_left( x,y )
-	  @manager.has_been_changed = true
+	  $manager.has_been_changed = true
 	end
 	
 	def double_click( x,y )
@@ -74,12 +73,12 @@ public
 	def resume
 	  @draw_routine = lambda{ draw }
 		@glview.immediate_draw_routines.push @draw_routine
-		@manager.set_status_text( @status_text )
+		$manager.set_status_text( @status_text )
 	end
 	
 	def exit
 		@glview.immediate_draw_routines.delete @draw_routine
-		@manager.glview.window.cursor = nil
+		$manager.glview.window.cursor = nil
 	end
 	
   #--- UI ---#
@@ -89,7 +88,7 @@ public
 		@toolbar.icon_size = Gtk::IconSize::SMALL_TOOLBAR
 		fill_toolbar 
 		@toolbar.append( Gtk::SeparatorToolItem.new){}
-		@toolbar.append( Gtk::Stock::OK, GetText._("Finish using tool"),"Tool/Ok"){ @manager.cancel_current_tool }
+		@toolbar.append( Gtk::Stock::OK, GetText._("Finish using tool"),"Tool/Ok"){ $manager.cancel_current_tool }
 	end
 	
 	def fill_toolbar
@@ -105,8 +104,8 @@ end
 ###                                                                  ###
 
 class SelectionTool < Tool
-	def initialize( text, glview, manager )
-		super( text, glview, manager )
+	def initialize text
+		super text
 		@selection = nil
 		@callback = Proc.new if block_given?
 		@glview.rebuild_selection_pass_colors selection_mode
@@ -124,8 +123,8 @@ end
 
 
 class PartSelectionTool < SelectionTool
-	def initialize( glview, manager )
-		super( GetText._("Drag a part to move it around, right click for options:"), glview, manager )
+	def initialize
+		super( GetText._("Drag a part to move it around, right click for options:") )
 	end
 	
 	def selection_mode
@@ -136,23 +135,23 @@ class PartSelectionTool < SelectionTool
 		super
 		sel = @glview.select(x,y, :select_instances)
 		if sel
-			if @manager.key_pressed? :Shift
-				@manager.selection.add @manager.top_ancestor( sel ) 
+			if $manager.key_pressed? :Shift
+				$manager.selection.add $manager.top_ancestor( sel ) 
 			else
-				@manager.select sel
+				$manager.select sel
 			end
 		else
-			@manager.selection.deselect_all
+			$manager.selection.deselect_all
 		end
 	end
 	
 	def double_click( x,y )
 	  super
- 	  real_sel = @manager.selection.first
+ 	  real_sel = $manager.selection.first
  	  if real_sel
- 	    @manager.change_working_level real_sel 
+ 	    $manager.change_working_level real_sel 
     else
-      @manager.working_level_up
+      $manager.working_level_up
     end
 	end
 	
@@ -165,8 +164,8 @@ class PartSelectionTool < SelectionTool
 	def press_right( x,y, time )
 	  super
 		click_left( x,y )
-		sel = @manager.selection.first
-		menu = sel ? ComponentMenu.new(@manager, sel, :glview) : BackgroundMenu.new(@manager)
+		sel = $manager.selection.first
+		menu = sel ? ComponentMenu.new( sel, :glview) : BackgroundMenu.new
 		menu.popup(nil, nil, 3,  time)
 	end
 	
@@ -181,11 +180,11 @@ class PartSelectionTool < SelectionTool
 end
 
 class OperatorSelectionTool < SelectionTool
-	def initialize( glview, manager )
-		super( GetText._("Select a feature from your model, right click for options:"), glview, manager )
+	def initialize
+		super( GetText._("Select a feature from your model, right click for options:") )
 		@draw_faces = []
 =begin
-		part = @manager.work_component
+		part = $manager.work_component
 		@op_displaylists = {}
 		part.operators.map do |op| 
 	  	faces = part.solid.faces.select{|f| f.created_by_op == op }
@@ -208,9 +207,9 @@ class OperatorSelectionTool < SelectionTool
 		if @current_face
 		#if @current_op
 		  op = @current_face.created_by_op
-		  @manager.exit_current_mode
-      @manager.operator_mode op
-      #@manager.operator_mode @current_op
+		  $manager.exit_current_mode
+      $manager.operator_mode op
+      #$manager.operator_mode @current_op
     end
 	end
 	
@@ -218,7 +217,7 @@ class OperatorSelectionTool < SelectionTool
 	  super
 	  @current_face = @glview.select(x,y, :select_faces)
 	  raise "Wörkking plane" if @current_face.is_a? WorkingPlane
-	  @current_face = nil unless @manager.work_component.operators.include? @current_face.created_by_op if @current_face
+	  @current_face = nil unless $manager.work_component.operators.include? @current_face.created_by_op if @current_face
 	  @draw_faces = @current_face ? @current_face.solid.faces.select{|f| f.created_by_op == @current_face.created_by_op } : []
 	  #face = @glview.select(x,y, :select_faces)
 	  #@current_op = (face and @op_displaylists[face.created_by_op]) ? face.created_by_op : nil
@@ -229,9 +228,9 @@ class OperatorSelectionTool < SelectionTool
 	  super
 	  mouse_move( x,y )
 	  if @current_face
-		  OperatorMenu.new(@manager, @current_face.created_by_op).popup(nil, nil, 3,  time)
+		  OperatorMenu.new( @current_face.created_by_op).popup(nil, nil, 3,  time)
 		else
-		  BackgroundMenu.new(@manager).popup(nil, nil, 3,  time)
+		  BackgroundMenu.new.popup(nil, nil, 3,  time)
 	  end
 	end
 	
@@ -253,11 +252,11 @@ end
 
 Region = Struct.new(:chain, :poly, :face)
 class RegionSelectionTool < SelectionTool
-	def initialize( glview, manager )
-		super( GetText._("Pick a closed region from a sketch:"), glview, manager )
+	def initialize
+		super( GetText._("Pick a closed region from a sketch:") )
 		# create a list of regions that can be picked
-		@op_sketch = manager.work_operator.settings[:sketch]
-		@all_sketches = (manager.work_component.unused_sketches + [@op_sketch]).compact
+		@op_sketch = $manager.work_operator.settings[:sketch]
+		@all_sketches = ($manager.work_component.unused_sketches + [@op_sketch]).compact
 		@regions = @all_sketches.inject([]) do |regions, sketch|
 		  regions + sketch.all_chains.reverse.map do |chain|
   	    poly = Polygon.from_chain chain #.map{|seg| seg.tesselate }.flatten
@@ -284,7 +283,7 @@ class RegionSelectionTool < SelectionTool
 	  	@selection ||= []
 		  @selection.push @current_region.chain
 		  @selection = @selection.first # XXX should really combine the regions into one
-		  @manager.cancel_current_tool unless @manager.key_pressed? :Shift
+		  $manager.cancel_current_tool unless $manager.key_pressed? :Shift
 	  end
 	end
 
@@ -301,7 +300,7 @@ class RegionSelectionTool < SelectionTool
         break if @current_region
       end
     end
-    @manager.glview.window.cursor = @current_region ? Gdk::Cursor.new(Gdk::Cursor::HAND2) : nil
+    $manager.glview.window.cursor = @current_region ? Gdk::Cursor.new(Gdk::Cursor::HAND2) : nil
 	end
 	
 	def draw
@@ -330,9 +329,9 @@ end
 
 
 class PlaneSelectionTool < SelectionTool
-	def initialize( glview, manager )
-		super( GetText._("Select a single plane:"), glview, manager )
-		@manager.work_component.working_planes.each{|plane| plane.visible = true }
+	def initialize
+		super( GetText._("Select a single plane:") )
+		$manager.work_component.working_planes.each{|plane| plane.visible = true }
 	end
 	
 	def selection_mode
@@ -348,12 +347,12 @@ class PlaneSelectionTool < SelectionTool
       elsif sel.is_a? WorkingPlane
         @selection = sel
       end
-      @manager.cancel_current_tool
+      $manager.cancel_current_tool
 	  end
 	end
 	
 	def exit
-	  @manager.work_component.working_planes.each{|plane| plane.visible = false }
+	  $manager.work_component.working_planes.each{|plane| plane.visible = false }
 	  super
 	end
 end
@@ -363,9 +362,9 @@ end
 ###                                                                  ###
 
 class CameraTool < Tool
-	def initialize( glview, manager )
-		super( GetText._("Drag left to pan, drag right to rotate the camera, middle drag for zoom:"), glview, manager )
-		@manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::FLEUR
+	def initialize
+		super( GetText._("Drag left to pan, drag right to rotate the camera, middle drag for zoom:") )
+		$manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::FLEUR
 	end
 	
 	def click_left( x,y )
@@ -374,22 +373,22 @@ class CameraTool < Tool
 	
 	def press_left( x,y )
 	  super
-	  @manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::FLEUR
+	  $manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::FLEUR
 	end
 	
 	def click_middle( x,y )
 	  super
-	  @manager.glview.window.cursor =Gdk::Cursor.new Gdk::Cursor::SB_V_DOUBLE_ARROW
+	  $manager.glview.window.cursor =Gdk::Cursor.new Gdk::Cursor::SB_V_DOUBLE_ARROW
 	end
 	
 	def press_right( x,y, time )
 	  super
-	  @manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::EXCHANGE
+	  $manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::EXCHANGE
 	end
 	
 	def button_release
 	  super
-	  @manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::FLEUR
+	  $manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::FLEUR
 	end
 	
 	def draw
@@ -399,8 +398,8 @@ end
 
 
 class MeasureDistanceTool < Tool
-	def initialize( glview, manager )
-		super( GetText._("Pick a series of points to display the lenght of the path along them:"), glview, manager )
+	def initialize
+		super( GetText._("Pick a series of points to display the lenght of the path along them:") )
 		@points = []
 	end
 	
@@ -424,12 +423,12 @@ private
 		end
 		# lenght should be displayed even when tool was paused
 		@status_text = GetText._("Distance:") + " #{dist}"
-		@manager.set_status_text @status_text
+		$manager.set_status_text @status_text
 	end
 	
 	def draw
-		glcontext = @manager.glview.gl_context
-		gldrawable =  @manager.glview.gl_drawable
+		glcontext = $manager.glview.gl_context
+		gldrawable =  $manager.glview.gl_drawable
 		if gldrawable.gl_begin( glcontext )
 			GL.LineWidth(3)
 			GL.Color3f(1,0,1)
@@ -459,8 +458,8 @@ end
 
 class SketchTool < Tool
   attr_accessor :create_reference_geometry
-	def initialize( text, glview, manager, sketch )
-		super( text, glview, manager )
+	def initialize( text, sketch )
+		super text
 		@sketch = sketch		
 		@last_reference_points = []
 		@create_reference_geometry = false
@@ -476,7 +475,7 @@ class SketchTool < Tool
 	# snap points to guides, then to other points, then to grid
 	def snapped( x,y, excluded=[] )
     guide = [@x_guide,@z_guide].compact.first
-    point = if guide and @manager.use_sketch_guides
+    point = if guide and $manager.use_sketch_guides
               guide.last
             else
               point = @glview.screen2world( x, y ) 
@@ -484,8 +483,8 @@ class SketchTool < Tool
             end
     if point
       was_point_snapped = false
-      point, was_point_snapped = point_snapped( point, excluded ) if @manager.point_snap
-      point = grid_snapped point unless was_point_snapped or guide or not @manager.grid_snap
+      point, was_point_snapped = point_snapped( point, excluded ) if $manager.point_snap
+      point = grid_snapped point unless was_point_snapped or guide or not $manager.grid_snap
       return point, was_point_snapped
     else
       return nil
@@ -519,7 +518,7 @@ class SketchTool < Tool
 	end
 	
 	def grid_snapped p
-	  if @manager.grid_snap
+	  if $manager.grid_snap
 	    spacing = @sketch.plane.spacing
 	    div, mod = p.x.divmod spacing
 	    new_x = div * spacing
@@ -541,7 +540,7 @@ class SketchTool < Tool
 	  super( x,y )
 	  if @does_snap
   	  point = @glview.screen2world( x, y )
-  	  if point and @manager.use_sketch_guides
+  	  if point and $manager.use_sketch_guides
   	    point = world2sketch( point )
     	  # determine point(s) to draw guide through
     	  x_candidate = nil
@@ -592,7 +591,7 @@ class SketchTool < Tool
 	
 	def click_right( x,y, time )
 	  super
-	  menu = SketchToolMenu.new( @manager, self )
+	  menu = SketchToolMenu.new self
 	  menu.popup(nil, nil, 3,  time)
 	end
 	
@@ -600,7 +599,7 @@ class SketchTool < Tool
 	def draw
     super
     GL.Disable(GL::DEPTH_TEST)
-    if @manager.use_sketch_guides
+    if $manager.use_sketch_guides
       [@x_guide, @z_guide].compact.each do |guide|
         first = sketch2world(guide.first)
         last = sketch2world( guide.last )
@@ -616,7 +615,7 @@ class SketchTool < Tool
         GL.Disable GL::LINE_STIPPLE
       end
     end
-		if @manager.point_snap and @draw_dot
+		if $manager.point_snap and @draw_dot
       # draw dot at snap location
       dot = sketch2world @draw_dot
       GL.Color3f(1,0.3,0.1)
@@ -659,9 +658,9 @@ end
 
 
 class LineTool < SketchTool
-	def initialize( glview, manager, sketch )
-		super( GetText._("Click left to create a point, middle click to move points:"), glview, manager, sketch )
-		@manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if @manager.glview.window
+	def initialize sketch
+		super( GetText._("Click left to create a point, middle click to move points:"), sketch )
+		$manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if $manager.glview.window
 		@first_line = true
 	end
 	
@@ -696,20 +695,20 @@ class LineTool < SketchTool
 	
 	def pause
 	  super
-	  @manager.glview.window.cursor = nil
+	  $manager.glview.window.cursor = nil
 	end
 	
 	def resume
 	  super
-	  @manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if @manager.glview.window
+	  $manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if $manager.glview.window
 	end
 end
 
 
 class ArcTool < SketchTool
-	def initialize( glview, manager, sketch )
-		super( GetText._("Click left to select center:"), glview, manager, sketch )
-		@manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if @manager.glview.window
+	def initialize sketch
+		super( GetText._("Click left to select center:"), sketch )
+		$manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if $manager.glview.window
 		@step = 1
 		@uses_toolbar = true
 	end
@@ -720,12 +719,12 @@ class ArcTool < SketchTool
       case @step
       when 1
         @center = point
-        @manager.set_status_text GetText._("Click left to select first point on arc:")
+        $manager.set_status_text GetText._("Click left to select first point on arc:")
       when 2
         @radius = @center.distance_to point
 		    @start_angle = 360 - (@sketch.plane.u_vec.angle @center.vector_to point)
 		    @start_point = point
-		    @manager.set_status_text GetText._("Click left to select second point on arc:")
+		    $manager.set_status_text GetText._("Click left to select second point on arc:")
 	    when 3
 	      #end_angle = 360 - @sketch.plane.u_vec.angle( @center.vector_to( point ) )
 	      end_angle = @sketch.plane.u_vec.angle @center.vector_to point
@@ -733,7 +732,7 @@ class ArcTool < SketchTool
         end_angle = 360 - end_angle if point.z > @center.z
 	      @sketch.segments.push Arc.new( @center, @radius, @start_angle, end_angle, @sketch )
 	      @sketch.build_displaylist
-	      @manager.cancel_current_tool
+	      $manager.cancel_current_tool
       end
       @step += 1
     end
@@ -762,9 +761,9 @@ end
 
 
 class CircleTool < SketchTool
-	def initialize( glview, manager, sketch )
-		super( GetText._("Click left to select center:"), glview, manager, sketch )
-		@manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if @manager.glview.window
+	def initialize sketch
+		super( GetText._("Click left to select center:"), sketch )
+		$manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if $manager.glview.window
 		@step = 1
 	end
 	
@@ -774,12 +773,12 @@ class CircleTool < SketchTool
       case @step
       when 1
         @center = point
-        @manager.set_status_text GetText._("Click left to select a point on the circle:")
+        $manager.set_status_text GetText._("Click left to select a point on the circle:")
 	    when 2
         radius = @center.distance_to point
 	      @sketch.segments.push Circle.new( @center, radius, @sketch )
 	      @sketch.build_displaylist
-	      @manager.cancel_current_tool
+	      $manager.cancel_current_tool
       end
       @step += 1
     end
@@ -803,9 +802,9 @@ end
 
 
 class TwoPointCircleTool < SketchTool
-	def initialize( glview, manager, sketch )
-		super( GetText._("Click left to select first point on circle:"), glview, manager, sketch )
-		@manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if @manager.glview.window
+	def initialize sketch
+		super( GetText._("Click left to select first point on circle:"), sketch )
+		$manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if $manager.glview.window
 		@step = 1
 	end
 	
@@ -815,11 +814,11 @@ class TwoPointCircleTool < SketchTool
       case @step
       when 1
         @p1 = point
-        @manager.set_status_text GetText._("Click left to select second point on circle:")
+        $manager.set_status_text GetText._("Click left to select second point on circle:")
 	    when 2
 	      @sketch.segments.push Circle::from_opposite_points( @p1, point, @sketch )
 	      @sketch.build_displaylist
-	      @manager.cancel_current_tool
+	      $manager.cancel_current_tool
       end
       @step += 1
     end
@@ -839,8 +838,8 @@ end
 
 
 class DimensionTool < SketchTool
-	def initialize( glview, manager, sketch )
-		super( GetText._("Choose a segment or two points to add a dimension:"), glview, manager, sketch )
+	def initialize sketch
+		super( GetText._("Choose a segment or two points to add a dimension:"), sketch )
 		@points = []
 		@selected_segments = []
 		@does_snap = false
@@ -850,7 +849,7 @@ class DimensionTool < SketchTool
     if dim = dimension_for( @selected_segments, x,y )
       dim.visible = true
       @sketch.constraints << dim
-      @manager.cancel_current_tool
+      $manager.cancel_current_tool
       @glview.redraw
     else
       # use point instead of segment if we find one near
@@ -866,13 +865,13 @@ class DimensionTool < SketchTool
   		if was_snapped
   		  #p = points.first
   		  @selected_segments << p
-  		  @manager.set_status_text( GetText._("Choose a point to position your dimension:") ) if @selected_segments.size == 2
+  		  $manager.set_status_text( GetText._("Choose a point to position your dimension:") ) if @selected_segments.size == 2
 		  else
 		    # don't use segment if we have one point already
 		    unless @selected_segments.is_a? Array and @selected_segments.size == 1
   		    if seg = @glview.select(x,y)
   	        @selected_segments = seg
-  	        @manager.set_status_text( GetText._("Choose a point to position your dimension:") )
+  	        $manager.set_status_text( GetText._("Choose a point to position your dimension:") )
 	        end
 	      end
 	    end
@@ -914,8 +913,8 @@ end
   
 
 class EditSketchTool < SketchTool
-	def initialize( glview, manager, sketch )
-		super( GetText._("Click left to select points, drag to move points, right click for options:"), glview, manager, sketch )
+	def initialize sketch
+		super( GetText._("Click left to select points, drag to move points, right click for options:"), sketch )
 		@does_snap = false
 		@points_to_drag = []
 	end
@@ -924,22 +923,22 @@ class EditSketchTool < SketchTool
 	  sel = @glview.select( x,y )
 	 	case sel
 	 	when Segment
-	 	  if @manager.key_pressed? :Shift
-	 	    @manager.selection.add sel
+	 	  if $manager.key_pressed? :Shift
+	 	    $manager.selection.add sel
 	 	    @selection ? (@selection.push sel) : (@selection = [])
  	    else
-	 	    @manager.selection.select sel
+	 	    $manager.selection.select sel
 		    @selection = [sel]
 	    end
 	  when Dimension
 	    FloatingEntry.new( x,y, sel.value ) do |value| 
 	      sel.value = value
-	      @sketch.update_constraints
+	      #@sketch.update_constraints
 	      @sketch.build_displaylist
 	      @glview.redraw
       end
 	  else
-	    @manager.selection.deselect_all
+	    $manager.selection.deselect_all
 	    @selection = nil
 		end
 		@sketch.build_displaylist
@@ -1019,12 +1018,12 @@ class EditSketchTool < SketchTool
 		if sel
 			@selection = sel.sketch.chain( sel )
 			if @selection
-				@manager.selection.select *@selection
+				$manager.selection.select *@selection
 				sel.sketch.build_displaylist
 				@glview.redraw
 			end
 		else
-		  @manager.selection.deselect_all
+		  $manager.selection.deselect_all
 		end
   end
   
@@ -1032,15 +1031,15 @@ class EditSketchTool < SketchTool
     new_selection = @glview.select( x,y )
     click_left( x,y ) unless @selection and @selection.include? new_selection
 	  @glview.redraw
-	  menu = SketchSelectionToolMenu.new @manager
+	  menu = SketchSelectionToolMenu.new
 	  menu.popup(nil, nil, 3,  time)
 	end
 end
 
 
 class TrimTool < SketchTool
-	def initialize( glview, manager, sketch )
-		super( GetText._("Click left to delete subsegments of your sketch:"), glview, manager, sketch )
+	def initialize sketch
+		super( GetText._("Click left to delete subsegments of your sketch:"), sketch )
 		@does_snap = false
 		save_real_segments
 	end
@@ -1061,9 +1060,9 @@ class TrimTool < SketchTool
 	def mouse_move( x,y )
   	super
   	if sel = @glview.select( x,y )
-			@manager.selection.select sel
+			$manager.selection.select sel
 		else
-			@manager.selection.deselect_all
+			$manager.selection.deselect_all
 		end
 		@glview.redraw
   end

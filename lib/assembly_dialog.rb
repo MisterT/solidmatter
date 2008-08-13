@@ -9,9 +9,8 @@ require 'units.rb'
 
 class AssemblyInformationDialog
   include Units
-	def initialize( assembly, manager )
+	def initialize assembly
 	  @assembly = assembly
-    @manager = manager
 	  @return_handler = Proc.new
 	  @glade = GladeXML.new( "../data/glade/assembly_dialog.glade", nil, 'openmachinist' ) {|handler| method(handler)}
 	  @glade['name_entry'].text     = @assembly.information[:name]
@@ -27,7 +26,7 @@ class AssemblyInformationDialog
     info[:author]   = @glade['author_entry'].text
     info[:approved] = @glade['approved_entry'].text
     info[:version]  = @glade['version_entry'].text
-    @manager.has_been_changed = true
+    $manager.has_been_changed = true
     @glade['assembly_dialog'].destroy
     @return_handler.call info
   end

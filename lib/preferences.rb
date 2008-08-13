@@ -15,7 +15,7 @@ $preferences = {
 	:create_part_on_new_project => true,
 	:surface_resolution => 40,
 	:dynamic_tesselation => true,
-	:bookmarks => [ Bookmark.new( 'localhost', 2222, 'synthetic', 'bla' ) ],
+	:bookmarks => [ Bookmark.new( 'localhost', 50010, 'synthetic', 'bla' ) ],
 	:anti_aliasing => true,
 	:stencil_transparency => true,
 	:manage_gc => true,
@@ -63,8 +63,7 @@ load_preferences_from_gconf
            
                   
 class PreferencesDialog
-	def initialize manager
-	  @manager = manager
+	def initialize
 	  @glade = GladeXML.new( "../data/glade/preferences.glade", nil, 'openmachinist' ) {|handler| method(handler)}
 	  load_preferences_from_gconf
 	  @react_to_changes = false
@@ -102,8 +101,8 @@ class PreferencesDialog
 			$preferences[:mouse_sensivity] = @glade['mouse_scale'].value
 			$preferences[:surface_resolution] = @glade['resolution_scale'].value
 			$preferences[:create_part_on_new_project] = @glade['part_check'].active?
-			@manager.glview.realize
-			@manager.glview.redraw
+			$manager.glview.realize
+			$manager.glview.redraw
 			save_preferences_to_gconf
 		end
   end

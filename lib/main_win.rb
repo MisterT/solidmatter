@@ -32,7 +32,7 @@ class OpenMachinistMainWin < Gtk::Window
 		statusbar = Gtk::Statusbar.new
 		@main_vbox = Gtk::VBox.new( false )
 		@op_view_controls = Gtk::HBox.new
-		$manager = ProjectManager.new( self, op_view, glview, assembly_toolbar, part_toolbar, sketch_toolbar, statusbar, @main_vbox, @op_view_controls )
+		ProjectManager.new( self, op_view, glview, assembly_toolbar, part_toolbar, sketch_toolbar, statusbar, @main_vbox, @op_view_controls )
 		signal_connect('delete-event') do
 		  CloseProjectConfirmation.new $manager do |response|
         case response
@@ -56,8 +56,8 @@ class OpenMachinistMainWin < Gtk::Window
 		# create menu items
 		menu_items = [
 			[GetText._("/_File")],
-				[GetText._("/File/New project..."),  "<StockItem>", nil, Gtk::Stock::NEW,  lambda{ NewProjectDialog.new $manager }],
-				[GetText._("/File/Open project..."),         "<StockItem>", nil, Gtk::Stock::OPEN, lambda{ OpenProjectDialog.new $manager }],
+				[GetText._("/File/New project..."),  "<StockItem>", nil, Gtk::Stock::NEW,  lambda{ NewProjectDialog.new }],
+				[GetText._("/File/Open project..."),         "<StockItem>", nil, Gtk::Stock::OPEN, lambda{ OpenProjectDialog.new }],
 				[GetText._("/File/_Save project"),           "<StockItem>", nil, Gtk::Stock::SAVE, lambda{ $manager.save_file }],
 				[GetText._("/File/Save project as..."),      "<StockItem>", nil, Gtk::Stock::SAVE, lambda{ $manager.save_file_as }],
 				[GetText._("/File/sep1"), "<Separator>"],
@@ -76,7 +76,7 @@ class OpenMachinistMainWin < Gtk::Window
 				[GetText._("/Edit/Paste"),       "<StockItem>", nil, Gtk::Stock::PASTE,  lambda{ $manager.paste_from_clipboard }],
 				[GetText._("/Edit/Delete"),      "<StockItem>", nil, Gtk::Stock::DELETE,  lambda{ $manager.delete_selected }],
 				[GetText._("/Edit/sep4"), "<Separator>"],
-				[GetText._("/Edit/Preferences"), "<StockItem>", nil, Gtk::Stock::PREFERENCES,  lambda{ PreferencesDialog.new $manager }],
+				[GetText._("/Edit/Preferences"), "<StockItem>", nil, Gtk::Stock::PREFERENCES,  lambda{ PreferencesDialog.new }],
 			[GetText._("/_View")],
 				[GetText._("/View/Front"),         "<Item>", nil, nil, lambda{}],
 				[GetText._("/View/Back"),          "<Item>", nil, nil, lambda{}],
@@ -129,7 +129,7 @@ class OpenMachinistMainWin < Gtk::Window
 		hbox.pack_start(toolbar, false, true)
 		new_btn = Gtk::ToolButton.new( Gtk::Image.new(Gtk::Stock::NEW, Gtk::IconSize::SMALL_TOOLBAR), GetText._(" New") )
 		new_btn.important = true
-		new_btn.signal_connect("clicked"){ NewDialog.new $manager }
+		new_btn.signal_connect("clicked"){ NewDialog.new }
 		toolbar.append( new_btn, GetText._("Create a new project, part or assembly"), "Toolbar/New" )
 		save_btn = Gtk::ToolButton.new( Gtk::Image.new(Gtk::Stock::SAVE, Gtk::IconSize::SMALL_TOOLBAR), GetText._(" Save") )
 		save_btn.sensitive = false
@@ -180,7 +180,7 @@ class OpenMachinistMainWin < Gtk::Window
   		glview.redraw
 		end
 		toolbar.append( focus_btn, GetText._("Make all components except the current one transparent") ){}
-		hbox.pack_end( SearchEntry.new($manager), false, true )
+		hbox.pack_end( SearchEntry.new, false, true )
 ###                                                                 ###
 ######---------------------- UI components ----------------------######
 ###                                                                 ###
@@ -224,7 +224,7 @@ class OpenMachinistMainWin < Gtk::Window
 		assembly_toolbar.icon_size = Gtk::IconSize::SMALL_TOOLBAR
 		assembly_toolbar.show_arrow = true
 		@main_vbox.pack_start(assembly_toolbar, false, false)
-		assembly_toolbar.append( GetText._("Insert"), "Insert an existing component","AssemblyToolbar/Insert", Gtk::Image.new('../data/icons/middle/part_middle.png') ){ ComponentBrowser.new $manager }
+		assembly_toolbar.append( GetText._("Insert"), "Insert an existing component","AssemblyToolbar/Insert", Gtk::Image.new('../data/icons/middle/part_middle.png') ){ ComponentBrowser.new }
 		assembly_toolbar.append( GetText._("Library"), "Insert a library part","AssemblyToolbar/Lib", Gtk::Image.new('../data/icons/middle/assembly_middle.png') ){}
 		assembly_toolbar.append( Gtk::SeparatorToolItem.new )
 		assembly_toolbar.append( GetText._("Constrain"), "Define a relation between two components", "AssemblyToolbar/Constrain", Gtk::Image.new('../data/icons/middle/constrain_middle.png') ){}
