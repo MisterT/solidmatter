@@ -395,7 +395,7 @@ public
       				@all_part_instances     = scene[5]
       				@all_assembly_instances = scene[6]
 							@all_sketches           = scene[7]
-							readd_non_dumpable
+							#readd_non_dumpable
 						end
 					end
 					change_working_level @main_assembly 
@@ -440,12 +440,12 @@ public
   		  @selection.deselect_all
   			File::open( @filename, "w" ) do |file|
   			  @all_parts.each{|p| p.solid = Solid.new }
-  			  strip_non_dumpable
+  			  #strip_non_dumpable
   			  puts "projectname: " + project_name
   				Marshal::dump( [@glview.image_of_instances(@all_part_instances,8,100,project_name).to_tiny, 
   												@name, @main_assembly, @all_assemblies,	@all_parts, @all_part_instances,
   												@all_assembly_instances, @all_sketches], file )
-  				readd_non_dumpable 
+  				#readd_non_dumpable 
   				@all_parts.each{|p| p.build } 
   			end
   			self.has_been_changed = false
@@ -455,7 +455,7 @@ public
   		end
 	  end
 	end
-	
+=begin
 	def strip_non_dumpable
 	  @all_parts.each do |p| 
 	    p.operators.each do |op|
@@ -471,7 +471,7 @@ public
       end
 	  end
 	end
-	
+=end
   def display_properties
     ProjectInformationDialog.new{ yield if block_given? ; puts "found myself having the name #{@name}" }
   end
@@ -529,6 +529,7 @@ public
 			return true
 		elsif @work_operator
 			@main_vbox.remove( @op_toolbar )
+			@op_toolbar = nil
 			@work_operator = nil
 			part_toolbar
 			@selection.deselect_all
@@ -561,7 +562,7 @@ public
 	end
 	
 	def operator_mode op
-		@op_toolbar = op.show_toolbar
+		@op_toolbar ||= op.show_toolbar
 		@main_vbox.pack_start( @op_toolbar, false, true )
 		@main_vbox.show_all
 		@prt_toolbar.visible = false

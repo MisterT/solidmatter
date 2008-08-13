@@ -980,7 +980,7 @@ class EditSketchTool < SketchTool
 			    neu.y = original.y + move.y
 			    neu.z = original.z + move.z
 		    end
-		    @sketch.update_constraints @points_to_drag
+		    @points_to_drag.each{|p| @sketch.update_constraints [p] }
 		  elsif @draw_dot
 		    @draw_dot.x = @old_draw_dot.x + move.x
 	      @draw_dot.y = @old_draw_dot.y + move.y

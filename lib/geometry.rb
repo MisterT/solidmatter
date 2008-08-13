@@ -592,12 +592,9 @@ class Sketch
 	end
 =end
   def update_constraints immutables=[]
-    puts "Mainupdate called with #{immutables.size} immmutables------------------------"
     begin
       #immutable_constr.save_state
-  	  constraints = immutables.map{|im| puts "immutable has #{im.constraints.size} constraints" ; im.constraints }.flatten.uniq
-  	  puts "Starting with #{constraints.size} constraints"
-  	  puts constraints
+  	  constraints = immutables.map{|im| im.constraints }.flatten.uniq
   	  already_checked = []
   	  begin
   	    changed = false
@@ -649,6 +646,14 @@ class SketchConstraint
   def constrained_objects
     raise "#{self.class} does not constrain objects"
   end
+  
+  def satisfied
+    rasie "#{self.class} doesn't know if it's satisfied"
+  end
+  
+  def update immutable_objs
+    raise OverconstrainedException if constrained_objects.all?{|p| immutable_objs.include? p } and not satisfied
+  end
 end
 
 class CoincidentConstraint < SketchConstraint
@@ -662,13 +667,16 @@ class CoincidentConstraint < SketchConstraint
     [@p1, @p2]
   end
   
+  def satisfied
+    @p1 == @p2
+  end
+  
   def update immutable_objs
-    if @p1 == @p2
+    super
+    if satisfied
       return false
     else
-      puts "changing conincident"
       objs = constrained_objects
-      raise OverconstrainedException if objs.all?{|o| immutable_objs.include? o }
       if objs.any?{|o| immutable_objs.include? o }
         mutable_obj = (objs - immutable_objs)[0]
         immutable = (objs - [mutable_obj])[0]
@@ -716,7 +724,7 @@ class Dimension < SketchConstraint
   def value= val
     # descandand code here
     update []
-    @sketch.update_constraints constrained_objects
+    constrained_objects.each{|o| @sketch.update_constraints [o] }
   end
   
   def draw
@@ -734,6 +742,10 @@ class RadialDimension < Dimension
     super(sketch, temp)
   end
   
+  def satisfied
+    @arc.radius == @radius
+  end
+  
   def value
      @arc.radius
   end
@@ -748,7 +760,8 @@ class RadialDimension < Dimension
   end
   
   def update immutable_objs
-    if @arc.radius == @radius
+    super
+    if satisfied
       return false
     else
       @arc.radius = @radius
@@ -780,6 +793,10 @@ class LinearDimension < Dimension
     super(sketch, temp)
   end
   
+  def satisfied
+    @length == value
+  end
+  
   def value
     if @orientation == :horizontal
       (@line.pos1.x - @line.pos2.x).abs
@@ -794,23 +811,21 @@ class LinearDimension < Dimension
   end
   
   def update immutable_objs
-    if @length == value
+    super
+    if satisfied
       return false
     else
-      puts "Linear is changing"
       diff = @length - value
       points = constrained_objects
-      #@line.pos1.x -= diff/2.0
-      #@line.pos2.x += diff/2.0
-      raise OverconstrainedException if points.all?{|p| immutable_objs.include? p }
       if points.any?{|p| immutable_objs.include? p }
         mutable = (points - immutable_objs)[0]
         immutable = (points - [mutable])[0]
+        diff = -diff if mutable.x < immutable.x
+        mutable.x += diff
       else
-        mutable, immutable = (rand > 0.5 ? [points.first, points.last] : [points.last, points.first])
+        points.sort_by{|p| p.x }.first.x -= diff/2.0
+        points.sort_by{|p| p.x }.last.x  += diff/2.0
       end
-      diff = -diff if mutable.x < immutable.x
-      mutable.x += diff
       return true
     end
   end
@@ -1230,7 +1245,7 @@ end
 # abstract base class for operators
 class Operator
 	attr_reader :settings, :solid, :part, :dimensions
-	attr_accessor :name, :enabled, :previous, :toolbar
+	attr_accessor :name, :enabled, :previous#, :toolbar
 	def initialize part
 		@name ||= "operator"
 		@settings ||= {}
@@ -1240,7 +1255,7 @@ class Operator
 		@dimensions = []
 		@enabled = true
 		@previous = nil
-		create_toolbar
+		#create_toolbar
 	end
 	
 	def operate
@@ -1266,7 +1281,14 @@ class Operator
 	
 	def show_toolbar
 		@save_settings = @settings.dup
-		return @toolbar
+		toolbar = Gtk::Toolbar.new
+		toolbar.toolbar_style = Gtk::Toolbar::BOTH
+		toolbar.icon_size = Gtk::IconSize::SMALL_TOOLBAR
+		fill_toolbar toolbar
+		toolbar.append( Gtk::SeparatorToolItem.new){}
+		toolbar.append( Gtk::Stock::CANCEL, GetText._("Exit operator without saving changes"),"Operator/Cancel"){ cancel }
+		toolbar.append( Gtk::Stock::OK, GetText._("Save changes and exit operator"),"Operator/Ok"){ ok }
+		return toolbar
 	end
 
 	def draw_gl_interface
@@ -1283,7 +1305,7 @@ class Operator
 		@settings = @save_settings
 		ok
 	end
-
+=begin
 	def create_toolbar
 		@toolbar = Gtk::Toolbar.new
 		@toolbar.toolbar_style = Gtk::Toolbar::BOTH
@@ -1293,6 +1315,7 @@ class Operator
 		@toolbar.append( Gtk::Stock::CANCEL, GetText._("Exit operator without saving changes"),"Operator/Cancel"){ cancel }
 		@toolbar.append( Gtk::Stock::OK, GetText._("Save changes and exit operator"),"Operator/Ok"){ ok }
 	end
+=end
 private
 	def fill_toolbar 
 		raise "Error in #{self} : Operator#fill_toolbar must be overriden by child class"

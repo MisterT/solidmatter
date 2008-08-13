@@ -77,7 +77,7 @@ class ExtrudeOperator < Operator
 		return @new_faces
 	end
 	
-	def fill_toolbar 
+	def fill_toolbar bar
 		# sketch selection
 		sketch_button = Gtk::ToggleToolButton.new
 		sketch_button.icon_widget = Gtk::Image.new('../data/icons/middle/sketch_middle.png').show
@@ -102,11 +102,11 @@ class ExtrudeOperator < Operator
   			end
 			end
 		end
-		@toolbar.append( sketch_button )
-		@toolbar.append( Gtk::SeparatorToolItem.new )
+		bar.append( sketch_button )
+		bar.append( Gtk::SeparatorToolItem.new )
 		# type button
 		type_button = Gtk::ToolButton.new( Gtk::Image.new('../data/icons/tools.png'), GetText._("Type") )
-		@toolbar.append( type_button )
+		bar.append( type_button )
 		type_button.signal_connect("clicked") do |b| 
 			if @settings[:type] == :add
 				@settings[:type] = :subtract
@@ -119,7 +119,7 @@ class ExtrudeOperator < Operator
 		end
 		# direction button
 		direction_button = Gtk::ToolButton.new( Gtk::Image.new('../data/icons/up.png'), GetText._("Direction") )
-		@toolbar.append( direction_button )
+		bar.append( direction_button )
 		direction_button.signal_connect("clicked") do |b| 
 			if @settings[:direction] == :up
 				@settings[:direction] = :down
@@ -130,7 +130,7 @@ class ExtrudeOperator < Operator
 			end
 			show_changes
 		end
-		@toolbar.append( Gtk::SeparatorToolItem.new )
+		bar.append( Gtk::SeparatorToolItem.new )
 		# extrusion limit selection
 		vbox = Gtk::VBox.new 
 		mode_combo = Gtk::ComboBox.new
@@ -140,13 +140,13 @@ class ExtrudeOperator < Operator
 		mode_combo.active = 0
 		vbox.pack_start( mode_combo, true, false )
 		vbox.add Gtk::Label.new GetText._("Extrusion limit")
-		@toolbar.append( vbox )
-		@toolbar.append( Gtk::SeparatorToolItem.new )
+		bar.append( vbox )
+		bar.append( Gtk::SeparatorToolItem.new )
 		# constant depth
 		entry = MeasureEntry.new GetText._("Depth")
 		entry.value = @settings[:depth]
 		entry.on_change_value{|val| @settings[:depth] = val; show_changes}
-		@toolbar.append entry
+		bar.append entry
 	end
 	
 	def draw_gl_interface
