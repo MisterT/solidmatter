@@ -879,14 +879,14 @@ class DimensionTool < SketchTool
 	  super
 	end
 	
-	def dimension_for( seg_or_points, x,y )
+	def dimension_for( seg_or_points, x,y, temp=false )
 	  if seg_or_points.is_a? Arc
 	    pos = @glview.screen2world( x,y )
-	    return RadialDimension.new( seg_or_points, world2sketch(pos), @sketch ) if pos
+	    return RadialDimension.new( seg_or_points, world2sketch(pos), @sketch, temp ) if pos
 	    return nil
     elsif seg_or_points.is_a? Line
       pos = @glview.screen2world( x,y )
-	    return LinearDimension.new( seg_or_points, :horizontal, world2sketch(pos), @sketch ) if pos
+	    return LinearDimension.new( seg_or_points, :horizontal, world2sketch(pos), @sketch, temp ) if pos
       return nil
     elsif seg_or_points.is_a? Array and seg_or_points.size == 2
       #XXX create linear dimension
@@ -901,7 +901,7 @@ class DimensionTool < SketchTool
   	p = @glview.screen2world(x,y)
   	p, snapped = point_snapped( world2sketch(p) ) if p
   	@draw_dot = snapped ? p : nil
-  	@temp_dim = dimension_for( @selected_segments, x,y )
+  	@temp_dim = dimension_for( @selected_segments, x,y, true )
   	@glview.redraw
 	end
 	
@@ -933,7 +933,7 @@ class EditSketchTool < SketchTool
 	  when Dimension
 	    FloatingEntry.new( x,y, sel.value ) do |value| 
 	      sel.value = value
-	      #@sketch.update_constraints
+	      @sketch.update_constraints
 	      @sketch.build_displaylist
 	      @glview.redraw
       end

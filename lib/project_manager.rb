@@ -83,8 +83,8 @@ class ProjectManager
 		@focus_view = true
 		@keys_pressed = []
 		@point_snap = true
-		@grid_snap = true
-		@use_sketch_guides = true
+		@grid_snap = false
+		@use_sketch_guides = false
 		@materials = [ Material.new( GetText._("Aluminum")),
                    Material.new( GetText._("Steel")),
                    Material.new( GetText._("Copper")),

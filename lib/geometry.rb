@@ -592,9 +592,10 @@ class Sketch
 	end
 =end
   def update_constraints immutables=[]
+    puts "Mainupdate called with #{immutables.size} immmutables------------------------"
     begin
       #immutable_constr.save_state
-  	  constraints = immutables.map{|im| im.constraints }.flatten.uniq
+  	  constraints = immutables.map{|im| puts "immutable has #{im.constraints.size} constraints" ; im.constraints }.flatten.uniq
   	  puts "Starting with #{constraints.size} constraints"
   	  puts constraints
   	  already_checked = []
@@ -637,8 +638,8 @@ class OverconstrainedException < RuntimeError ; end
 class SketchConstraint
   include Selectable
   attr_accessor :selection_pass, :visible
-  def initialize
-    constrained_objects.each{|o| o.constraints << self }
+  def initialize temp=false
+    constrained_objects.each{|o| o.constraints << self } unless temp # if only used for drawing
   end
   
   def connected_constraints
@@ -703,10 +704,9 @@ class Dimension < SketchConstraint
   	GL.PopMatrix
   end
   
-  def initialize sketch
-    raise "Bullshit given" unless sketch.is_a? Sketch
+  def initialize( sketch, temp = false )
     @sketch = sketch
-    super()
+    super(temp)
   end
   
   def value
@@ -715,6 +715,7 @@ class Dimension < SketchConstraint
   
   def value= val
     # descandand code here
+    update []
     @sketch.update_constraints constrained_objects
   end
   
@@ -726,11 +727,11 @@ class Dimension < SketchConstraint
 end
 
 class RadialDimension < Dimension
-  def initialize( arc, position, sketch )
+  def initialize( arc, position, sketch, temp=false )
     @arc = arc
     @direction = arc.center.vector_to(position).normalize
     @radius = value
-    super(sketch)
+    super(sketch, temp)
   end
   
   def value
@@ -767,7 +768,7 @@ class RadialDimension < Dimension
 end
 
 class LinearDimension < Dimension
-  def initialize( line, orientation, pos, sketch )
+  def initialize( line, orientation, pos, sketch, temp=false )
     @line = line
     @orientation = orientation
     p1 = @line.pos1
@@ -776,7 +777,7 @@ class LinearDimension < Dimension
     lower = [p1.z, p2.z].min
     @offset = (pos.z > @line.midpoint.z ? pos.z - upper : pos.z - lower)
     @length = value
-    super(sketch)
+    super(sketch, temp)
   end
   
   def value
@@ -793,7 +794,7 @@ class LinearDimension < Dimension
   end
   
   def update immutable_objs
-    if @length.nearly_equals value
+    if @length == value
       return false
     else
       puts "Linear is changing"
