@@ -198,7 +198,7 @@ public
 	
 	def make_project_public
 	  MakePublicDialog.new self do |server, port|
-  	  @client = ProjectClient.new( server, port, self )
+  	  @client = ProjectClient.new( server, port )
   	  if @client.working
     	  save_file
     	  if @filename and not @client.available_projects.map{|pr| pr.name }.include? @name
@@ -215,7 +215,7 @@ public
 	
 	def join_project( server, port, projectname, login, password )
 	  @client.exit if @client
-	  @client = ProjectClient.new( server, port, self )
+	  @client = ProjectClient.new( server, port )
 	  if @client.working
 	    valid = @client.join_project( projectname, login, password ) 
 	    if valid
@@ -473,7 +473,7 @@ public
 	end
 =end
   def display_properties
-    ProjectInformationDialog.new{ yield if block_given? ; puts "found myself having the name #{@name}" }
+    ProjectInformationDialog.new(self){ yield if block_given? ; puts "found myself having the name #{@name}" }
   end
 ###                                                                                      ###
 ######---------------------- Working level and mode transitions ----------------------######

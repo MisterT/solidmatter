@@ -3,7 +3,7 @@
 #  Created by Björn Breitgoff on 2008-02-06.
 #  Copyright (c) 2008. All rights reserved.
 
-debug = true
+debug = false
 
 pid = fork unless debug
 if not debug and not pid
@@ -18,9 +18,7 @@ else
   require 'preferences'
   require 'gtk_threadsafe.rb'
   
-  server = debug ? ProjectServer.new : ServerProxy.new( 'localhost', $preferences[:server_port] )
-  #server = ServerProxy.new( 'localhost', $preferences[:server_port] )
-  server = DRbObject.new_with_uri "druby://localhost:#{$preferences[:server_port]}" 
+  server = debug ? ProjectServer.new : DRbObject.new_with_uri("druby://localhost:#{$preferences[:server_port]}")
   
   # init translation framework and Gtk
   GetText.bindtextdomain 'openmachinist'

@@ -78,7 +78,7 @@ class ProjectServer
 =end
   def projects
     # make sure objects get dumped
-    prs = @projects.map{|p| p.strip_non_dumpable ; p.dup }
+    prs = @projects.map{|p| p.dup }
     for pr in prs
       Marshal.dump pr
     end
@@ -149,7 +149,7 @@ class ProjectServer
         end
       end
       # save change for other clients in this project
-      client_ids_to_serve = @clients.select{|c| c.account.registered_projects.include? pr }.map{|c| c.client_id } - [client_id]
+      client_ids_to_serve = @clients.select{|c| c.account.project_ids.include? pr.project_id }.map{|c| c.client_id } - [client_id]
       @changes.push Change.new( new_object, :change, client_ids_to_serve )
     end
   end
@@ -159,7 +159,7 @@ class ProjectServer
     on_project_if_valid( projectname, client_id ) do |pr|
       puts "clinet was valid"
       pr.add_object new_object
-      client_ids_to_serve = @clients.select{|c| c.account.registered_projects.include? pr }.map{|c| c.client_id } - [client_id]
+      client_ids_to_serve = @clients.select{|c| c.account.project_ids.include? pr.project_id }.map{|c| c.client_id } - [client_id]
       @changes.push Change.new( new_object, :add, client_ids_to_serve )
     end
   end
@@ -167,7 +167,7 @@ class ProjectServer
   def delete_object( projectname, obj_id, client_id )
     on_project_if_valid( projectname, client_id ) do |pr|
       pr.delete_object obj_id
-      client_ids_to_serve = @clients.select{|c| c.account.registered_projects.include? pr }.map{|c| c.client_id } - [client_id]
+      client_ids_to_serve = @clients.select{|c| c.account.project_ids.include? pr.project_id }.map{|c| c.client_id } - [client_id]
       @changes.push Change.new( obj_id, :delete, client_ids_to_serve )
     end
   end
@@ -179,7 +179,7 @@ class ProjectServer
       # look up project the client wants to modify
       pr = @projects.select{|p| p.name == projectname }.first
       # check if he has the rights to 
-      if client.account.registered_projects.include? pr
+      if client.account.project_ids.include? pr.project_id
         yield pr
       end
     end
@@ -201,7 +201,7 @@ class ProjectServer
   end
   
   def new_request( type, projectname, client_id )
-    ids_to_serve = @clients.select{|c| c.account.registered_projects.include? projectname }.map{|c| c.client_id } - [client_id]
+    ids_to_serve = @clients.select{|c| c.account.project_ids.map{|id| project_for_id id }.include? projectname }.map{|c| c.client_id } - [client_id]
     re = Request.new( type, projectname, ids_to_serve, [], 0, new_id )
     @requests.push re
     return re.id
@@ -251,6 +251,10 @@ class ProjectServer
     DRb.stop_service
   end
   
+  def project_for_id id
+    @projects.select{|p| p.project_id == id }.first
+  end
+  
   def new_id
     @used_ids ||= []
     id = rand 99999999999999999999999999999999999999999 while @used_ids.include? id
@@ -286,7 +290,7 @@ end
 
 class ProjectClient
   attr_reader :server, :working, :projectname
-  def initialize( server, port, manager )
+  def initialize( server, port )
     @server = DRbObject.new_with_uri "druby://#{server}:#{port}" 
     #@server = ServerProxy.new( server, port )
     # test if server is working
@@ -325,7 +329,6 @@ class ProjectClient
         $manager.all_part_instances     = project.all_part_instances
         $manager.all_sketches           = project.all_sketches
       end
-      $manager.readd_non_dumpable
       $manager.op_view.update
       $manager.glview.redraw
       start_polling
