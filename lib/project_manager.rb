@@ -377,7 +377,7 @@ public
 ######---------------------- File handling ----------------------######
 ###                                                                 ###
 	def open_file
-	  CloseProjectConfirmation.new self do |response|
+	  CloseProjectConfirmation.new do |response|
 	    save_file if response == :save
 	    dia = FileOpenDialog.new
       if dia.run == Gtk::Dialog::RESPONSE_ACCEPT

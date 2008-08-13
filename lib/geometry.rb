@@ -575,7 +575,7 @@ class Sketch
 			@plane.transform_like new_plane if new_plane
 		end
 	end
-	
+=begin
 	def update_constraints immutable_objs=[]
 	  #constraints = immutable_obj.constraints
 	  changed = true
@@ -590,7 +590,33 @@ class Sketch
     puts "WARNING: Sketch solver reached safety constraint" if safety == 0
     safety != 0
 	end
-	
+=end
+  def update_constraints immutables=[]
+    begin
+      #immutable_constr.save_state
+  	  constraints = immutables.map{|im| im.constraints }.flatten.uniq
+  	  puts "Starting with #{constraints.size} constraints"
+  	  puts constraints
+  	  already_checked = []
+  	  begin
+  	    changed = false
+  	    new_constraints = []
+  	    constraints.each do |c|
+  	      changed = true if c.update immutables
+  	      immutables += c.constrained_objects
+  	      new_constraints += c.connected_constraints
+  	      already_checked << c
+	      end
+	      constraints = new_constraints - already_checked
+      end while changed
+      return true
+    rescue OverconstrainedException
+      #immutable_constr.revert_state
+      puts "WARNING: Overconstrained"
+      return false
+    end
+  end
+  
 	def clean_up
 		$manager.glview.delete_displaylist @displaylist
 		@displaylist = nil
@@ -605,11 +631,16 @@ class Sketch
 	  copy
 	end
 end
+class OverconstrainedException < RuntimeError ; end
 
 
 class SketchConstraint
   include Selectable
   attr_accessor :selection_pass, :visible
+  def initialize
+    constrained_objects.each{|o| o.constraints << self }
+  end
+  
   def connected_constraints
     constrained_objects.map{|o| o.constraints }.flatten - [self]
   end
@@ -621,11 +652,9 @@ end
 
 class CoincidentConstraint < SketchConstraint
   def initialize( p1, p2 )
-    super()
     @p1 = p1
     @p2 = p2
-    p1.constraints << self
-    p2.constraints << self
+    super()
   end
   
   def constrained_objects
@@ -636,7 +665,9 @@ class CoincidentConstraint < SketchConstraint
     if @p1 == @p2
       return false
     else
+      puts "changing conincident"
       objs = constrained_objects
+      raise OverconstrainedException if objs.all?{|o| immutable_objs.include? o }
       if objs.any?{|o| immutable_objs.include? o }
         mutable_obj = (objs - immutable_objs)[0]
         immutable = (objs - [mutable_obj])[0]
@@ -672,13 +703,19 @@ class Dimension < SketchConstraint
   	GL.PopMatrix
   end
   
+  def initialize sketch
+    raise "Bullshit given" unless sketch.is_a? Sketch
+    @sketch = sketch
+    super()
+  end
+  
   def value
     raise "Dimension #{self} cannot report its value"
   end
   
   def value= val
     # descandand code here
-    constrained_objects.first.sketch.update_constraints
+    @sketch.update_constraints constrained_objects
   end
   
   def draw
@@ -689,11 +726,11 @@ class Dimension < SketchConstraint
 end
 
 class RadialDimension < Dimension
-  def initialize( arc, position )
-    super()
+  def initialize( arc, position, sketch )
     @arc = arc
     @direction = arc.center.vector_to(position).normalize
     @radius = value
+    super(sketch)
   end
   
   def value
@@ -730,8 +767,7 @@ class RadialDimension < Dimension
 end
 
 class LinearDimension < Dimension
-  def initialize( line, orientation, pos )
-    super()
+  def initialize( line, orientation, pos, sketch )
     @line = line
     @orientation = orientation
     p1 = @line.pos1
@@ -740,6 +776,7 @@ class LinearDimension < Dimension
     lower = [p1.z, p2.z].min
     @offset = (pos.z > @line.midpoint.z ? pos.z - upper : pos.z - lower)
     @length = value
+    super(sketch)
   end
   
   def value
@@ -759,10 +796,12 @@ class LinearDimension < Dimension
     if @length.nearly_equals value
       return false
     else
+      puts "Linear is changing"
       diff = @length - value
-      points = [@line.pos1, @line.pos2]
+      points = constrained_objects
       #@line.pos1.x -= diff/2.0
       #@line.pos2.x += diff/2.0
+      raise OverconstrainedException if points.all?{|p| immutable_objs.include? p }
       if points.any?{|p| immutable_objs.include? p }
         mutable = (points - immutable_objs)[0]
         immutable = (points - [mutable])[0]
@@ -776,7 +815,7 @@ class LinearDimension < Dimension
   end
   
   def constrained_objects
-    [@line]
+    [@line.pos1, @line.pos2]
   end
   
   def draw
@@ -1127,8 +1166,8 @@ class Solid
 	    lower = bbox.map{|v| v.y }.min
 	    front = bbox.map{|v| v.z }.max
 	    back  = bbox.map{|v| v.z }.min
-	    divisions = 6
-	    max_change = 0.001
+	    divisions = 5
+	    max_change = 0.01
 	    # divide bounding volume into subvolumes
 	    x_span = (right - left)  / divisions
 	    y_span = (upper - lower) / divisions
@@ -1144,20 +1183,20 @@ class Solid
 	          subvolumes << Thread.start(box_left, box_lower, box_back) do |le,lo,ba|
 	            shots_fired = 0.0
 	            hits = 0.0
-	            change = 1
+	            change = 1.0
 	            old_share = 0.0
-	            while change > max_change
+	            begin
 	              sx = le + (rand * x_span)
 	              sy = lo + (rand * y_span)
 	              sz = ba + (rand * z_span)
 	              hits += 1 if self.contains? Vector[sx,sy,sz]
 	              shots_fired += 1
-	              if shots_fired % 50 == 0
+	              if shots_fired % 25 == 0
 	                share = hits / shots_fired
 	                change = (share - old_share).abs
 	                old_share = share
                 end
-	            end
+	            end while change > max_change
 	            #puts "Fired #{shots_fired} shots"
 	            (x_span * y_span * z_span) * (hits / shots_fired)
             end

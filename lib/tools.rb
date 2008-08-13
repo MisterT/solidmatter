@@ -882,11 +882,11 @@ class DimensionTool < SketchTool
 	def dimension_for( seg_or_points, x,y )
 	  if seg_or_points.is_a? Arc
 	    pos = @glview.screen2world( x,y )
-	    return RadialDimension.new( seg_or_points, world2sketch(pos) ) if pos
+	    return RadialDimension.new( seg_or_points, world2sketch(pos), @sketch ) if pos
 	    return nil
     elsif seg_or_points.is_a? Line
       pos = @glview.screen2world( x,y )
-	    return LinearDimension.new( seg_or_points, :horizontal, world2sketch(pos) ) if pos
+	    return LinearDimension.new( seg_or_points, :horizontal, world2sketch(pos), @sketch ) if pos
       return nil
     elsif seg_or_points.is_a? Array and seg_or_points.size == 2
       #XXX create linear dimension

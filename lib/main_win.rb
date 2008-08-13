@@ -34,7 +34,7 @@ class OpenMachinistMainWin < Gtk::Window
 		@op_view_controls = Gtk::HBox.new
 		ProjectManager.new( self, op_view, glview, assembly_toolbar, part_toolbar, sketch_toolbar, statusbar, @main_vbox, @op_view_controls )
 		signal_connect('delete-event') do
-		  CloseProjectConfirmation.new $manager do |response|
+		  CloseProjectConfirmation.new do |response|
         case response
           when :save then $manager.save_file and Gtk.main_quit
           when :close then Gtk.main_quit
