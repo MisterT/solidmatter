@@ -1182,8 +1182,8 @@ class Solid
 	    lower = bbox.map{|v| v.y }.min
 	    front = bbox.map{|v| v.z }.max
 	    back  = bbox.map{|v| v.z }.min
-	    divisions = 3
-	    max_change = 0.00005
+	    divisions = 5
+	    max_change = 0.00001
 	    # divide bounding volume into subvolumes
 	    x_span = (right - left)  / divisions
 	    y_span = (upper - lower) / divisions
@@ -1191,6 +1191,10 @@ class Solid
 	    box_volume = x_span * y_span * z_span
 	    max_change_per_box = max_change * divisions / box_volume
 	    subvolumes = []
+	    progress = ProgressDialog.new "<b>Calculating solid volume...</b>"
+	    progress.fraction = 0.0
+	    subvolumes_finished = 0
+	    increment = 1.0 / divisions**3
 	    @faces.each{|f| f.pretesselate }
 	    for ix in 0...divisions
 	      box_left = left + (ix * x_span)
@@ -1199,7 +1203,8 @@ class Solid
 	        for iz in 0...divisions
 	          box_back = back + (iz * z_span)
 	          # shoot samples into each subvolume until it converges
-	          subvolumes << Thread.start(box_left, box_lower, box_back) do |le,lo,ba|
+	          #subvolumes << Thread.start(box_left, box_lower, box_back) do |le,lo,ba|
+	            le,lo,ba = box_left, box_lower, box_back
 	            shots_fired = 0.0
 	            hits = 0.0
 	            change = 1.0
@@ -1217,12 +1222,20 @@ class Solid
                 end
 	            end while change > max_change_per_box
 	            #puts "Fired #{shots_fired} shots"
-	            box_volume * (hits / shots_fired)
-            end
+	            Gtk.queue do
+	   	      	  progress.fraction += increment
+  				      progress.text = GetText._("sampling bucket") + " #{subvolumes_finished}/#{divisions**3}" 
+  				      subvolumes_finished += 1
+  				    end
+	            subvolumes << box_volume * (hits / shots_fired)
+           # end
 	        end
         end
 	    end
-	    subvolumes.inject(0){|total,v| total + v.value }
+	    volume = subvolumes.inject(0){|total,v| total + v } #.value }
+	    Gtk::main_iteration while Gtk::events_pending?
+	    progress.close
+	    volume
     else
       0.0
     end
@@ -1525,8 +1538,8 @@ class Part < Component
 	  @solid.volume
 	end
 	
-	def mass
-	  @solid.volume * @information[:material].density
+	def mass from_volume=@solid.volume
+	  from_volume * @information[:material].density
 	end
 	
 	def dimensions

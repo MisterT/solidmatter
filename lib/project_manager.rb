@@ -175,6 +175,7 @@ public
         sk.build_displaylist
       end
 	  	progress = ProgressDialog.new
+	  	progress.fraction = 0.0
 	  	num_ops = @all_parts.map{|p| p.operators}.flatten.size
   		op_i = 1
   		increment = 1.0 / num_ops
