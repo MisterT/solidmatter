@@ -70,7 +70,7 @@ class InfiniteLine
   def intersect_with plane
     po, pn = plane.origin, plane.normal
     t = (po - @pos).dot_product(pn) / @dir.dot_product(pn)
-    @pos + (t * @dir)
+    @pos + (@dir * t)
   end
 end
 
@@ -1182,13 +1182,16 @@ class Solid
 	    lower = bbox.map{|v| v.y }.min
 	    front = bbox.map{|v| v.z }.max
 	    back  = bbox.map{|v| v.z }.min
-	    divisions = 5
-	    max_change = 0.01
+	    divisions = 3
+	    max_change = 0.00005
 	    # divide bounding volume into subvolumes
 	    x_span = (right - left)  / divisions
 	    y_span = (upper - lower) / divisions
 	    z_span = (front - back)  / divisions
+	    box_volume = x_span * y_span * z_span
+	    max_change_per_box = max_change * divisions / box_volume
 	    subvolumes = []
+	    @faces.each{|f| f.pretesselate }
 	    for ix in 0...divisions
 	      box_left = left + (ix * x_span)
 	      for iy in 0...divisions
@@ -1200,21 +1203,21 @@ class Solid
 	            shots_fired = 0.0
 	            hits = 0.0
 	            change = 1.0
-	            old_share = 0.0
+	            old_share = 1.0
 	            begin
 	              sx = le + (rand * x_span)
 	              sy = lo + (rand * y_span)
 	              sz = ba + (rand * z_span)
 	              hits += 1 if self.contains? Vector[sx,sy,sz]
 	              shots_fired += 1
-	              if shots_fired % 25 == 0
+	              if shots_fired % 10 == 0
 	                share = hits / shots_fired
 	                change = (share - old_share).abs
 	                old_share = share
                 end
-	            end while change > max_change
+	            end while change > max_change_per_box
 	            #puts "Fired #{shots_fired} shots"
-	            (x_span * y_span * z_span) * (hits / shots_fired)
+	            box_volume * (hits / shots_fired)
             end
 	        end
         end
@@ -1226,7 +1229,19 @@ class Solid
 	end
 	
 	def contains? p
-	  return rand > 0.5
+	  l = InfiniteLine.new( p, Vector[0,1,0] )
+	  intersections = 0
+	  for f in faces.select{|f| f.is_a? PlanarFace } #XXX should work for all faces
+	    sect = l.intersect_with f.plane
+	    # only consider the ray going in one direction
+	    if sect.y > p.y
+	      # check if within bounds of face
+	      #sect = Tool.world2sketch( sect, f.plane )
+	      sect = Point.new( sect.x, sect.z )
+	      intersections += 1 if f.polygon.contains? sect
+      end
+	  end
+	  intersections % 2 != 0
 	end
 	
 	def bounding_box
