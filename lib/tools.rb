@@ -853,13 +853,6 @@ class DimensionTool < SketchTool
       @glview.redraw
     else
       # use point instead of segment if we find one near
-=begin
-      points = @sketch.segments.map{|s| s.snap_points }.flatten
-  		points = points.select do |p|
-  			dist = Point.new(x, @glview.allocation.height - y).distance_to @glview.world2screen(sketch2world p)
-  			dist < $preferences[:snap_dist]
-  		end
-=end
   		p, was_snapped = point_snapped( world2sketch(@glview.screen2world(x,y)) )
   		#if not points.empty?
   		if was_snapped
@@ -880,19 +873,29 @@ class DimensionTool < SketchTool
 	end
 	
 	def dimension_for( seg_or_points, x,y, temp=false )
-	  if seg_or_points.is_a? Arc
-	    pos = @glview.screen2world( x,y )
-	    return RadialDimension.new( seg_or_points, world2sketch(pos), @sketch, temp ) if pos
-	    return nil
-    elsif seg_or_points.is_a? Line
-      pos = @glview.screen2world( x,y )
-	    return LinearDimension.new( seg_or_points, :horizontal, world2sketch(pos), @sketch, temp ) if pos
-      return nil
-    elsif seg_or_points.is_a? Array and seg_or_points.size == 2
-      #XXX create linear dimension
-      return nil
+	  if pos = @glview.screen2world( x,y )
+	    if seg_or_points.is_a? Arc
+	      RadialDimension.new( seg_or_points, world2sketch(pos), @sketch, temp )
+      elsif seg_or_points.is_a? Line
+        width  = (seg_or_points.pos1.x - seg_or_points.pos2.x).abs
+        height = (seg_or_points.pos1.z - seg_or_points.pos2.z).abs
+        midp = seg_or_points.midpoint
+        x_dist = (pos.x - midp.x).abs
+        z_dist = (pos.z - midp.z).abs
+        if (x_dist - z_dist).abs / (x_dist + z_dist) < 0.35
+          LengthDimension.new( seg_or_points.pos1, seg_or_points.pos2, world2sketch(pos), @sketch, temp )
+        else
+          if z_dist > x_dist
+            HorizontalDimension.new( seg_or_points, world2sketch(pos), @sketch, temp )
+          else
+            VerticalDimension.new( seg_or_points, world2sketch(pos), @sketch, temp )
+          end
+        end
+      elsif seg_or_points.is_a? Array and seg_or_points.size == 2
+        #XXX create linear dimension
+      end
     else
-      return nil
+      nil
     end
 	end
 	
@@ -981,7 +984,8 @@ class EditSketchTool < SketchTool
 			    neu.z = original.z + move.z
 		    end
 		    @sketch.update_constraints @points_to_drag
-		    @points_to_drag.each{|p| @sketch.update_constraints [p] }
+		    #@points_to_drag.each{|p| @sketch.update_constraints [p] }
+		    @sketch.update_constraints @points_to_drag
 		  elsif @draw_dot
 		    @draw_dot.x = @old_draw_dot.x + move.x
 	      @draw_dot.y = @old_draw_dot.y + move.y

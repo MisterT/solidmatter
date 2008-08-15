@@ -591,7 +591,9 @@ class Sketch
     safety != 0
 	end
 =end
-  def update_constraints immutables=[]
+
+  def update_constraints( immutables=[], try=0 )
+    max_retries = @constraints.size * 2
     begin
       #immutable_constr.save_state
   	  constraints = immutables.map{|im| im.constraints }.flatten.uniq
@@ -599,7 +601,7 @@ class Sketch
   	  begin
   	    changed = false
   	    new_constraints = []
-  	    constraints.each do |c|
+  	    constraints.sort_by{rand}.each do |c|
   	      changed = true if c.update immutables
   	      immutables += c.constrained_objects
   	      new_constraints += c.connected_constraints
@@ -608,9 +610,11 @@ class Sketch
 	      constraints = new_constraints - already_checked
       end while changed
       return true
-    rescue OverconstrainedException
+    rescue OverconstrainedException => e
       #immutable_constr.revert_state
-      puts "WARNING: Overconstrained"
+      #puts "WARNING: Could not solve sketch"
+      return e.constraint.constrained_objects.any?{|o| update_constraints([o], try+1) } if try < max_retries
+      puts "ERROR: Sketch is overdefined"
       return false
     end
   end
@@ -629,7 +633,14 @@ class Sketch
 	  copy
 	end
 end
-class OverconstrainedException < RuntimeError ; end
+
+class OverconstrainedException < StandardError
+  attr :constraint
+  def initialize c
+    super()
+    @constraint = c
+  end
+end
 
 
 class SketchConstraint
@@ -652,7 +663,7 @@ class SketchConstraint
   end
   
   def update immutable_objs
-    raise OverconstrainedException if constrained_objects.all?{|p| immutable_objs.include? p } and not satisfied
+    raise OverconstrainedException.new(self) if constrained_objects.all?{|p| immutable_objs.include? p } and not satisfied
   end
 end
 
@@ -683,6 +694,72 @@ class CoincidentConstraint < SketchConstraint
         mutable_obj.take_coords_from immutable
       else
         rand > 0.5 ? @p2.take_coords_from(@p1) : @p1.take_coords_from(@p2)
+      end
+      return true
+    end
+  end
+end
+
+class HorizontalConstraint < SketchConstraint
+  def initialize( p1, p2 )
+    @p1 = p1
+    @p2 = p2
+    super()
+  end
+  
+  def constrained_objects
+    [@p1, @p2]
+  end
+  
+  def satisfied
+    @p1.z == @p2.z
+  end
+  
+  def update immutable_objs
+    super
+    if satisfied
+      return false
+    else
+      objs = constrained_objects
+      if objs.any?{|o| immutable_objs.include? o }
+        mutable_obj = (objs - immutable_objs)[0]
+        immutable = (objs - [mutable_obj])[0]
+        mutable_obj.z = immutable.z
+      else
+        rand > 0.5 ? (@p2.z = @p1.z) : (@p1.z = @p2.z)
+      end
+      return true
+    end
+  end
+end
+
+class VerticalConstraint < SketchConstraint
+  def initialize( p1, p2 )
+    @p1 = p1
+    @p2 = p2
+    super()
+  end
+  
+  def constrained_objects
+    [@p1, @p2]
+  end
+  
+  def satisfied
+    @p1.x == @p2.x
+  end
+  
+  def update immutable_objs
+    super
+    if satisfied
+      return false
+    else
+      objs = constrained_objects
+      if objs.any?{|o| immutable_objs.include? o }
+        mutable_obj = (objs - immutable_objs)[0]
+        immutable = (objs - [mutable_obj])[0]
+        mutable_obj.x = immutable.x
+      else
+        rand > 0.5 ? (@p2.x = @p1.x) : (@p1.x = @p2.x)
       end
       return true
     end
@@ -724,7 +801,8 @@ class Dimension < SketchConstraint
   def value= val
     # descandand code here
     update []
-    constrained_objects.each{|o| @sketch.update_constraints [o] }
+    #constrained_objects.each{|o| @sketch.update_constraints [o] }
+    @sketch.update_constraints constrained_objects
   end
   
   def draw
@@ -774,21 +852,21 @@ class RadialDimension < Dimension
     pos3 = @arc.center + (@direction * @arc.radius)
     pos2 = @arc.center + (@direction * (@arc.radius + $preferences[:dimension_offset]))
     pos1 = Vector[pos2.x + $preferences[:dimension_offset], pos2.y, pos2.z]
-    pl = @arc.sketch.plane
+    pl = @sketch.plane
     Dimension.draw_arrow [Tool.sketch2world(pos1, pl), Tool.sketch2world(pos2, pl), Tool.sketch2world(pos3, pl)]
     Dimension.draw_text( "R#{enunit @arc.radius}", Tool.sketch2world(pos2, pl) )
   end
 end
 
-class LinearDimension < Dimension
-  def initialize( line, orientation, pos, sketch, temp=false )
+class HorizontalDimension < Dimension
+  def initialize( line, pos, sketch, temp=false )
     @line = line
-    @orientation = orientation
     p1 = @line.pos1
     p2 = @line.pos2
     upper = [p1.z, p2.z].max
     lower = [p1.z, p2.z].min
-    @offset = (pos.z > @line.midpoint.z ? pos.z - upper : pos.z - lower)
+    @up_direction = (pos.z > @line.midpoint.z)
+    @offset = (@up_direction ? pos.z - upper : pos.z - lower)
     @length = value
     super(sketch, temp)
   end
@@ -798,11 +876,7 @@ class LinearDimension < Dimension
   end
   
   def value
-    if @orientation == :horizontal
-      (@line.pos1.x - @line.pos2.x).abs
-    elsif @orientation == :vertical
-      (@line.pos1.y - @line.pos2.y).abs
-    end
+    (@line.pos1.x - @line.pos2.x).abs
   end
   
   def value= val
@@ -836,7 +910,7 @@ class LinearDimension < Dimension
   
   def draw
     super
-    pl = @line.sketch.plane
+    pl = @sketch.plane
     p1 = Tool.sketch2world(@line.pos1, pl)
     p2 = Tool.sketch2world(@line.pos2, pl)
     left  = [p1.x, p2.x].min
@@ -844,13 +918,161 @@ class LinearDimension < Dimension
     upper = [p1.z, p2.z].max
     lower = [p1.z, p2.z].min
     # draw boundaries
-    if @offset >= 0
+    if @up_direction
       lbound = [Vector[left,  p1.y, upper], Vector[left,  p1.y, upper + @offset]]
       rbound = [Vector[right, p1.y, upper], Vector[right, p1.y, upper + @offset]]
     else
       lbound = [Vector[left,  p1.y, lower], Vector[left,  p1.y, lower + @offset]]
       rbound = [Vector[right, p1.y, lower], Vector[right, p1.y, lower + @offset]]
     end
+    Dimension.draw_arrow( lbound, false )
+    Dimension.draw_arrow( rbound, false )
+		# draw arrows
+		midpoint = lbound.last + lbound.last.vector_to(rbound.last) * 0.5
+    Dimension.draw_arrow [midpoint - Vector[0.01,0,0], lbound.last]
+    Dimension.draw_arrow [midpoint + Vector[0.01,0,0], rbound.last]
+    # draw text
+    Dimension.draw_text( enunit(value), midpoint )
+  end
+end
+
+class VerticalDimension < Dimension
+  def initialize( line, pos, sketch, temp=false )
+    @line = line
+    p1 = @line.pos1
+    p2 = @line.pos2
+    left = [p1.x, p2.x].min
+    right = [p1.x, p2.x].max
+    @right_direction = (pos.x > @line.midpoint.x)
+    @offset = (@right_direction ? pos.x - right : pos.x - left)
+    @length = value
+    super(sketch, temp)
+  end
+  
+  def satisfied
+    @length == value
+  end
+  
+  def value
+    (@line.pos1.z - @line.pos2.z).abs
+  end
+  
+  def value= val
+    @length = val
+    super
+  end
+  
+  def update immutable_objs
+    super
+    if satisfied
+      return false
+    else
+      diff = @length - value
+      points = constrained_objects
+      if points.any?{|p| immutable_objs.include? p }
+        mutable = (points - immutable_objs)[0]
+        immutable = (points - [mutable])[0]
+        diff = -diff if mutable.z < immutable.z
+        mutable.z += diff
+      else
+        points.sort_by{|p| p.z }.first.x -= diff/2.0
+        points.sort_by{|p| p.z }.last.x  += diff/2.0
+      end
+      return true
+    end
+  end
+  
+  def constrained_objects
+    [@line.pos1, @line.pos2]
+  end
+  
+  def draw
+    super
+    pl = @sketch.plane
+    p1 = Tool.sketch2world(@line.pos1, pl)
+    p2 = Tool.sketch2world(@line.pos2, pl)
+    left  = [p1.x, p2.x].min
+    right = [p1.x, p2.x].max
+    upper = [p1.z, p2.z].max
+    lower = [p1.z, p2.z].min
+    # draw boundaries
+    if @right_direction
+      lbound = [Vector[right,  p1.y, lower], Vector[right + @offset,  p1.y, lower]]
+      ubound = [Vector[right, p1.y, upper],  Vector[right + @offset, p1.y, upper]]
+    else
+      lbound = [Vector[left,  p1.y, lower], Vector[left + @offset,  p1.y, lower]]
+      ubound = [Vector[left, p1.y, upper],  Vector[left + @offset, p1.y, upper]]
+    end
+    Dimension.draw_arrow( lbound, false )
+    Dimension.draw_arrow( ubound, false )
+		# draw arrows
+		midpoint = lbound.last + lbound.last.vector_to(ubound.last) * 0.5
+    Dimension.draw_arrow [midpoint - Vector[0,0,0.01], lbound.last]
+    Dimension.draw_arrow [midpoint + Vector[0,0,0.01], ubound.last]
+    # draw text
+    Dimension.draw_text( enunit(value), midpoint )
+  end
+end
+
+class LengthDimension < Dimension
+  def initialize( p1, p2, cursor_pos, sketch, temp=false )
+    @p1 = p1
+    @p2 = p2
+    upper = [p1.z, p2.z].max
+    lower = [p1.z, p2.z].min
+    @offset = ((p1 + p2) / 2.0).vector_to(cursor_pos).length
+    @value = value
+    super(sketch, temp)
+  end
+  
+  def constrained_objects
+    [@p1, @p2]
+  end
+  
+  def satisfied
+    @value == value
+  end
+  
+  def value
+    @p1.vector_to(@p2).length
+  end
+  
+  def value= val
+    @value = val
+    super
+  end
+  
+  def update immutable_objs
+    super
+    if satisfied
+      return false
+    else
+      diff = value - @value
+      points = constrained_objects
+      if points.any?{|p| immutable_objs.include? p }
+        mutable = (points - immutable_objs)[0]
+        immutable = (points - [mutable])[0]
+      else
+        mutable, immutable = points.sort_by{rand}
+      end
+      mutable.take_coords_from( mutable + mutable.vector_to(immutable).normalize * diff )
+      return true
+    end
+  end
+  
+  def draw
+    super
+    pl = @sketch.plane
+    p1 = Tool.sketch2world(@p1, pl)
+    p2 = Tool.sketch2world(@p2, pl)
+    left  = [p1.x, p2.x].min
+    right = [p1.x, p2.x].max
+    upper = [p1.z, p2.z].max
+    lower = [p1.z, p2.z].min
+    offset = p1.vector_to(p2).normalize.cross_product(pl.normal) * @offset
+    # draw boundaries
+    lbound = [p1, p1 + offset]
+    rbound = [p2, p2 + offset]
     Dimension.draw_arrow( lbound, false )
     Dimension.draw_arrow( rbound, false )
 		# draw arrows
@@ -1215,10 +1437,11 @@ class Solid
 	              sz = ba + (rand * z_span)
 	              hits += 1 if self.contains? Vector[sx,sy,sz]
 	              shots_fired += 1
-	              if shots_fired % 10 == 0
+	              if shots_fired % 15 == 0
 	                share = hits / shots_fired
 	                change = (share - old_share).abs
 	                old_share = share
+	                progress.fraction = progress.fraction
                 end
 	            end while change > max_change_per_box
 	            #puts "Fired #{shots_fired} shots"
