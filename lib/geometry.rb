@@ -1413,7 +1413,7 @@ class Solid
 	    box_volume = x_span * y_span * z_span
 	    max_change_per_box = max_change * divisions / box_volume
 	    subvolumes = []
-	    progress = ProgressDialog.new "<b>Calculating solid volume...</b>"
+	    progress = ProgressDialog.new GetText._("<b>Calculating solid volume...</b>")
 	    progress.fraction = 0.0
 	    subvolumes_finished = 0
 	    increment = 1.0 / divisions**3

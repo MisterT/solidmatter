@@ -23,7 +23,8 @@ class PartInformationDialog
 	  combo = @glade['material_combo']
 	  combo.remove_text 0
 	  $manager.materials.each{|m| combo.append_text m.name }
-	  combo.active = $manager.materials.index @info[:material]
+	  index = $manager.materials.index @info[:material]
+	  combo.active = index if index
 	  # set multi-user status
 	  @glade['part_dialog'].transient_for = $manager.main_win
   end

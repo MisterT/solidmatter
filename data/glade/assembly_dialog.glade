@@ -202,7 +202,7 @@
                     <child>
                       <widget class="GtkLabel" id="label1">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Information&lt;/b&gt;</property>
+                        <property name="label" translatable="yes">&lt;b&gt;Information  &lt;/b&gt;</property>
                         <property name="use_markup">True</property>
                       </widget>
                       <packing>
@@ -349,7 +349,7 @@
                     <child>
                       <widget class="GtkLabel" id="label2">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Solid properties&lt;/b&gt;</property>
+                        <property name="label" translatable="yes">&lt;b&gt;Solid properties &lt;/b&gt;</property>
                         <property name="use_markup">True</property>
                       </widget>
                       <packing>

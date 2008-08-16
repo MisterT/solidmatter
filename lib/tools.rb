@@ -305,7 +305,7 @@ class RegionSelectionTool < SelectionTool
 	
 	def draw
 	  super
-	  GL.Color3f( 0.9, 0.2, 0 )
+	  GL.Color4f( 0.9, 0.2, 0, 0.5 )
 	  GL.Disable(GL::POLYGON_OFFSET_FILL)
     @current_region.face.draw if @current_region
     GL.Enable(GL::POLYGON_OFFSET_FILL)

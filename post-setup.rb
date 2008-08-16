@@ -6,7 +6,7 @@
 require 'gettext/rmsgfmt'
 require 'gettext/utils'
 
-#GetText.update_pofiles("openmachinist", Dir.glob("{lib,bin,data/glade}/**/*.{rb,rhtml,glade}"), "openmachinist 0.0.2")
+GetText.update_pofiles("openmachinist", Dir.glob("{lib,data/glade}/**/*.{rb,rhtml,glade}"), "openmachinist 0.0.2")
 GetText.create_mofiles
 
 ENV['GCONF_CONFIG_SOURCE'] = `gconftool-2 --get-default-source`.chomp

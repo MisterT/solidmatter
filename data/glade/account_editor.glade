@@ -165,7 +165,7 @@
                     <child>
                       <widget class="GtkLabel" id="label1">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Information&lt;/b&gt;</property>
+                        <property name="label" translatable="yes">&lt;b&gt;Information &lt;/b&gt;</property>
                         <property name="use_markup">True</property>
                       </widget>
                       <packing>
@@ -274,7 +274,7 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkScrolledWindow" id="scrolledwindow1">
+                              <widget class="GtkScrolledWindow" id="scrolledwindow2">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
