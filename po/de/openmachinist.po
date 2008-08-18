@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: openmachinist 0.0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-08-16 05:07+0200\n"
-"PO-Revision-Date: 2008-08-16 04:57+0200\n"
+"POT-Creation-Date: 2008-08-18 03:29+0200\n"
+"PO-Revision-Date: 2008-08-18 03:28+0200\n"
 "Last-Translator: Björn Breitgoff <breidibreit@web.de>\n"
 "Language-Team: German\n"
 "MIME-Version: 1.0\n"
@@ -721,50 +721,54 @@ msgstr "Eine Reihe von Punkten auswählen um die Strecke anzuzeigen:"
 msgid "Distance:"
 msgstr "Abstand:"
 
-#: lib/tools.rb:662
+#: lib/tools.rb:661
 msgid "Click left to create a point, middle click to move points:"
 msgstr "Linksklick für neuen Punkt, Mittelklick zum bewegen von Punkten:"
 
-#: lib/tools.rb:710 lib/tools.rb:765
+#: lib/tools.rb:709 lib/tools.rb:764
 msgid "Click left to select center:"
 msgstr "Mittelpunkt wählen:"
 
-#: lib/tools.rb:722
+#: lib/tools.rb:721
 msgid "Click left to select first point on arc:"
 msgstr "Ersten Punkt auf Bogen wählen:"
 
-#: lib/tools.rb:727
+#: lib/tools.rb:726
 msgid "Click left to select second point on arc:"
 msgstr "Zweiten Punkt auf Bogen wählen"
 
-#: lib/tools.rb:776
+#: lib/tools.rb:775
 msgid "Click left to select a point on the circle:"
 msgstr "Einen Punkt auf dem Kreis wählen:"
 
-#: lib/tools.rb:806
+#: lib/tools.rb:805
 msgid "Click left to select first point on circle:"
 msgstr "Ersten Punkt auf Kreis wählen:"
 
-#: lib/tools.rb:817
+#: lib/tools.rb:816
 msgid "Click left to select second point on circle:"
 msgstr "Zweiten Punkt auf Kreis wählen:"
 
-#: lib/tools.rb:842
+#: lib/tools.rb:841
 msgid "Choose a segment or two points to add a dimension:"
 msgstr "Segment oder zwei Punkte für Bemaßung wählen:"
 
-#: lib/tools.rb:861 lib/tools.rb:867
+#: lib/tools.rb:865 lib/tools.rb:871
 msgid "Choose a point to position your dimension:"
 msgstr "Ort zum ablegen der Bemaßung wählen:"
 
-#: lib/tools.rb:920
+#: lib/tools.rb:924
 msgid ""
 "Click left to select points, drag to move points, right click for options:"
 msgstr "Zeichnung bearbeiten:"
 
-#: lib/tools.rb:1047
+#: lib/tools.rb:1049
 msgid "Click left to delete subsegments of your sketch:"
 msgstr "Bereich der Zeichnung zum wegschneiden wählen:"
+
+#: lib/join_project_dialog.rb:17
+msgid "Servers on local network"
+msgstr "Server im lokalen Netzwerk"
 
 #: lib/close_project_confirmation.rb:13
 msgid "Save changes to "
@@ -834,7 +838,7 @@ msgstr "Create reference geometry"
 #: data/glade/account_editor.glade:9 data/glade/new_project.glade:9
 #: data/glade/join_project.glade:9 data/glade/save_request.glade:9
 #: data/glade/open_project.glade:9 data/glade/component_browser.glade:9
-#: data/glade/progress.glade:8 data/glade/progress.glade:96
+#: data/glade/progress.glade:8 data/glade/progress.glade:97
 #: data/glade/project_dialog.glade:9
 msgid " "
 msgstr " "
@@ -976,15 +980,15 @@ msgstr ""
 "zentralen Server und verbindet\n"
 "sich gleichzeitig damit"
 
-#: data/glade/make_public_dialog.glade:232 data/glade/join_project.glade:195
+#: data/glade/make_public_dialog.glade:232 data/glade/join_project.glade:210
 msgid "Bookmarks:"
 msgstr "Lesezeichen:"
 
-#: data/glade/make_public_dialog.glade:239 data/glade/join_project.glade:202
+#: data/glade/make_public_dialog.glade:239 data/glade/join_project.glade:217
 msgid "Adress:"
 msgstr "Adresse:"
 
-#: data/glade/make_public_dialog.glade:250 data/glade/join_project.glade:213
+#: data/glade/make_public_dialog.glade:250 data/glade/join_project.glade:228
 msgid "Port:"
 msgstr "Port:"
 
@@ -993,7 +997,7 @@ msgid "Login:"
 msgstr "Benutzername:"
 
 #: data/glade/make_public_dialog.glade:272 data/glade/account_editor.glade:101
-#: data/glade/join_project.glade:105
+#: data/glade/join_project.glade:106
 msgid "Password:"
 msgstr "Kennwort:"
 
@@ -1467,37 +1471,37 @@ msgstr ""
 "und macht es im Netzwerk zur\n"
 "Teilnahme verfügbar"
 
-#: data/glade/join_project.glade:46
+#: data/glade/join_project.glade:45
 msgid ""
 "\n"
 "<b>Join multi-user project</b>\n"
 msgstr ""
 "\n"
-"<b>An Mehrbenutzerprojekt teilnehmen</b>\n"
+"<b>An Arbeitsgruppe beteiligen</b>\n"
 
-#: data/glade/join_project.glade:98
+#: data/glade/join_project.glade:99
 msgid "Username:"
 msgstr "Benutzername:"
 
-#: data/glade/join_project.glade:156
+#: data/glade/join_project.glade:152
 msgid "<b>Login data</b>"
 msgstr "<b>Anmeldedaten</b>"
 
-#: data/glade/join_project.glade:331
+#: data/glade/join_project.glade:348
 msgid "gtk-connect"
 msgstr "gtk-connect"
 
-#: data/glade/join_project.glade:345
+#: data/glade/join_project.glade:363
 msgid "<b>Server information</b>"
 msgstr "<b>Serverinformationen</b>"
 
-#: data/glade/join_project.glade:375
+#: data/glade/join_project.glade:393
 msgid "<b>Projects on server</b>"
 msgstr "<b>Projekte auf Server</b>"
 
-#: data/glade/join_project.glade:441
+#: data/glade/join_project.glade:459
 msgid "_Join project"
-msgstr "_An Projekt teilnehmen"
+msgstr "_Teilnehmen"
 
 #: data/glade/save_request.glade:45
 msgid ""
@@ -1610,12 +1614,8 @@ msgid "gtk-add"
 msgstr "gtk-add"
 
 #: data/glade/progress.glade:44
-msgid ""
-"\n"
-"<b>The model is being rebuilt...</b>\n"
-msgstr ""
-"\n"
-"<b>Das Modell wird neu berechnet...</b>\n"
+msgid "<b>The model is being rebuilt...</b>"
+msgstr "<b>Das Modell wird neu berechnet...</b>"
 
 #: data/glade/wait_for_save.glade:8
 msgid "Save request"

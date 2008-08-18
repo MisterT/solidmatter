@@ -121,7 +121,7 @@ public
     Dir.chdir
     file.gsub!( Dir.pwd, '~')
     Dir.chdir previous_dir
-    @main_win.title = "#{@has_been_changed ? '*' : ''}#{project_name} #{file} - Open Machinist" if @main_win
+    @main_win.title = "#{@has_been_changed ? '*' : ''}#{project_name} #{file} - Solid|matter" if @main_win
   end
   
   def has_been_changed= v
@@ -410,7 +410,7 @@ public
 				                                  Gtk::MessageDialog::WARNING,
 				                                  Gtk::MessageDialog::BUTTONS_CLOSE,
 				                                  GetText._("Bad file format"))
-				  dialog.secondary_text = GetText._("The file format is unsupported.\nMaybe this file was saved with an older version of Open Machinist")
+				  dialog.secondary_text = GetText._("The file format is unsupported.\nMaybe this file was saved with an older version of Solid|matter")
 				  dialog.run
 				  dialog.destroy
   			end

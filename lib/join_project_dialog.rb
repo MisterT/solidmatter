@@ -4,12 +4,62 @@
 #  Copyright (c) 2008. All rights reserved.
 
 require 'libglade2'
+require 'dbus'
 
 
 class JoinProjectDialog
 	def initialize
 	  @glade = GladeXML.new( "../data/glade/join_project.glade", nil, 'openmachinist' ) {|handler| method(handler)}
+	  @servers = {}
+	  # create server list
+    pix = Gtk::CellRendererPixbuf.new
+		text = Gtk::CellRendererText.new
+		column = Gtk::TreeViewColumn.new GetText._("Servers on local network")
+		column.pack_start(pix,false)
+		column.set_cell_data_func(pix) do |col, cell, model, iter|
+			cell.pixbuf = iter.get_value(0)
+		end
+		column.pack_start(text, true)
+		column.set_cell_data_func(text) do |col, cell, model, iter|
+			cell.markup = iter.get_value(1)
+		end
+		@server_list = @glade['server_list']
+		@server_list.append_column( column )
+		# load bookmarks and search local network
 	  update_combo
+	  setup_zeroconf
+  end
+  
+  def setup_zeroconf
+    @listener = Thread.start do
+      bus = DBus::SystemBus.instance
+      p = bus.introspect("org.freedesktop.Avahi", "/")
+      server = p["org.freedesktop.Avahi.Server"]
+      browser = server.ServiceBrowserNew(-1, -1, "_workstation._tcp", "", 0)
+      # register for signals
+      mr = DBus::MatchRule.new
+      mr.type = "signal"
+      mr.interface = "org.freedesktop.Avahi.ServiceBrowser"
+      mr.path = browser.first
+      bus.add_match(mr) do |msg, first_param|
+        if msg.params[2] and msg.params[2] == "SolidMatter"
+          if msg.member == "ItemNew"
+            resolver = server.ResolveService (-1, -1, msg.params[2], "_workstation._tcp", "", 0, 0)
+            address = resolver[7]
+            port = resolver[8]
+            puts "#{address} : #{port}"
+            @servers[address] = port
+          elsif msg.member == "ItemRemove"
+            #@servers.delete address
+            #XXX servers going offline is not handled gracefully
+          end
+          Gtk.queue{ update_server_list }
+        end
+      end
+      main = DBus::Main.new
+      main << bus
+      main.run
+    end
   end
   
   def ok_handle( w )
@@ -23,6 +73,7 @@ class JoinProjectDialog
   end
   
   def cancel_handle( w )
+    @listener.kill
     @glade['join_project'].destroy
   end
   
@@ -72,4 +123,21 @@ class JoinProjectDialog
     end
     @glade['bookmark_combo'].active = $preferences[:bookmarks].size - 1
   end
+  
+  def update_server_list
+    model = Gtk::ListStore.new(Gdk::Pixbuf, String)
+    im = Gtk::Image.new('../data/icons/small/part_small.png').pixbuf
+    for addr in @servers.keys
+		  iter = model.append
+  		iter[0] = im
+  		iter[1] = addr
+		end
+		@server_list.model = model
+  end
 end
+
+
+
+
+
+

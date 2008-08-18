@@ -651,7 +651,6 @@ class SketchTool < Tool
 	
 	def exit
 	  super
-	  @sketch.update_constraints
 	  @sketch.build_displaylist
 	end
 end
@@ -851,6 +850,11 @@ class DimensionTool < SketchTool
       @sketch.constraints << dim
       $manager.cancel_current_tool
       @glview.redraw
+	    FloatingEntry.new( x,y, dim.value ) do |value| 
+	      dim.value = value
+	      @sketch.build_displaylist
+	      @glview.redraw
+      end
     else
       # use point instead of segment if we find one near
   		p, was_snapped = point_snapped( world2sketch(@glview.screen2world(x,y)) )
@@ -936,7 +940,6 @@ class EditSketchTool < SketchTool
 	  when Dimension
 	    FloatingEntry.new( x,y, sel.value ) do |value| 
 	      sel.value = value
-	      @sketch.update_constraints
 	      @sketch.build_displaylist
 	      @glview.redraw
       end
@@ -1000,7 +1003,6 @@ class EditSketchTool < SketchTool
 	def release_left
 	  super
 	  @does_snap = false
-    @sketch.update_constraints
     @sketch.build_displaylist
 	  @glview.redraw
   end

@@ -5,11 +5,11 @@
 
 debug = false
 
-pid = fork unless debug
-if not debug and not pid
+#pid = fork unless debug
+# and not pid
   # create actuall server in seperate process, as running with Gtk has side effects
-  `ruby om_server.rb`
-else
+  Thread.start{ `ruby om_server.rb` } if not debug
+#else
   require 'rubygems'
   require 'drb'
   require 'multi_user.rb'
@@ -70,4 +70,4 @@ else
   # connect menu to icon
   si.signal_connect('popup-menu'){|w,btn,time| m.popup(nil, nil, 3,  time) }
   Gtk.main_with_queue 100
-end
+#end

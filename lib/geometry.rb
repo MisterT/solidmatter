@@ -592,7 +592,7 @@ class Sketch
 	end
 =end
 
-  def update_constraints( immutables=[], try=0 )
+  def update_constraints( immutables, try=0 )
     max_retries = @constraints.size * 2
     begin
       #immutable_constr.save_state
@@ -854,7 +854,7 @@ class RadialDimension < Dimension
     pos1 = Vector[pos2.x + $preferences[:dimension_offset], pos2.y, pos2.z]
     pl = @sketch.plane
     Dimension.draw_arrow [Tool.sketch2world(pos1, pl), Tool.sketch2world(pos2, pl), Tool.sketch2world(pos3, pl)]
-    Dimension.draw_text( "R#{enunit @arc.radius}", Tool.sketch2world(pos2, pl) )
+    Dimension.draw_text( "R#{enunit @arc.radius}", Tool.sketch2world(pos1, pl) )
   end
 end
 
