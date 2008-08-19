@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: openmachinist 0.0.2\n"
-"POT-Creation-Date: 2008-08-18 03:29+0200\n"
+"POT-Creation-Date: 2008-08-19 03:13+0200\n"
 "PO-Revision-Date: 2008-08-16 02:14+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -581,7 +581,7 @@ msgstr ""
 #: lib/project_manager.rb:413
 msgid ""
 "The file format is unsupported.\n"
-"Maybe this file was saved with an older version of Open Machinist"
+"Maybe this file was saved with an older version of Solid|matter"
 msgstr ""
 
 #: lib/project_manager.rb:813 lib/project_manager.rb:814
@@ -962,7 +962,7 @@ msgid ""
 "a central server and joins it"
 msgstr ""
 
-#: data/glade/make_public_dialog.glade:232 data/glade/join_project.glade:210
+#: data/glade/make_public_dialog.glade:232
 msgid "Bookmarks:"
 msgstr ""
 
@@ -1443,11 +1443,15 @@ msgid ""
 msgstr ""
 
 #: data/glade/join_project.glade:99
-msgid "Username:"
+msgid "Username: "
 msgstr ""
 
 #: data/glade/join_project.glade:152
 msgid "<b>Login data</b>"
+msgstr ""
+
+#: data/glade/join_project.glade:210
+msgid "Bookmarks: "
 msgstr ""
 
 #: data/glade/join_project.glade:348

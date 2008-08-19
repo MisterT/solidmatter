@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: openmachinist 0.0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-08-18 03:29+0200\n"
-"PO-Revision-Date: 2008-08-18 03:28+0200\n"
+"POT-Creation-Date: 2008-08-19 03:13+0200\n"
+"PO-Revision-Date: 2008-08-19 03:12+0200\n"
 "Last-Translator: Björn Breitgoff <breidibreit@web.de>\n"
 "Language-Team: German\n"
 "MIME-Version: 1.0\n"
@@ -584,11 +584,11 @@ msgstr "Unlesbares Dateiformat"
 #: lib/project_manager.rb:413
 msgid ""
 "The file format is unsupported.\n"
-"Maybe this file was saved with an older version of Open Machinist"
+"Maybe this file was saved with an older version of Solid|matter"
 msgstr ""
 "Das Dateiformat wird nicht unterstützt.\n"
-"Möglicherweise wurde diese Datei mit einer älteren Version von Solid|matter "
-"erzeugt"
+"Möglicherweise wurde diese Datei mit einer älteren Version von\n"
+"Solid|matter erzeugt"
 
 #: lib/project_manager.rb:813 lib/project_manager.rb:814
 msgid "Untitled"
@@ -980,7 +980,7 @@ msgstr ""
 "zentralen Server und verbindet\n"
 "sich gleichzeitig damit"
 
-#: data/glade/make_public_dialog.glade:232 data/glade/join_project.glade:210
+#: data/glade/make_public_dialog.glade:232
 msgid "Bookmarks:"
 msgstr "Lesezeichen:"
 
@@ -1480,12 +1480,16 @@ msgstr ""
 "<b>An Arbeitsgruppe beteiligen</b>\n"
 
 #: data/glade/join_project.glade:99
-msgid "Username:"
-msgstr "Benutzername:"
+msgid "Username: "
+msgstr "Benutzername: "
 
 #: data/glade/join_project.glade:152
 msgid "<b>Login data</b>"
 msgstr "<b>Anmeldedaten</b>"
+
+#: data/glade/join_project.glade:210
+msgid "Bookmarks: "
+msgstr "Lesezeichen: "
 
 #: data/glade/join_project.glade:348
 msgid "gtk-connect"

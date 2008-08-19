@@ -10,11 +10,11 @@ require 'preferences'
 # init translation framework
 GetText.bindtextdomain 'openmachinist'
 
+server = ProjectServer.new
+
 # register server on the local network
 Thread.start{ `avahi-publish-service "SolidMatter" _workstation._tcp #{$preferences[:server_port]}` }
 
 # run until we receice an exit signal
-server = ProjectServer.new
 DRb.thread.join
-
-
+`killall avahi-publish-service`

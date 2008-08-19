@@ -5,11 +5,11 @@
 
 debug = false
 
-#pid = fork unless debug
-# and not pid
+pid = fork unless debug
+if not debug and not pid
   # create actuall server in seperate process, as running with Gtk has side effects
-  Thread.start{ `ruby om_server.rb` } if not debug
-#else
+  `ruby om_server.rb`  
+else
   require 'rubygems'
   require 'drb'
   require 'multi_user.rb'
@@ -18,7 +18,7 @@ debug = false
   require 'preferences'
   require 'gtk_threadsafe.rb'
   
-  server = debug ? ProjectServer.new : DRbObject.new_with_uri("druby://localhost:#{$preferences[:server_port]}")
+  server = debug ? ProjectServer.new : DRbObject.new_with_uri("druby://:#{$preferences[:server_port]}")
   
   # init translation framework and Gtk
   GetText.bindtextdomain 'openmachinist'
@@ -70,4 +70,4 @@ debug = false
   # connect menu to icon
   si.signal_connect('popup-menu'){|w,btn,time| m.popup(nil, nil, 3,  time) }
   Gtk.main_with_queue 100
-#end
+end

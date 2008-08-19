@@ -10,7 +10,7 @@ require 'dbus'
 class JoinProjectDialog
 	def initialize
 	  @glade = GladeXML.new( "../data/glade/join_project.glade", nil, 'openmachinist' ) {|handler| method(handler)}
-	  @servers = {}
+	  @servers = []
 	  # create server list
     pix = Gtk::CellRendererPixbuf.new
 		text = Gtk::CellRendererText.new
@@ -25,8 +25,14 @@ class JoinProjectDialog
 		end
 		@server_list = @glade['server_list']
 		@server_list.append_column( column )
+		@server_list.signal_connect("row_activated") do |widget, event|
+	    @server_list.selection.selected_each do |model, path, iter|
+		    load_server_info @servers[path.indices.first]
+	    end
+		end
 		# load bookmarks and search local network
 	  update_combo
+	  update_server_list
 	  setup_zeroconf
   end
   
@@ -47,10 +53,11 @@ class JoinProjectDialog
             resolver = server.ResolveService (-1, -1, msg.params[2], "_workstation._tcp", "", 0, 0)
             address = resolver[7]
             port = resolver[8]
-            puts "#{address} : #{port}"
-            @servers[address] = port
+            puts "New server appeared  #{address} : #{port}"
+            @servers << [address, port]
           elsif msg.member == "ItemRemove"
-            #@servers.delete address
+            @servers.clear
+            puts "Server has gone offline"
             #XXX servers going offline is not handled gracefully
           end
           Gtk.queue{ update_server_list }
@@ -74,6 +81,7 @@ class JoinProjectDialog
   
   def cancel_handle( w )
     @listener.kill
+    Thread.list.each { |t| t.kill unless t == Thread.main }
     @glade['join_project'].destroy
   end
   
@@ -124,15 +132,20 @@ class JoinProjectDialog
     @glade['bookmark_combo'].active = $preferences[:bookmarks].size - 1
   end
   
+  def load_server_info s
+      @glade['adress_entry'].text   = s.first
+      @glade['port_entry'].text     = s.last.to_s
+  end
+  
   def update_server_list
     model = Gtk::ListStore.new(Gdk::Pixbuf, String)
     im = Gtk::Image.new('../data/icons/small/part_small.png').pixbuf
-    for addr in @servers.keys
+    for s in @servers
 		  iter = model.append
   		iter[0] = im
-  		iter[1] = addr
+  		iter[1] = s.first + " : " + s.last.to_s
 		end
-		@server_list.model = model
+		@server_list.model = model unless @server_list.destroyed?
   end
 end
 

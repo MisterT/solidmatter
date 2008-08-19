@@ -36,9 +36,9 @@ Request = Struct.new( :type, :what, :client_ids_to_serve, :client_ids_received, 
 class ProjectServer
   attr_accessor :accounts, :clients, :thread
   def initialize
-    DRb.start_service( "druby://localhost:#{$preferences[:server_port]}", self )
+    DRb.start_service( "druby://:#{$preferences[:server_port]}", self )
     @projects = []
-    @accounts = [UserAccount.new( DRbObject.new_with_uri("druby://localhost:#{$preferences[:server_port]}"), "synthetic", "bla")]
+    @accounts = [UserAccount.new( DRbObject.new_with_uri("druby://:#{$preferences[:server_port]}"), "synthetic", "bla")]
     @clients  = []
     @changes  = []
     @requests = []
