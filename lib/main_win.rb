@@ -109,7 +109,7 @@ class OpenMachinistMainWin < Gtk::Window
 				[GetText._("/Simulation/Activate contact solver"),              "<CheckItem>", nil, nil, lambda{}],
 				[GetText._("/Simulation/Define contact set..."),                "<Item>", nil, nil, lambda{ $manager.display_contact_set }],
 			[GetText._("/_Help")],
-				[GetText._("/Help/_About Solid|matter|"), "<StockItem>", nil, Gtk::Stock::ABOUT, lambda{ AboutDialog.new }
+				[GetText._("/Help/_About Solid|matter"), "<StockItem>", nil, Gtk::Stock::ABOUT, lambda{ AboutDialog.new }
 				] 
 		]
 		# create menuitems and attach them to the main window
