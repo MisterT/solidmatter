@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.5 on Tue Aug 19 23:13:13 2008 -->
+<!--Generated with glade3 3.4.5 on Wed Aug 20 04:33:50 2008 -->
 <glade-interface>
   <widget class="GtkAboutDialog" id="aboutdialog">
     <property name="visible">True</property>
@@ -30,7 +30,7 @@ You should have received a copy of the GNU General Public License along with Sol
     <property name="authors">Björn Breitgoff &lt;breidibreit@web.de&gt;</property>
     <property name="documenters"></property>
     <property name="translator_credits" translatable="yes" comments="Insert your name here to be credited appropriately in the about box!">Björn Breitgoff &lt;breidibreit@web.de&gt;</property>
-    <property name="logo">part.png</property>
+    <property name="logo">logo.png</property>
     <property name="wrap_license">True</property>
     <signal name="response" handler="close"/>
     <child internal-child="vbox">
