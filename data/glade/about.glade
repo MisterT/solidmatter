@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.5 on Wed Aug 20 04:33:50 2008 -->
+<!--Generated with glade3 3.4.5 on Thu Aug 21 00:04:05 2008 -->
 <glade-interface>
   <widget class="GtkAboutDialog" id="aboutdialog">
     <property name="visible">True</property>
@@ -19,9 +19,9 @@
     <property name="version">0.2</property>
     <property name="copyright" translatable="yes">Copyright (c) 2008, Björn Breitgoff
 </property>
-    <property name="comments" translatable="yes">A parametrical, 3d, mechanical design application</property>
+    <property name="comments" translatable="yes">A parametrical, 3d, mechanical design application for the Gnome desktop.</property>
     <property name="website">http://openmachinist.sourceforge.net</property>
-    <property name="website_label" translatable="yes">http://openmachinist.sourceforge.net</property>
+    <property name="website_label" translatable="yes">openmachinist.sourceforge.net</property>
     <property name="license" translatable="yes">Solid|matter is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 
 Solid|matter is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
