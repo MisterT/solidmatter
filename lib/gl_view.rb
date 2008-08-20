@@ -422,6 +422,7 @@ class GLView < Gtk::DrawingArea
   		if top_comp.class == Assembly
   			GL.Translate( top_comp.position.x, top_comp.position.y, top_comp.position.z )
   			top_comp.components.each{|c| recurse_draw c }
+  			top_comp.draw_cog unless @picking_pass or @selection_pass
   		### -------------------------- Part -------------------------- ###
   		elsif top_comp.class == Part
   			GL.Translate( top_comp.position.x, top_comp.position.y, top_comp.position.z )

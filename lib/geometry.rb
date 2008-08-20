@@ -1608,6 +1608,20 @@ class Component
 	 @thumbnail = im.to_tiny
 	end
 	
+	def draw_cog
+	  if @cog
+      qobj = GLU.NewQuadric
+      GLU.QuadricDrawStyle(qobj, GLU::FILL)
+      GLU.QuadricNormals(qobj, GLU::SMOOTH)
+      GL.Enable(GL::LIGHTING)
+      GL.PushMatrix
+        GL.Translate(@cog.x, @cog.y, @cog.z)
+        GLU.Sphere(qobj, 0.015, 12, 12)
+      GL.PopMatrix
+      $manager.glview.draw_coordinate_axes @cog
+    end
+	end
+	
 	def dup
 	  copy = super
 	  copy.component_id = new_id
@@ -1771,20 +1785,6 @@ class Part < Component
 	  @cog = volume_and_cog.last
 	end
 	
-	def draw_cog
-	  if @cog
-      qobj = GLU.NewQuadric
-      GLU.QuadricDrawStyle(qobj, GLU::FILL)
-      GLU.QuadricNormals(qobj, GLU::SMOOTH)
-      GL.Enable(GL::LIGHTING)
-      GL.PushMatrix
-        GL.Translate(@cog.x, @cog.y, @cog.z)
-        GLU.Sphere(qobj, 0.015, 12, 12)
-      GL.PopMatrix
-      $manager.glview.draw_coordinate_axes @cog
-    end
-	end
-	
 	def dimensions
 	  (all_sketches.map{|sk| sk.dimensions } + @operators.map{|op| op.dimensions }).flatten.uniq
 	end
@@ -1817,7 +1817,7 @@ class Part < Component
 end
 
 class Assembly < Component
-	attr_accessor :components
+	attr_accessor :components, :cog
 	def initialize name
 		super()
 		@component_id = component_id() 
@@ -1879,8 +1879,16 @@ class Assembly < Component
 	    mass += m
 	    cog += co * m
 	  end
-	  cog /= mass
-	  [volume, mass, cog]
+	  if mass != 0
+	    cog /= mass
+	    [volume, mass, cog]
+	  else
+	    [0, 0, Vector[0,0,0]]
+	  end
+	end
+	
+	def update_cog
+	  @cog = volume_mass_and_cog.last
 	end
 	
 	def bounding_box
