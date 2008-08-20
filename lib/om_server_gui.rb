@@ -27,7 +27,7 @@ else
   # create tray icon
   si = Gtk::StatusIcon.new
   si.file = '../data/icons/middle/part_middle.png'
-  si.tooltip = "Open Machinist dedicated server"
+  si.tooltip = "Solid|matter dedicated server"
   si.visible = true
   si.blinking = true
   Thread.start do

@@ -11,7 +11,6 @@ class ServerWin
     @glade = GladeXML.new( "../data/glade/server_win.glade", nil, 'openmachinist' ) {|handler| method(handler)}
     @server = server
     @glade['server_win'].signal_connect('destroy'){ @destroyed = true }
-    @glade['server_win'].title = GetText._("Open Machinist dedicated server")
     # ------- create projects view ------- #
     pix = Gtk::CellRendererPixbuf.new
 		text = Gtk::CellRendererText.new

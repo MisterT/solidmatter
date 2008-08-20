@@ -33,8 +33,9 @@ class AssemblyInformationDialog
   
   def update_physical_info( w )
     GC.enable # make sure the garbage collector is still on
-    @glade['area_label'].text = enunit(@assembly.area, 2).to_s
-    @glade['volume_label'].text = enunit(@assembly.volume, 3).to_s
-    @glade['mass_label'].text = @assembly.mass.to_s
+    @glade['area_label'].text = enunit(@assembly.area, 2)
+    v, m, cog = @assembly.volume_mass_and_cog
+    @glade['volume_label'].text = enunit(v, 3)
+    @glade['mass_label'].text = m.to_s
   end
 end

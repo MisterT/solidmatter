@@ -20,7 +20,6 @@ require 'server_win.rb'
 class OpenMachinistMainWin < Gtk::Window
 	def initialize
 		super
-		self.title = GetText._("Untitled project - Open Machinist")
 		Gtk::Window.set_default_icon_list [Gdk::Pixbuf.new('../data/icons/small/preferences-system_small.png'), Gdk::Pixbuf.new('../data/icons/big/tools.png')]
 		self.reallocate_redraws = true
 		self.window_position = Gtk::Window::POS_CENTER
@@ -97,7 +96,6 @@ class OpenMachinistMainWin < Gtk::Window
 				[GetText._("/Tools/Measure angle"),    "<Item>", nil, nil, lambda{}],
 				[GetText._("/Tools/sep4"), "<Separator>"],
 				[GetText._("/Tools/Analyze interference"),      "<Item>", nil, nil, lambda{}],
-				[GetText._("/Tools/Display center of gravity"), "<CheckItem>", nil, nil, lambda{}],
 				[GetText._("/Tools/Bill of materials"),         "<Item>", nil, nil, lambda{}],
 				[GetText._("/Tools/sep4"), "<Separator>"],
 				[GetText._("/Tools/Material editor"),  "<Item>", nil, nil, lambda{ $manager.show_material_editor }],
@@ -111,7 +109,7 @@ class OpenMachinistMainWin < Gtk::Window
 				[GetText._("/Simulation/Activate contact solver"),              "<CheckItem>", nil, nil, lambda{}],
 				[GetText._("/Simulation/Define contact set..."),                "<Item>", nil, nil, lambda{ $manager.display_contact_set }],
 			[GetText._("/_Help")],
-				[GetText._("/Help/_About Open Machinist"), "<StockItem>", nil, Gtk::Stock::ABOUT, lambda{ AboutDialog.new }
+				[GetText._("/Help/_About Solid|matter|"), "<StockItem>", nil, Gtk::Stock::ABOUT, lambda{ AboutDialog.new }
 				] 
 		]
 		# create menuitems and attach them to the main window

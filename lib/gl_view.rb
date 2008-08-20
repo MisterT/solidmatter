@@ -403,7 +403,6 @@ class GLView < Gtk::DrawingArea
 				 		     cam.target.x,   cam.target.y,   cam.target.z,
 						     cam.up_vec.x,   cam.up_vec.y,   cam.up_vec.z)
 			# draw assembly components and sketches
-			GL.Disable(GL::LIGHTING)
 			draw_coordinate_axes unless @do_not_swap
 			GL.LineStipple(5, 0x1C47)
 			recurse_draw $manager.main_assembly
@@ -441,6 +440,7 @@ class GLView < Gtk::DrawingArea
   			    GL.CallList top_comp.displaylist      if [:shaded,  :overlay,   :hidden_lines ].any?{|e| e == @displaymode}
   			    top_comp.selected ? GL.Color3f(1,0,0) : GL.Color3f(1,1,1)
   			    GL.CallList top_comp.wire_displaylist if [:overlay, :wireframe, :hidden_lines ].any?{|e| e == @displaymode} or top_comp.selected
+  			    top_comp.draw_cog
 			    end
   			  GL.Disable GL::POLYGON_STIPPLE
   			  GL.Disable GL::LINE_STIPPLE
@@ -718,18 +718,19 @@ class GLView < Gtk::DrawingArea
 	  $manager.next_btn.sensitive = (@current_cam_index < (@cameras.size - 1))
 	end
 	
-	def draw_coordinate_axes
-		GL.LineWidth(2)
+	def draw_coordinate_axes at=Vector[0,0,0]
+		GL.LineWidth(4)
+		GL.Disable(GL::LIGHTING)
 		GL.Begin( GL::LINES )
-			GL.Color3f(0.3,0,0)
-			GL.Vertex(0,0,0)
-			GL.Vertex(0.1,0,0)
-			GL.Color3f(0,0.3,0)
-			GL.Vertex(0,0,0)
-			GL.Vertex(0,0.1,0)
-			GL.Color3f(0,0,0.3)
-			GL.Vertex(0,0,0)
-			GL.Vertex(0,0,0.1)
+			GL.Color3f(0.5,0,0)
+			GL.Vertex(at.x, at.y, at.z)
+			GL.Vertex(at.x + 0.1, at.y, at.z)
+			GL.Color3f(0,0.5,0)
+			GL.Vertex(at.x, at.y, at.z)
+			GL.Vertex(at.x, at.y + 0.1, at.z)
+			GL.Color3f(0,0,0.5)
+			GL.Vertex(at.x, at.y, at.z)
+			GL.Vertex(at.x, at.y, at.z + 0.1)
 		GL.End
 	end
 	

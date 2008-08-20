@@ -1395,7 +1395,7 @@ class Solid
 	end
 	alias area surface_area
 	
-	def volume
+	def volume_and_cog
 	  bbox = bounding_box
 	  if bbox
 	    left  = bbox.map{|v| v.x }.min
@@ -1413,6 +1413,7 @@ class Solid
 	    box_volume = x_span * y_span * z_span
 	    max_change_per_box = max_change * divisions / box_volume
 	    subvolumes = []
+	    cog = Vector[0,0,0]
 	    progress = ProgressDialog.new GetText._("<b>Calculating solid volume...</b>")
 	    progress.fraction = 0.0
 	    subvolumes_finished = 0
@@ -1444,23 +1445,27 @@ class Solid
 	                progress.fraction = progress.fraction
                 end
 	            end while change > max_change_per_box
-	            #puts "Fired #{shots_fired} shots"
+	            # calculate volume for this box
+  				    vol = box_volume * (hits / shots_fired)
+  				    cog += Vector[box_left + x_span/2.0, box_lower + y_span/2.0, box_back + z_span/2.0] * vol
+	            subvolumes << vol
+	            # update progressbar
 	            Gtk.queue do
 	   	      	  progress.fraction += increment
   				      progress.text = GetText._("sampling bucket") + " #{subvolumes_finished}/#{divisions**3}" 
   				      subvolumes_finished += 1
   				    end
-	            subvolumes << box_volume * (hits / shots_fired)
            # end
 	        end
         end
 	    end
 	    volume = subvolumes.inject(0){|total,v| total + v } #.value }
+	    cog /= volume
 	    Gtk::main_iteration while Gtk::events_pending?
 	    progress.close
-	    volume
+	    [volume, cog]
     else
-      0.0
+      [0.0, Vector[0,0,0]]
     end
 	end
 	
@@ -1615,7 +1620,7 @@ class Component
 end
 
 class Part < Component
-  attr_accessor :displaylist, :wire_displaylist, :selection_displaylist, :history_limit, :solid, :information
+  attr_accessor :displaylist, :wire_displaylist, :selection_displaylist, :history_limit, :solid, :information, :cog
 	attr_reader :operators, :working_planes, :unused_sketches, :solid
 	def initialize name
 		super()
@@ -1728,9 +1733,7 @@ class Part < Component
   		all_segs = @solid.faces.map{|face| face.segments }.flatten
   		GL.Disable(GL::LIGHTING)
   		GL.LineWidth( 1.5 )
-  			for seg in all_segs
-  			  seg.draw
-  			end
+			all_segs.each{|s| s.draw }
 		GL.EndList
 	end
 	
@@ -1748,7 +1751,6 @@ class Part < Component
 		dia = PartInformationDialog.new(self) do |info|
 		  @information = info if info
 			$manager.op_view.update
-			#XXX build_displaylist if @solid
 			$manager.glview.redraw
 	  end
 	end
@@ -1757,12 +1759,30 @@ class Part < Component
 	  @solid.area
 	end
 	
-	def volume
-	  @solid.volume
+	def volume_and_cog
+	  @solid.volume_and_cog
 	end
 	
-	def mass from_volume=@solid.volume
+	def mass from_volume=@solid.volume_and_cog.first
 	  from_volume * @information[:material].density
+	end
+	
+	def update_cog
+	  @cog = volume_and_cog.last
+	end
+	
+	def draw_cog
+	  if @cog
+      qobj = GLU.NewQuadric
+      GLU.QuadricDrawStyle(qobj, GLU::FILL)
+      GLU.QuadricNormals(qobj, GLU::SMOOTH)
+      GL.Enable(GL::LIGHTING)
+      GL.PushMatrix
+        GL.Translate(@cog.x, @cog.y, @cog.z)
+        GLU.Sphere(qobj, 0.015, 12, 12)
+      GL.PopMatrix
+      $manager.glview.draw_coordinate_axes @cog
+    end
 	end
 	
 	def dimensions
@@ -1848,12 +1868,19 @@ class Assembly < Component
 	  @components.inject(0.0){|area,c| area + c.area }
 	end
 	
-	def volume
-	  @components.inject(0.0){|area,c| area + c.volume }
-	end
-	
-	def mass
-	  @components.inject(0.0){|area,c| area + c.mass }
+	def volume_mass_and_cog
+	  volume = 0
+	  mass = 0
+	  cog = Vector[0,0,0]
+	  @components.each do |c| 
+	    v,co = c.volume_and_cog
+	    m = c.mass v
+	    volume += v
+	    mass += m
+	    cog += co * m
+	  end
+	  cog /= mass
+	  [volume, mass, cog]
 	end
 	
 	def bounding_box

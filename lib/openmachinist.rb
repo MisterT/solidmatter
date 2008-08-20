@@ -56,3 +56,6 @@ Gtk.main_with_queue 100
 # linetool erstellt constraint nur für letzten punkt
 # menu selection should be shown in statusbar
 # wennn neues projekt mit part erstellt wird sollte danach auf part gewechselt werden
+# make server threadsafe
+# start avahi service directly from dbus
+# make constraining to COG possible

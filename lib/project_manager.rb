@@ -556,6 +556,7 @@ public
 	  end
 		@work_sketch = sketch
 		sketch_toolbar
+		sketch.parent.cog = nil
 		sketch.plane.visible = true
 		sketch.plane.animate
 		sketch.visible = true

@@ -8,21 +8,21 @@ class BackgroundMenu < Gtk::Menu
   def initialize
     super()
     items = [
-			Gtk::ImageMenuItem.new(Gtk::Stock::PASTE),
+      Gtk::ImageMenuItem.new(GetText._("_Return")).set_image( Gtk::Image.new(Gtk::Stock::UNDO, Gtk::IconSize::MENU) ),
 			Gtk::SeparatorMenuItem.new,
-			Gtk::ImageMenuItem.new(GetText._("_Return")).set_image( Gtk::Image.new(Gtk::Stock::UNDO, Gtk::IconSize::MENU) )
+			Gtk::ImageMenuItem.new(Gtk::Stock::PASTE)
 		]
-		items[0].sensitive = $manager.clipboard ? true : false
-		items[2].sensitive = ($manager.work_sketch or 
-												 $manager.work_operator or 
-												 $manager.work_component != $manager.main_assembly) ? true : false
-		# paste
-		items[0].signal_connect("activate") do
-			$manager.paste_from_clipboard
-		end
+		items[0].sensitive = ($manager.work_sketch or 
+												  $manager.work_operator or 
+												  $manager.work_component != $manager.main_assembly) ? true : false
+		items[2].sensitive = $manager.clipboard ? true : false
 		# return
-		items[2].signal_connect("activate") do
+		items[0].signal_connect("activate") do
 			$manager.working_level_up
+		end
+		# paste
+		items[2].signal_connect("activate") do
+			$manager.paste_from_clipboard
 		end
 		items.each{|i| append i }
 		show_all
@@ -42,11 +42,18 @@ class ComponentMenu < Gtk::Menu
 			Gtk::ImageMenuItem.new(Gtk::Stock::DELETE),
 			Gtk::SeparatorMenuItem.new,
 			Gtk::CheckMenuItem.new( GetText._("Visible")),
+			Gtk::CheckMenuItem.new( GetText._("Show center of gravity")),
 			Gtk::SeparatorMenuItem.new,
 			Gtk::ImageMenuItem.new(Gtk::Stock::PROPERTIES)
 		]
+		items[2].sensitive = (not $manager.selection.empty?)
+		items[3].sensitive = (not $manager.selection.empty?)
 		items[4].sensitive = $manager.clipboard ? true : false
+		items[5].sensitive = (not $manager.selection.empty?)
 		items[7].active = part.visible
+		items[8].active = part.cog ? true : false
+		
+
 		# duplicate instance
 		items[0].signal_connect("activate") do
       $manager.duplicate_instance
@@ -73,12 +80,17 @@ class ComponentMenu < Gtk::Menu
 			$manager.delete_selected 				if location == :glview
 		end
 		# visible
-		items[7].signal_connect("activate") do
-      part.visible = items[7].active?
+		items[7].signal_connect("activate") do |w|
+      part.visible = w.active?
+      $manager.glview.redraw
+		end
+		# center of gravity
+		items[8].signal_connect("activate") do |w|
+      w.active? ? part.update_cog : part.cog = nil
       $manager.glview.redraw
 		end
 		# properties
-		items[9].signal_connect("activate") do
+		items[10].signal_connect("activate") do
 			part.display_properties
 		end
 		items.each{|i| append i }
@@ -236,58 +248,58 @@ class SketchSelectionToolMenu < Gtk::Menu
   def initialize
     super()
     items = [
-			Gtk::CheckMenuItem.new( GetText._("Snap to points")),
-			Gtk::CheckMenuItem.new( GetText._("Snap to grid")),
-			Gtk::CheckMenuItem.new( GetText._("Use guides")),
+      Gtk::ImageMenuItem.new(GetText._("_Return")).set_image( Gtk::Image.new(Gtk::Stock::UNDO, Gtk::IconSize::MENU) ),
 			Gtk::SeparatorMenuItem.new,
 			Gtk::ImageMenuItem.new(Gtk::Stock::CUT),
 			Gtk::ImageMenuItem.new(Gtk::Stock::COPY),
 			Gtk::ImageMenuItem.new(Gtk::Stock::PASTE),
 			Gtk::ImageMenuItem.new(Gtk::Stock::DELETE),
-			Gtk::SeparatorMenuItem.new,
-			Gtk::ImageMenuItem.new(GetText._("_Return")).set_image( Gtk::Image.new(Gtk::Stock::UNDO, Gtk::IconSize::MENU) )
+      Gtk::SeparatorMenuItem.new,
+			Gtk::CheckMenuItem.new( GetText._("Snap to points")),
+			Gtk::CheckMenuItem.new( GetText._("Snap to grid")),
+			Gtk::CheckMenuItem.new( GetText._("Use guides"))
 		]
-		items[0].active = $manager.point_snap
-		items[1].active = $manager.grid_snap
-		items[2].active = $manager.use_sketch_guides
-		items[4].sensitive = (not $manager.selection.empty?)
-		items[5].sensitive = (not $manager.selection.empty?)
-		items[6].sensitive = $manager.clipboard ? true : false
-		items[7].sensitive = $manager.selection.empty? ? false : true
-		items[9].sensitive = ($manager.work_sketch or 
+		items[0].sensitive = ($manager.work_sketch or 
 												  $manager.work_operator or 
 												  $manager.work_component != $manager.main_assembly) ? true : false
-		# snap points
+		items[2].sensitive = (not $manager.selection.empty?)
+		items[3].sensitive = (not $manager.selection.empty?)
+		items[4].sensitive = $manager.clipboard ? true : false
+		items[5].sensitive = (not $manager.selection.empty?)
+		items[7].active = $manager.point_snap
+		items[8].active = $manager.grid_snap
+		items[9].active = $manager.use_sketch_guides
+		# return
 		items[0].signal_connect("activate") do |w|
-      $manager.point_snap = w.active?
-		end
-		# snap grid
-		items[1].signal_connect("activate") do |w|
-      $manager.grid_snap = w.active?
-		end
-		# guides
-		items[2].signal_connect("activate") do |w|
-			$manager.use_sketch_guides = w.active?
+      $manager.working_level_up
 		end
 		# cut
-		items[4].signal_connect("activate") do |w|
+		items[2].signal_connect("activate") do |w|
       $manager.cut_to_clipboard
 		end
 		# copy
-		items[5].signal_connect("activate") do |w|
+		items[3].signal_connect("activate") do |w|
       $manager.copy_to_clipboard
 		end
 		# paste
-		items[6].signal_connect("activate") do |w|
+		items[4].signal_connect("activate") do |w|
       $manager.paste_from_clipboard
 		end
 		# delete
-		items[7].signal_connect("activate") do |w|
+		items[5].signal_connect("activate") do |w|
       $manager.delete_selected
 		end
-		# return
+		# snap points
+		items[7].signal_connect("activate") do |w|
+      $manager.point_snap = w.active?
+		end
+		# snap grid
+		items[8].signal_connect("activate") do |w|
+      $manager.grid_snap = w.active?
+		end
+		# guides
 		items[9].signal_connect("activate") do |w|
-      $manager.working_level_up
+			$manager.use_sketch_guides = w.active?
 		end
 		items.each{|i| append i }
 		show_all

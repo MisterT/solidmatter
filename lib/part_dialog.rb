@@ -59,8 +59,8 @@ class PartInformationDialog
   def update_solid_info w 
     GC.enable # make sure the garbage collector is still on
     @glade['area_label'].text = enunit(@part.area, 2)
-    vol = @part.volume
+    vol = @part.volume_and_cog.first
     @glade['volume_label'].text = enunit(vol, 3)
-    @glade['mass_label'].text   = enunit(@part.mass vol)
+    @glade['mass_label'].text   = @part.mass(vol).to_s
   end
 end
