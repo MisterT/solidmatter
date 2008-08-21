@@ -34,7 +34,7 @@ class FileOpenDialog < Gtk::FileChooserDialog
 					scene = Marshal::restore file 
           image = scene[0]
 				end
-				gtkim = native2gtk image.to_native
+				gtkim = native2gtk image
 				self.preview_widget = gtkim
         self.preview_widget_active = true
       rescue

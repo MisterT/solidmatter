@@ -70,7 +70,17 @@ attr_accessor :im
   end
   
   def to_tiny
-    TinyImage.new self
+    self #TinyImage.new self
+  end
+  
+  def marshal_dump
+    [width, height, @im.export_pixels_to_str( 0, 0, width, height, "RGBA" )]
+  end
+  
+  def marshal_load data
+    width, height, raw = data
+    initialize(width, height)
+    @im.import_pixels( 0, 0, width, height, "RGBA", raw )
   end
   
 	def method_missing( method, *args )
@@ -86,9 +96,9 @@ attr_accessor :im
 	end
 end
 
+=begin
 class TinyImage
   def initialize image
-=begin
     @im = Array.new image.width
     for x in 0...image.width
       @im[x] = []
@@ -96,27 +106,24 @@ class TinyImage
         @im[x].push image.pixel( x,y )
       end
     end
-=end
     @width = image.columns
     @height = image.rows
-    @im = image.export_pixels_to_str( 0, 0, @width, @height, "RGBA" )
+    #@im = image.export_pixels_to_str( 0, 0, @width, @height, "RGBA" )
   end
   
   def to_native
-=begin
     native = Image.new( @im.size, @im[0].size )
     for x in 0...native.width
       for y in 0...native.height
         native.set_pixel( x,y, @im[x][y])
       end
     end
-=end
-    native = Image.new @width, @height
-    native.import_pixels( 0, 0, @width, @height, "RGBA", @im )
+    #native = Image.new @width, @height
+    #native.import_pixels( 0, 0, @width, @height, "RGBA", @im )
     return native
   end
 end
-
+=end
 
 class Pixel
 	attr_accessor :red, :green, :blue, :alpha
@@ -171,7 +178,6 @@ class Pixel
     @blue  *= value
     @alpha *= value
   end
-	alias * multiply
   
   def add( pix )
     @red   += pix.red
@@ -179,9 +185,12 @@ class Pixel
 		@blue  += pix.blue
 		@alpha += pix.alpha
   end
-	alias + add
 	
 	def to_s
 	 return "r:#{@red} g:#{@green} b:#{@blue}"
+	end
+	
+	def to_a
+	  [@red, @green, @blue, @alpha]
 	end
 end

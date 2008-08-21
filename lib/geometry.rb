@@ -7,7 +7,6 @@ require 'gtk2'
 require 'gtkglext'
 require 'opengl'
 require 'glut'
-Glut.glutInit
 require 'matrix.rb'
 require 'units.rb'
 require 'material_editor.rb'
@@ -16,6 +15,7 @@ require 'assembly_dialog.rb'
 require 'progress_dialog.rb'
 
 
+Glut.glutInit
 
 module Selectable
 	attr_accessor :selection_pass_color, :selected
@@ -39,6 +39,20 @@ def bounding_box_from points
 		Vector[max_x, min_y, max_z],
 		Vector[max_x, max_y, max_z]]
 	return points.empty? ? nil : corners
+end
+
+def sparse_bounding_box_from points
+	xs = points.map{|p| p.x }
+	ys = points.map{|p| p.y }
+	zs = points.map{|p| p.z }
+	min_x = xs.min ; max_x = xs.max
+	min_y = ys.min ; max_y = ys.max
+	min_z = zs.min ; max_z = zs.max
+  center = Vector[(min_x + max_x)/2.0, (min_y + max_y)/2.0, (min_z + max_z)/2.0,]
+  width  = (min_x - max_x).abs
+  height = (min_y - max_y).abs
+  depth  = (min_z - max_z).abs
+  [center, width, height, depth]
 end
 
 
@@ -279,14 +293,21 @@ end
 
 class Plane
 	attr_accessor :origin, :u_vec, :v_vec
-	def initialize( p1=nil, p2=nil, p3=nil )
-		@origin = p1 ? p1 : Vector[0.0, 0.0, 0.0]
-		@u_vec  = Vector[1.0, 0.0, 0.0]
-		@v_vec  = Vector[0.0, 0.0, 1.0]
+	def Plane.from3points( p1=nil, p2=nil, p3=nil)
+		origin = p1 ? p1 : Vector[0.0, 0.0, 0.0]
+		u_vec  = Vector[1.0, 0.0, 0.0]
+		v_vec  = Vector[0.0, 0.0, 1.0]
 		if p1 and p2 and p3
-		  @u_vec = origin.vector_to p2
-		  @v_vec = origin.vector_to p3
+		  u_vec = origin.vector_to p2
+		  v_vec = origin.vector_to p3
 	  end
+	  Plane.new(origin, u_vec, v_vec)
+	end
+	
+	def initialize( o=nil, u=nil, v=nil )
+		@origin = o ? o : Vector[0.0, 0.0, 0.0]
+		@u_vec  = u ? u : Vector[1.0, 0.0, 0.0]
+		@v_vec  = v ? v : Vector[0.0, 0.0, 1.0]
 	end
 	
 	def normal_vector
@@ -1090,7 +1111,7 @@ class Polygon
   def Polygon::from_chain chain
     redundant_chain_points = chain.map{|s| s.tesselate }.flatten.map{|line| [line.pos1, line.pos2] }.flatten
     chain_points = []
-    for p in redundant_chain_points
+    for p in redundant_chain_points #XXX this should be possible with .uniq
       chain_points.push p unless chain_points.include? p
     end
     poly = Polygon.new( chain_points )

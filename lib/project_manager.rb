@@ -384,7 +384,7 @@ public
       if dia.run == Gtk::Dialog::RESPONSE_ACCEPT
       	filename = dia.filename
       	dia.destroy
-      	begin
+      	#begin
 					File::open( filename ) do |file|
 						scene = Marshal::restore file 
 						exchange_all_gl_components do
@@ -396,7 +396,6 @@ public
       				@all_part_instances     = scene[5]
       				@all_assembly_instances = scene[6]
 							@all_sketches           = scene[7]
-							#readd_non_dumpable
 						end
 					end
 					change_working_level @main_assembly 
@@ -404,16 +403,16 @@ public
 					self.has_been_changed = false
 					@all_parts.each{|p| p.build } #XXX this shouldn't really be needed
 					@glview.zoom_onto @all_part_instances.select{|i| i.visible }
-  			rescue
-  			  dialog = Gtk::MessageDialog.new(@main_win, 
-				                                  Gtk::Dialog::DESTROY_WITH_PARENT,
-				                                  Gtk::MessageDialog::WARNING,
-				                                  Gtk::MessageDialog::BUTTONS_CLOSE,
-				                                  GetText._("Bad file format"))
-				  dialog.secondary_text = GetText._("The file format is unsupported.\nMaybe this file was saved with an older version of Solid|matter")
-				  dialog.run
-				  dialog.destroy
-  			end
+  			#rescue
+  			#  dialog = Gtk::MessageDialog.new(@main_win, 
+				#                                  Gtk::Dialog::DESTROY_WITH_PARENT,
+				#                                  Gtk::MessageDialog::WARNING,
+				#                                  Gtk::MessageDialog::BUTTONS_CLOSE,
+				#                                  GetText._("Bad file format"))
+				#  dialog.secondary_text = GetText._("The file format is unsupported.\nMaybe this file was saved with an older version of Solid|matter")
+				#  dialog.run
+				#  dialog.destroy
+  			#end
   		else
   		  dia.destroy
       end
@@ -441,12 +440,10 @@ public
   		  @selection.deselect_all
   			File::open( @filename, "w" ) do |file|
   			  @all_parts.each{|p| p.solid = Solid.new }
-  			  #strip_non_dumpable
   			  puts "projectname: " + project_name
   				Marshal::dump( [@glview.image_of_instances(@all_part_instances,8,100,project_name).to_tiny, 
   												@name, @main_assembly, @all_assemblies,	@all_parts, @all_part_instances,
   												@all_assembly_instances, @all_sketches], file )
-  				#readd_non_dumpable 
   				@all_parts.each{|p| p.build } 
   			end
   			self.has_been_changed = false
@@ -456,23 +453,7 @@ public
   		end
 	  end
 	end
-=begin
-	def strip_non_dumpable
-	  @all_parts.each do |p| 
-	    p.operators.each do |op|
-	      op.toolbar = nil
-      end
-	  end
-	end
-	
-	def readd_non_dumpable
-	  @all_parts.each do |p| 
-	    p.operators.each do |op|
-	      op.create_toolbar
-      end
-	  end
-	end
-=end
+
   def display_properties
     ProjectInformationDialog.new(self){ yield if block_given? ; puts "found myself having the name #{@name}" }
   end

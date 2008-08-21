@@ -94,6 +94,83 @@ private
 end
 
 
+class GroundPlane
+  def initialize res_x=64, res_y=64
+    @res_x, @res_y = res_x, res_y
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+    @tex = GL.GenTextures(1)[0]
+    GL.BindTexture( GL::TEXTURE_2D, @tex )
+    GL.TexEnvf( GL::TEXTURE_ENV, GL::TEXTURE_ENV_MODE, GL::REPLACE )
+    GL.TexParameterf( GL::TEXTURE_2D, GL::TEXTURE_MIN_FILTER, GL_LINEAR )
+    GL.TexParameterf( GL::TEXTURE_2D, GL::TEXTURE_MAG_FILTER, GL_LINEAR )
+    GL.TexParameterf( GL::TEXTURE_2D, GL::TEXTURE_WRAP_S, GL::CLAMP )
+    GL.TexParameterf( GL::TEXTURE_2D, GL::TEXTURE_WRAP_T, GL::CLAMP )
+  end
+  
+  def generate_shadowmap objects
+    g_plane, g_width, g_height = ground objects
+    map = Image.new @res_x, @res_y
+    for x in @res_x
+      for y in @res_y
+        pix = Pixel.new
+        pix.alpha = 0.0
+        for o in objects
+          for face in o.faces.select{|f| f.is_a? PlanarFace } #XXX should work with all facetypes
+            poly = Polygon::from_chain face.segments.map do |seg| 
+              s = seg.dup
+              #XXX convert from object to world space
+              s.pos1 = g.closest_point s.pos1
+              s.pos2 = g.closest_point s.pos2
+              s
+            end
+            wx = g_plane.origin.x - g_width/2.0  + (x/@res_y)*g_width
+            wz = g_plane.origin.z - g_height/2.0 + (y/@res_y)*g_height
+            p = Points.new(wx,wz)
+            if poly.contains? p
+              pix.alpha = 1.0
+              puts "Woohoo, we are casting shadows"
+              throw :next_pixel
+            end
+          end
+        end
+        catch :next_pixel
+        map.set_pixel( x,y, pix )
+      end
+    end
+    load_image map.blur(20)
+  end
+  
+  def ground objects
+    points = objects.map{|o| o.bounding_box }.flatten.compact
+    center, width, height, depth = sparse_bounding_box_from points
+    origin = Vector[center.x, center.y - height/2.0, center.z]
+    plane = Plane.new origin
+    [plane, width, depth]
+  end
+  
+  def load_image im
+    raw = im.map{|pix| pix.to_a }.flatten.map{|p| (p * 255).to_i }.pack("C*")
+    GL.BindTexture( GL::TEXTURE_2D, @tex )
+    glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, @res_x, @res_y, 0, GL_RGBA, GL_UNSIGNED_BYTE, raw )
+  end
+  
+  def draw
+    GL.BindTexture( GL::TEXTURE_2D, @tex )
+    GL.Enable( GL::TEXTURE_2D )
+    GL.Begin( GL::QUADS )
+      glTexCoord2f(0.0, 0.0)
+      GL.Vertex(-1, 0,  1)
+      glTexCoord2f(1.0, 0.0)
+      GL.Vertex( 1, 0,  1)
+      glTexCoord2f(1.0, 1.0)
+      GL.Vertex( 1, 0, -1)
+      glTexCoord2f(0.0, 1.0)
+      GL.Vertex(-1, 0, -1)
+    GL.End
+  end
+end
+
+
 class GLView < Gtk::DrawingArea
 	attr_accessor :num_callists, :immediate_draw_routines, :manager, :selection_color
 	attr_reader :displaymode
@@ -331,10 +408,13 @@ class GLView < Gtk::DrawingArea
 		GL.Enable(GL::LIGHT0)
 		GL.Enable(GL::LIGHT1)
 		GL.Enable(GL::DEPTH_TEST)
+		GL.Hint(GL::PERSPECTIVE_CORRECTION_HINT, GL::NICEST)
 		# set stipple pattern for focus transparency
 		GL.PolygonStipple [0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55] * 16
 		GL.Enable(GL::POLYGON_OFFSET_FILL)
     GL.PolygonOffset(1.0, 1.0)
+    @ground = GroundPlane.new
+		@ground.load_image Image.new("../data/icons/big/square.png")
     render_style :regular
 		gldrawable.gl_end
 	end
@@ -343,14 +423,12 @@ class GLView < Gtk::DrawingArea
 		case style
 		when :selection_pass
 	  	GL.ShadeModel(GL::FLAT)
-			GL.Disable(GL::TEXTURE_2D)
 			GL.Disable(GL::DITHER)
 			GL.Disable(GL::LINE_SMOOTH)
 	  	GL.Disable(GL::BLEND)
 		when :regular
 			# setup model rendering
 			GL.ShadeModel(GL::SMOOTH)
-			GL.Enable(GL::TEXTURE_2D)
 			GL.Enable(GL::DITHER)
 			GL.Enable(GL::BLEND)
 			GL.BlendFunc(GL::SRC_ALPHA, GL::ONE_MINUS_SRC_ALPHA)
@@ -396,6 +474,7 @@ class GLView < Gtk::DrawingArea
 		gldrawable = self.gl_drawable
 		gldrawable.gl_begin( glcontext )
 			GL.Clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT)
+			GL.Disable(GL::TEXTURE_2D)
 			GL.LoadIdentity
 			# setup camera position und rotation
 			cam = @cameras[@current_cam_index]
@@ -410,6 +489,7 @@ class GLView < Gtk::DrawingArea
 			# draw 3d interface stuff
 			GL.Disable(GL::LIGHTING)
 			@immediate_draw_routines.each{|r| r.call } unless @selection_pass or @picking_pass
+			@ground.draw
 			gldrawable.swap_buffers unless @selection_pass or @picking_pass or @do_not_swap
 		gldrawable.gl_end
 	end
