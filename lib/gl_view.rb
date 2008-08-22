@@ -131,9 +131,9 @@ class GroundPlane
               wz = @g_plane.origin.z - @g_height/2.0 + (y.to_f/@res_y)*@g_height
               p = Point.new(wx,wz)
               if poly.contains? p
-                pix.red   = 0.7
-                pix.green = 0.7
-                pix.blue  = 0.7
+                pix.red   = 0.65
+                pix.green = 0.65
+                pix.blue  = 0.65
                 pix_finished = true
                 break
               end

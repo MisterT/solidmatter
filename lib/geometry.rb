@@ -1683,7 +1683,7 @@ class Part < Component
 		op.previous = @operators[index-1] unless index == 0
 		@operators[index+1].previous = op if @operators[index+1]
 		@history_limit += 1 if index <= @history_limit
-		build op
+		#build op
 	end
 	
 	def move_operator_up op
