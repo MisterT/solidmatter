@@ -27,13 +27,13 @@ attr_accessor :im
   
   def pixel( x,y )
     #raise "BufferOverrun at x:#{x} y:#{y} for width:#{width} height:#{height}" if x >= width or y >= height
-    color = @im.pixel_color( x,y )
-    return Pixel.new( color.red.to_f / Magick::MaxRGB, color.green.to_f / Magick::MaxRGB, color.blue.to_f / Magick::MaxRGB, color.opacity.to_f / Magick::MaxRGB )
+    color = @im.get_pixels( x,y, 1,1 ).first
+    return Pixel.new( color.red.to_f / Magick::MaxRGB, color.green.to_f / Magick::MaxRGB, color.blue.to_f / Magick::MaxRGB, 1.0 - (color.opacity.to_f / Magick::MaxRGB) )
   end
   
   def set_pixel( x,y, value )
     #raise "BufferOverrun at x:#{x} y:#{y} for width:#{width} height:#{height}" if x >= width or y >= height
-    pixel = Magick::Pixel.new( value.red * Magick::MaxRGB, value.green * Magick::MaxRGB, value.blue * Magick::MaxRGB, value.alpha * Magick::MaxRGB )
+    pixel = Magick::Pixel.new( value.red * Magick::MaxRGB, value.green * Magick::MaxRGB, value.blue * Magick::MaxRGB, (1.0 - value.alpha) * Magick::MaxRGB )
     @im.pixel_color(x,y, pixel )
   end
   
@@ -187,7 +187,7 @@ class Pixel
   end
 	
 	def to_s
-	 return "r:#{@red} g:#{@green} b:#{@blue}"
+	 return "r:#{@red} g:#{@green} b:#{@blue} a:#{@alpha}"
 	end
 	
 	def to_a

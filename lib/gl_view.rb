@@ -95,7 +95,7 @@ end
 
 
 class GroundPlane
-  def initialize res_x=64, res_y=64
+  def initialize res_x=32, res_y=32
     @res_x, @res_y = res_x, res_y
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
     @tex = GL.GenTextures(1)[0]
@@ -108,72 +108,92 @@ class GroundPlane
   end
   
   def generate_shadowmap objects
-    g_plane, g_width, g_height = ground objects
-    map = Image.new @res_x, @res_y
-    for x in @res_x
-      for y in @res_y
-        pix = Pixel.new
-        pix.alpha = 0.0
-        for o in objects
-          for face in o.faces.select{|f| f.is_a? PlanarFace } #XXX should work with all facetypes
-            poly = Polygon::from_chain face.segments.map do |seg| 
-              s = seg.dup
-              #XXX convert from object to world space
-              s.pos1 = g.closest_point s.pos1
-              s.pos2 = g.closest_point s.pos2
-              s
+    @g_plane, @g_width, @g_height = ground objects
+    if @g_plane
+      map = Image.new @res_x, @res_y
+      for x in 0...@res_x
+        for y in 0...@res_y
+          pix = Pixel.new
+          pix.red   = 0.0
+          pix.green = 0.0
+          pix.blue  = 0.0
+          pix_finished = false
+          for o in objects
+            for face in o.solid.faces.select{|f| f.is_a? PlanarFace } #XXX should work with all facetypes
+              poly = Polygon::from_chain face.segments.map do |seg| 
+                #s = seg.dup
+                #XXX convert from object to world space
+               # s.pos1 = g.closest_point s.pos1
+                #s.pos2 = g.closest_point s.pos2
+                seg
+              end
+              wx = @g_plane.origin.x - @g_width/2.0  + (x.to_f/@res_y)*@g_width
+              wz = @g_plane.origin.z - @g_height/2.0 + (y.to_f/@res_y)*@g_height
+              p = Point.new(wz,-wx)
+              if poly.contains? p
+                pix.red   = 0.6
+                pix.green = 0.6
+                pix.blue  = 0.6
+                pix_finished = true
+                break
+              end
             end
-            wx = g_plane.origin.x - g_width/2.0  + (x/@res_y)*g_width
-            wz = g_plane.origin.z - g_height/2.0 + (y/@res_y)*g_height
-            p = Points.new(wx,wz)
-            if poly.contains? p
-              pix.alpha = 1.0
-              puts "Woohoo, we are casting shadows"
-              throw :next_pixel
-            end
+            break if pix_finished
           end
+          map.set_pixel( x,y, pix )
         end
-        catch :next_pixel
-        map.set_pixel( x,y, pix )
       end
+      map.gaussian_blur(10).gaussian_blur(10).each_pixel do |x,y, p|
+        p.alpha = p.red #+ 0.05
+        p.red   = 0.0
+        p.green = 0.0
+        p.blue  = 0.0
+        map.set_pixel(x,y, p)
+      end
+      load_image map
     end
-    load_image map.blur(20)
   end
   
   def ground objects
     points = objects.map{|o| o.bounding_box }.flatten.compact
-    center, width, height, depth = sparse_bounding_box_from points
-    origin = Vector[center.x, center.y - height/2.0, center.z]
-    plane = Plane.new origin
-    [plane, width, depth]
+    unless points.empty?
+      center, width, height, depth = sparse_bounding_box_from points
+      origin = Vector[center.x, center.y - height/2.0 - 0.01, center.z]
+      plane = Plane.new origin
+      [plane, width + 0.5, depth + 0.5]
+    else
+      nil
+    end
   end
   
   def load_image im
-    raw = im.map{|pix| pix.to_a }.flatten.map{|p| (p * 255).to_i }.pack("C*")
+    raw = im.map{|pix| pix.to_a }.flatten.map{|p| (p * 256).round.to_i }.pack("C*")
     GL.BindTexture( GL::TEXTURE_2D, @tex )
     glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, @res_x, @res_y, 0, GL_RGBA, GL_UNSIGNED_BYTE, raw )
   end
   
   def draw
-    GL.BindTexture( GL::TEXTURE_2D, @tex )
-    GL.Enable( GL::TEXTURE_2D )
-    GL.Begin( GL::QUADS )
-      glTexCoord2f(0.0, 0.0)
-      GL.Vertex(-1, 0,  1)
-      glTexCoord2f(1.0, 0.0)
-      GL.Vertex( 1, 0,  1)
-      glTexCoord2f(1.0, 1.0)
-      GL.Vertex( 1, 0, -1)
-      glTexCoord2f(0.0, 1.0)
-      GL.Vertex(-1, 0, -1)
-    GL.End
+    if @g_plane
+      GL.BindTexture( GL::TEXTURE_2D, @tex )
+      GL.Enable( GL::TEXTURE_2D )
+      GL.Begin( GL::QUADS )
+        glTexCoord2f(0.0, 0.0)
+        GL.Vertex( @g_plane.origin.x - @g_width/2.0, @g_plane.origin.y, @g_plane.origin.z + @g_width/2.0 )
+        glTexCoord2f(1.0, 0.0)
+        GL.Vertex( @g_plane.origin.x + @g_width/2.0, @g_plane.origin.y, @g_plane.origin.z + @g_width/2.0 )
+        glTexCoord2f(1.0, 1.0)
+        GL.Vertex( @g_plane.origin.x + @g_width/2.0, @g_plane.origin.y, @g_plane.origin.z - @g_width/2.0 )
+        glTexCoord2f(0.0, 1.0)
+        GL.Vertex( @g_plane.origin.x - @g_width/2.0, @g_plane.origin.y, @g_plane.origin.z - @g_width/2.0 )
+      GL.End
+    end
   end
 end
 
 
 class GLView < Gtk::DrawingArea
 	attr_accessor :num_callists, :immediate_draw_routines, :manager, :selection_color
-	attr_reader :displaymode
+	attr_reader :displaymode, :ground
 	def initialize
 		super
 		@selection_color = [1,0,1]
@@ -414,7 +434,7 @@ class GLView < Gtk::DrawingArea
 		GL.Enable(GL::POLYGON_OFFSET_FILL)
     GL.PolygonOffset(1.0, 1.0)
     @ground = GroundPlane.new
-		@ground.load_image Image.new("../data/icons/big/square.png")
+		#@ground.load_image Image.new("../data/icons/big/square.png")
     render_style :regular
 		gldrawable.gl_end
 	end

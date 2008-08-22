@@ -38,21 +38,25 @@ def bounding_box_from points
 		Vector[max_x, max_y, min_z],
 		Vector[max_x, min_y, max_z],
 		Vector[max_x, max_y, max_z]]
-	return points.empty? ? nil : corners
+	points.empty? ? nil : corners
 end
 
 def sparse_bounding_box_from points
-	xs = points.map{|p| p.x }
-	ys = points.map{|p| p.y }
-	zs = points.map{|p| p.z }
-	min_x = xs.min ; max_x = xs.max
-	min_y = ys.min ; max_y = ys.max
-	min_z = zs.min ; max_z = zs.max
-  center = Vector[(min_x + max_x)/2.0, (min_y + max_y)/2.0, (min_z + max_z)/2.0,]
-  width  = (min_x - max_x).abs
-  height = (min_y - max_y).abs
-  depth  = (min_z - max_z).abs
-  [center, width, height, depth]
+  if points.empty?
+    nil
+  else
+	  xs = points.map{|p| p.x }
+	  ys = points.map{|p| p.y }
+	  zs = points.map{|p| p.z }
+	  min_x = xs.min ; max_x = xs.max
+	  min_y = ys.min ; max_y = ys.max
+	  min_z = zs.min ; max_z = zs.max
+    center = Vector[(min_x + max_x)/2.0, (min_y + max_y)/2.0, (min_z + max_z)/2.0,]
+    width  = (min_x - max_x).abs
+    height = (min_y - max_y).abs
+    depth  = (min_z - max_z).abs
+    [center, width, height, depth]
+  end
 end
 
 
@@ -1729,6 +1733,7 @@ class Part < Component
 			$manager.glview.rebuild_selection_pass_colors
 			$manager.component_changed self
 			self.all_sketches.each{|sk| sk.refetch_plane_from_solid }
+			$manager.glview.ground.generate_shadowmap [self]
 		else
 			dia = Gtk::MessageDialog.new( nil, Gtk::Dialog::DESTROY_WITH_PARENT,
 							                           Gtk::MessageDialog::WARNING,
