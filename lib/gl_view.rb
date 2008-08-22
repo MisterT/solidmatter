@@ -95,7 +95,7 @@ end
 
 
 class GroundPlane
-  def initialize res_x=32, res_y=32
+  def initialize res_x=16, res_y=16
     @res_x, @res_y = res_x, res_y
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
     @tex = GL.GenTextures(1)[0]
@@ -121,19 +121,19 @@ class GroundPlane
           for o in objects
             for face in o.solid.faces.select{|f| f.is_a? PlanarFace } #XXX should work with all facetypes
               poly = Polygon::from_chain face.segments.map do |seg| 
-                #s = seg.dup
+                s = seg.dup
                 #XXX convert from object to world space
-               # s.pos1 = g.closest_point s.pos1
-                #s.pos2 = g.closest_point s.pos2
-                seg
+                s.pos1 = g.closest_point s.pos1
+                s.pos2 = g.closest_point s.pos2
+                s
               end
               wx = @g_plane.origin.x - @g_width/2.0  + (x.to_f/@res_y)*@g_width
               wz = @g_plane.origin.z - @g_height/2.0 + (y.to_f/@res_y)*@g_height
-              p = Point.new(wz,-wx)
+              p = Point.new(wx,wz)
               if poly.contains? p
-                pix.red   = 0.6
-                pix.green = 0.6
-                pix.blue  = 0.6
+                pix.red   = 0.7
+                pix.green = 0.7
+                pix.blue  = 0.7
                 pix_finished = true
                 break
               end
@@ -144,7 +144,7 @@ class GroundPlane
         end
       end
       map.gaussian_blur(10).gaussian_blur(10).each_pixel do |x,y, p|
-        p.alpha = p.red #+ 0.05
+        p.alpha = p.red
         p.red   = 0.0
         p.green = 0.0
         p.blue  = 0.0
@@ -160,7 +160,7 @@ class GroundPlane
       center, width, height, depth = sparse_bounding_box_from points
       origin = Vector[center.x, center.y - height/2.0 - 0.01, center.z]
       plane = Plane.new origin
-      [plane, width + 0.5, depth + 0.5]
+      [plane, width + 1.2, depth + 1.2]
     else
       nil
     end
@@ -176,15 +176,17 @@ class GroundPlane
     if @g_plane
       GL.BindTexture( GL::TEXTURE_2D, @tex )
       GL.Enable( GL::TEXTURE_2D )
+      hw = @g_width/2.0
+      hh = @g_height/2.0
       GL.Begin( GL::QUADS )
-        glTexCoord2f(0.0, 0.0)
-        GL.Vertex( @g_plane.origin.x - @g_width/2.0, @g_plane.origin.y, @g_plane.origin.z + @g_width/2.0 )
         glTexCoord2f(1.0, 0.0)
-        GL.Vertex( @g_plane.origin.x + @g_width/2.0, @g_plane.origin.y, @g_plane.origin.z + @g_width/2.0 )
+        GL.Vertex( @g_plane.origin.x - hw, @g_plane.origin.y, @g_plane.origin.z + hh )
         glTexCoord2f(1.0, 1.0)
-        GL.Vertex( @g_plane.origin.x + @g_width/2.0, @g_plane.origin.y, @g_plane.origin.z - @g_width/2.0 )
+        GL.Vertex( @g_plane.origin.x + hw, @g_plane.origin.y, @g_plane.origin.z + hh )
         glTexCoord2f(0.0, 1.0)
-        GL.Vertex( @g_plane.origin.x - @g_width/2.0, @g_plane.origin.y, @g_plane.origin.z - @g_width/2.0 )
+        GL.Vertex( @g_plane.origin.x + hw, @g_plane.origin.y, @g_plane.origin.z - hh )
+        glTexCoord2f(0.0, 0.0)
+        GL.Vertex( @g_plane.origin.x - hw, @g_plane.origin.y, @g_plane.origin.z - hh )
       GL.End
     end
   end
@@ -509,7 +511,7 @@ class GLView < Gtk::DrawingArea
 			# draw 3d interface stuff
 			GL.Disable(GL::LIGHTING)
 			@immediate_draw_routines.each{|r| r.call } unless @selection_pass or @picking_pass
-			@ground.draw
+			@ground.draw unless @selection_pass or @picking_pass
 			gldrawable.swap_buffers unless @selection_pass or @picking_pass or @do_not_swap
 		gldrawable.gl_end
 	end
