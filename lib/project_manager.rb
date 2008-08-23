@@ -14,6 +14,7 @@ require 'make_public_dialog.rb'
 require 'close_project_confirmation.rb'
 require 'simulation_settings.rb'
 require 'file_open_dialog.rb'
+require 'export_dialog.rb'
 
 class Selection
 	def initialize
@@ -400,7 +401,7 @@ public
 					change_working_level @main_assembly 
 					@filename = filename
 					self.has_been_changed = false
-					@all_parts.each{|p| p.build } #XXX this shouldn't really be needed
+					#@all_parts.each{|p| p.build } #XXX this shouldn't really be needed
 					@glview.zoom_onto @all_part_instances.select{|i| i.visible }
   			#rescue
   			#  dialog = Gtk::MessageDialog.new(@main_win, 
@@ -419,7 +420,7 @@ public
 	end
 	
 	def save_file_as 
-    dia = FileOpenDialog.new true
+    dia = FileOpenDialog.new :save
     if dia.run == Gtk::Dialog::RESPONSE_ACCEPT
       @filename = dia.filename
       @filename += '.omp' unless @filename =~ /.omp/
@@ -451,6 +452,42 @@ public
   			save_file_as
   		end
 	  end
+	end
+	
+	def export_selection
+	  parts = @selection.map{|s| s.class == Assembly ? s.contained_parts : s }.flatten
+	  parts = @main_assembly.contained_parts.map{|p| p.visible } if parts.empty?
+	  ExportDialog.new do |filetype|
+      dia = FileOpenDialog.new filetype
+      if dia.run == Gtk::Dialog::RESPONSE_ACCEPT
+        filename = dia.filename
+        filename += filetype unless filename =~ Regexp.new(filetype)
+        data = case filetype
+          when '.stl' : generate_stl parts
+        end
+	      File::open(filename,"w"){|f| f << data }
+      end
+      dia.destroy
+    end
+	end
+	
+	def generate_stl parts
+	  stl = "solid #{@name}\n"
+	  for p in parts
+	    for tri in p.solid.tesselate
+	      n = tri[0].vector_to(tri[1]).cross_product(tri[0].vector_to(tri[2])).normalize
+	      n = Vector[0.0, 0.0, 0.0] if n.x.nan?
+	      stl += "  facet normal #{n.x} #{n.y} #{n.z}\n"
+        stl += "    outer loop\n"
+        for v in tri
+          stl += "      vertex #{v.x} #{v.y} #{v.z}\n"
+        end
+        stl += "    endloop\n"
+	      stl += "  endfacet\n"
+	    end
+	  end
+	  stl += "endsolid #{@name}\n"
+    return stl
 	end
 
   def display_properties

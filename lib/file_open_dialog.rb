@@ -7,23 +7,34 @@ require 'gtk2'
 require 'component_browser'
 
 class FileOpenDialog < Gtk::FileChooserDialog
-  def initialize save=false
-    super( save ? GetText._("Save project as..") : GetText._("Choose project file"),
-           nil,
-           save ? Gtk::FileChooser::ACTION_SAVE : Gtk::FileChooser::ACTION_OPEN,
+  def initialize mode=:open
+    title = case mode
+      when :save   : GetText._("Save project as..")
+      when :open   : GetText._("Choose project file")
+      else
+        GetText._("Export as...")
+    end
+    super( title,  nil,
+           mode == :open ? Gtk::FileChooser::ACTION_OPEN : Gtk::FileChooser::ACTION_SAVE,
            nil,
            [Gtk::Stock::CANCEL, Gtk::Dialog::RESPONSE_CANCEL],
-           [save ? Gtk::Stock::SAVE : Gtk::Stock::OPEN, Gtk::Dialog::RESPONSE_ACCEPT] )
+           [mode == :open ? Gtk::Stock::OPEN : Gtk::Stock::SAVE, Gtk::Dialog::RESPONSE_ACCEPT] )
     set_property('do-overwrite-confirmation', true) 
     self.current_folder = $preferences[:project_dir]
-    # add file filter
+    # add solid|matter file filter
     filter = Gtk::FileFilter.new
     filter.name = GetText._("Open Machinist project")
-    filter.add_pattern("*.omp")
-    add_filter filter
+    filter.add_pattern "*.omp"
+    add_filter filter if mode == :save or mode == :open
+    # add export-format specific file filter
+    filter = Gtk::FileFilter.new
+    filter.name = GetText._("#{mode} files")
+    filter.add_pattern "*#{mode}"
+    add_filter filter unless mode == :save or mode == :open
+    # add default filter
     filter = Gtk::FileFilter.new
     filter.name = GetText._("All filetypes")
-    filter.add_pattern("*")
+    filter.add_pattern "*"
     add_filter filter
     # add preview widget
     signal_connect("update-preview") do

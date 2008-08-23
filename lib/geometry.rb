@@ -1300,6 +1300,10 @@ class Face
     0.0
 	end
 	
+	def tesselate
+	  []
+	end
+	
 	def dup
 		copy = super
 		copy.segments = segments.map{|s| s.dup }
@@ -1323,6 +1327,12 @@ class PlanarFace < Face
 			raise "Trying to build face #{self} from non-closed segment chain"
 		end
 	end
+	
+	def tesselate
+	  @polygon or pretesselate
+	  @polygon.tesselate
+	end
+	
 	
 	def draw
 	  pretesselate unless @polygon
@@ -1513,6 +1523,11 @@ class Solid
 	def bounding_box
 		points = @faces.map{|f| f.segments.map{|seg| seg.snap_points } }.flatten
 		return bounding_box_from points
+	end
+	
+	def tesselate
+	  #XXX polys should be stiched together at seams
+	  @faces.inject([]){|triangles,f| triangles + f.tesselate }
 	end
 	
 	def dup
@@ -1881,6 +1896,11 @@ class Assembly < Component
 
 	def transparent=( bool )
 		@components.each {|c| c.transparent = bool}
+	end
+	
+	def contained_parts
+	  parts = @components.select{|c| c.class == Part }
+	  return parts + @components.select{|c| c.class == Assembly }.map{|a| a.contained_parts }
 	end
 
 	def display_properties
