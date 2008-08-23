@@ -95,7 +95,7 @@ end
 
 
 class GroundPlane
-  def initialize res_x=16, res_y=16
+  def initialize res_x=32, res_y=32
     @res_x, @res_y = res_x, res_y
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
     @tex = GL.GenTextures(1)[0]
@@ -108,7 +108,7 @@ class GroundPlane
   end
   
   def generate_shadowmap objects
-    @g_plane, @g_width, @g_height = ground objects
+    @g_plane, @g_width, @g_height, @g_depth = ground objects
     if @g_plane
       map = Image.new @res_x, @res_y
       for x in 0...@res_x
@@ -120,22 +120,29 @@ class GroundPlane
           pix_finished = false
           for o in objects
             for face in o.solid.faces.select{|f| f.is_a? PlanarFace } #XXX should work with all facetypes
-              poly = Polygon::from_chain face.segments.map do |seg| 
-                s = seg.dup
+              face_dist = 0.0
+              planar_loop = face.segments.map do |seg|
+                #s = seg.dup
                 #XXX convert from object to world space
-                s.pos1 = g.closest_point s.pos1
-                s.pos2 = g.closest_point s.pos2
-                s
+                #s.pos1 = @g_plane.closest_point s.pos1
+                #s.pos2 = @g_plane.closest_point s.pos2
+                face_dist += (seg.pos1.y - @g_plane.origin.y).abs
+                seg
               end
+              face_dist /= face.segments.size
+              poly = Polygon::from_chain planar_loop
               wx = @g_plane.origin.x - @g_width/2.0  + (x.to_f/@res_y)*@g_width
-              wz = @g_plane.origin.z - @g_height/2.0 + (y.to_f/@res_y)*@g_height
+              wz = @g_plane.origin.z - @g_depth/2.0 + (y.to_f/@res_y)*@g_depth
               p = Point.new(wx,wz)
               if poly.contains? p
-                pix.red   = 0.65
-                pix.green = 0.65
-                pix.blue  = 0.65
-                pix_finished = true
-                break
+                value = 0.7 * (1.0 - face_dist/@g_height)
+                #if value > pix.red #XXX make an option that lets the user decide between fast (break) and accurate
+                  pix.red   = value
+                  pix.green = value
+                  pix.blue  = value
+                  pix_finished = true
+                  break
+               # end
               end
             end
             break if pix_finished
@@ -143,7 +150,7 @@ class GroundPlane
           map.set_pixel( x,y, pix )
         end
       end
-      map.gaussian_blur(10).gaussian_blur(10).each_pixel do |x,y, p|
+      map.gaussian_blur(3).gaussian_blur(3).each_pixel do |x,y, p|
         p.alpha = p.red
         p.red   = 0.0
         p.green = 0.0
@@ -160,7 +167,7 @@ class GroundPlane
       center, width, height, depth = sparse_bounding_box_from points
       origin = Vector[center.x, center.y - height/2.0 - 0.01, center.z]
       plane = Plane.new origin
-      [plane, width + 1.2, depth + 1.2]
+      [plane, width * 1.8, height, depth * 1.8]
     else
       nil
     end
@@ -177,16 +184,16 @@ class GroundPlane
       GL.BindTexture( GL::TEXTURE_2D, @tex )
       GL.Enable( GL::TEXTURE_2D )
       hw = @g_width/2.0
-      hh = @g_height/2.0
+      hd = @g_depth/2.0
       GL.Begin( GL::QUADS )
         glTexCoord2f(1.0, 0.0)
-        GL.Vertex( @g_plane.origin.x - hw, @g_plane.origin.y, @g_plane.origin.z + hh )
+        GL.Vertex( @g_plane.origin.x - hw, @g_plane.origin.y, @g_plane.origin.z + hd )
         glTexCoord2f(1.0, 1.0)
-        GL.Vertex( @g_plane.origin.x + hw, @g_plane.origin.y, @g_plane.origin.z + hh )
+        GL.Vertex( @g_plane.origin.x + hw, @g_plane.origin.y, @g_plane.origin.z + hd )
         glTexCoord2f(0.0, 1.0)
-        GL.Vertex( @g_plane.origin.x + hw, @g_plane.origin.y, @g_plane.origin.z - hh )
+        GL.Vertex( @g_plane.origin.x + hw, @g_plane.origin.y, @g_plane.origin.z - hd )
         glTexCoord2f(0.0, 0.0)
-        GL.Vertex( @g_plane.origin.x - hw, @g_plane.origin.y, @g_plane.origin.z - hh )
+        GL.Vertex( @g_plane.origin.x - hw, @g_plane.origin.y, @g_plane.origin.z - hd )
       GL.End
     end
   end
