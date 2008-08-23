@@ -77,7 +77,6 @@ class ProjectManager
 		@sketch_toolbar = sketch_toolbar
 		@statusbar = statusbar
 		@glview = glview
-		@glview.manager = self if @glview
 		@main_vbox = main_vbox
 		@op_view_controls = op_view_controls
 		@focus_view = true

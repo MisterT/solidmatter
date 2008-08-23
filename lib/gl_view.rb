@@ -109,14 +109,13 @@ class GroundPlane
   
   def generate_shadowmap objects
     @g_plane, @g_width, @g_height, @g_depth = ground objects
+    @objects = objects
     if @g_plane
       map = Image.new @res_x, @res_y
       for x in 0...@res_x
         for y in 0...@res_y
           pix = Pixel.new
-          pix.red   = 0.0
-          pix.green = 0.0
-          pix.blue  = 0.0
+          pix.red, pix.green, pix.blue = *$preferences[:background_color]
           pix_finished = false
           for o in objects
             for face in o.solid.faces.select{|f| f.is_a? PlanarFace } #XXX should work with all facetypes
@@ -132,14 +131,14 @@ class GroundPlane
               face_dist /= face.segments.size
               poly = Polygon::from_chain planar_loop
               wx = @g_plane.origin.x - @g_width/2.0  + (x.to_f/@res_y)*@g_width
-              wz = @g_plane.origin.z - @g_depth/2.0 + (y.to_f/@res_y)*@g_depth
+              wz = @g_plane.origin.z - @g_depth/2.0  + (y.to_f/@res_y)*@g_depth
               p = Point.new(wx,wz)
               if poly.contains? p
                 value = 0.7 * (1.0 - face_dist/@g_height)
                 #if value > pix.red #XXX make an option that lets the user decide between fast (break) and accurate
-                  pix.red   = value
-                  pix.green = value
-                  pix.blue  = value
+                  pix.red   -= value
+                  pix.green -= value
+                  pix.blue  -= value
                   pix_finished = true
                   break
                # end
@@ -147,14 +146,14 @@ class GroundPlane
             end
             break if pix_finished
           end
+          pix.repair_bounds
           map.set_pixel( x,y, pix )
         end
       end
       map.gaussian_blur(3).gaussian_blur(3).each_pixel do |x,y, p|
-        p.alpha = p.red
-        p.red   = 0.0
-        p.green = 0.0
-        p.blue  = 0.0
+        p.alpha = 0.9
+        # correct borderpixels, don't know why they get messed up
+        p.alpha = 0.0 if x == 0 or y == 0 or x == map.width-1 or y == map.height-1
         map.set_pixel(x,y, p)
       end
       load_image map
@@ -165,9 +164,9 @@ class GroundPlane
     points = objects.map{|o| o.bounding_box }.flatten.compact
     unless points.empty?
       center, width, height, depth = sparse_bounding_box_from points
-      origin = Vector[center.x, center.y - height/2.0 - 0.01, center.z]
+      origin = Vector[center.x, center.y - height/2.0 - 0.02, center.z]
       plane = Plane.new origin
-      [plane, width * 1.8, height, depth * 1.8]
+      [plane, width * 1.6, height, depth * 1.6]
     else
       nil
     end
@@ -180,7 +179,16 @@ class GroundPlane
   end
   
   def draw
-    if @g_plane
+    if @g_plane and $manager.glview.cameras[$manager.glview.current_cam_index].position.y > @g_plane.origin.y
+      # render reflection
+      GL.Disable( GL::TEXTURE_2D )
+      GL.Enable( GL::LIGHTING )
+      GL.PushMatrix
+        GL.Scalef(1.0,-1.0, 1.0)
+        GL.Translate(0, -@g_plane.origin.y + 0.02, 0)
+        @objects.each{|o| GL.CallList o.displaylist }
+      GL.PopMatrix
+      # render shadow
       GL.BindTexture( GL::TEXTURE_2D, @tex )
       GL.Enable( GL::TEXTURE_2D )
       hw = @g_width/2.0
@@ -201,8 +209,8 @@ end
 
 
 class GLView < Gtk::DrawingArea
-	attr_accessor :num_callists, :immediate_draw_routines, :manager, :selection_color
-	attr_reader :displaymode, :ground
+	attr_accessor :num_callists, :immediate_draw_routines, :selection_color
+	attr_reader :displaymode, :ground, :cameras, :current_cam_index
 	def initialize
 		super
 		@selection_color = [1,0,1]
@@ -425,8 +433,7 @@ class GLView < Gtk::DrawingArea
 		gldrawable = self.gl_drawable
 		return unless gldrawable.gl_begin(glcontext)
 		# define background
-		@background_color = [0.3, 0.3, 0.3, 1.0]
-		GL.ClearColor( *@background_color )
+		GL.ClearColor( *$preferences[:background_color] )
 		GL.ClearDepth(1.0)
 		# set up lighting
 		GL.Light(GL::LIGHT0, GL::DIFFUSE, $preferences[:first_light_color])
@@ -545,7 +552,7 @@ class GLView < Gtk::DrawingArea
   				  GL.Enable GL::LINE_STIPPLE
   				  GL.LineStipple(5, 0x1C47)
     		  end
-  				GL.Color4f( *@background_color )
+  				GL.Color4f( *$preferences[:background_color] )
   			  unless @picking_pass and $manager.work_sketch
   			    GL.CallList top_comp.displaylist      if [:shaded,  :overlay,   :hidden_lines ].any?{|e| e == @displaymode}
   			    top_comp.selected ? GL.Color3f(1,0,0) : GL.Color3f(1,1,1)
@@ -615,7 +622,7 @@ class GLView < Gtk::DrawingArea
 		col = GL.ReadPixels( x,y, 1,1, GL::RGB, GL::UNSIGNED_BYTE )
 		col = [ col[0] / 255.0, col[1] / 255.0, col[2] / 255.0 ]
 		diff = 0
-		col.zip @background_color do |colcomp, backcomp|
+		col.zip $preferences[:background_color] do |colcomp, backcomp|
 		  diff += (colcomp - backcomp).abs
 	  end
 	  if diff > 0.01

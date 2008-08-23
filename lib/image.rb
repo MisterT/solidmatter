@@ -185,6 +185,15 @@ class Pixel
 		@blue  += pix.blue
 		@alpha += pix.alpha
   end
+  
+  def repair_bounds
+    @red   = 1.0 if @red   > 1.0
+    @green = 1.0 if @green > 1.0
+    @blue  = 1.0 if @blue  > 1.0
+    @red   = 0.0 if @red   < 0.0
+    @green = 0.0 if @green < 0.0
+    @blue  = 0.0 if @blue  < 0.0
+  end
 	
 	def to_s
 	 return "r:#{@red} g:#{@green} b:#{@blue} a:#{@alpha}"
