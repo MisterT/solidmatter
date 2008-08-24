@@ -95,7 +95,7 @@ end
 
 
 class GroundPlane
-  def initialize res_x=16, res_y=16
+  def initialize res_x=32, res_y=32
     @res_x, @res_y = res_x, res_y
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
     @tex = GL.GenTextures(1)[0]
@@ -115,7 +115,6 @@ class GroundPlane
       for x in 0...@res_x
         for y in 0...@res_y
           pix = Pixel.new
-          pix.red, pix.green, pix.blue = *$preferences[:background_color]
           pix_finished = false
           for o in objects
             for face in o.solid.faces.select{|f| f.is_a? PlanarFace } #XXX should work with all facetypes
@@ -135,24 +134,23 @@ class GroundPlane
               p = Point.new(wx,wz)
               if poly.contains? p
                 value = 0.7 * (1.0 - face_dist/@g_height)
-                #if value > pix.red #XXX make an option that lets the user decide between fast (break) and accurate
-                  pix.red   -= value
-                  pix.green -= value
-                  pix.blue  -= value
+                if value > pix.red 
+                  pix.red   = value
+                  pix.green = value
+                  pix.blue  = value
                   pix_finished = true
-                  break
-               # end
+                  break #XXX let user decide between fast and accurate
+                end
               end
             end
             break if pix_finished
           end
-          pix.repair_bounds
           map.set_pixel( x,y, pix )
         end
       end
       map.gaussian_blur(3).gaussian_blur(3).each_pixel do |x,y, p|
-        p.alpha = 0.9
-        # correct borderpixels, don't know why they get messed up
+        p.alpha = p.red
+        p.red, p.green, p.blue = 0.0,0.0,0.0
         p.alpha = 0.0 if x == 0 or y == 0 or x == map.width-1 or y == map.height-1
         map.set_pixel(x,y, p)
       end
@@ -178,25 +176,42 @@ class GroundPlane
     glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, @res_x, @res_y, 0, GL_RGBA, GL_UNSIGNED_BYTE, raw )
   end
   
+  def draw_shadow
+    GL.BindTexture( GL::TEXTURE_2D, @tex )
+    GL.Enable( GL::TEXTURE_2D )
+    GL.Disable( GL::LIGHTING )
+    hw = @g_width/2.0
+    hd = @g_depth/2.0
+    GL.Begin( GL::QUADS )
+      glTexCoord2f(1.0, 0.0)
+      GL.Vertex( @g_plane.origin.x - hw, @g_plane.origin.y, @g_plane.origin.z + hd )
+      glTexCoord2f(1.0, 1.0)
+      GL.Vertex( @g_plane.origin.x + hw, @g_plane.origin.y, @g_plane.origin.z + hd )
+      glTexCoord2f(0.0, 1.0)
+      GL.Vertex( @g_plane.origin.x + hw, @g_plane.origin.y, @g_plane.origin.z - hd )
+      glTexCoord2f(0.0, 0.0)
+      GL.Vertex( @g_plane.origin.x - hw, @g_plane.origin.y, @g_plane.origin.z - hd )
+    GL.End
+  end
+  
   def draw_floor
-      GL.BindTexture( GL::TEXTURE_2D, @tex )
-      GL.Enable( GL::TEXTURE_2D )
-      hw = @g_width/2.0
-      hd = @g_depth/2.0
-      GL.Begin( GL::QUADS )
-        glTexCoord2f(1.0, 0.0)
-        GL.Vertex( @g_plane.origin.x - hw, @g_plane.origin.y, @g_plane.origin.z + hd )
-        glTexCoord2f(1.0, 1.0)
-        GL.Vertex( @g_plane.origin.x + hw, @g_plane.origin.y, @g_plane.origin.z + hd )
-        glTexCoord2f(0.0, 1.0)
-        GL.Vertex( @g_plane.origin.x + hw, @g_plane.origin.y, @g_plane.origin.z - hd )
-        glTexCoord2f(0.0, 0.0)
-        GL.Vertex( @g_plane.origin.x - hw, @g_plane.origin.y, @g_plane.origin.z - hd )
-      GL.End
+    GL.Disable( GL::TEXTURE_2D )
+    GL.Disable( GL::LIGHTING )
+    c = $preferences[:background_color].dup
+    c.pop ; c.push 0.95
+    GL.Color4f( *c )
+    w = d = 200
+    y = @g_plane.origin.y - 0.01
+    GL.Begin( GL::QUADS )
+      GL.Vertex( 0 - w, y, 0 + d )
+      GL.Vertex( 0 + w, y, 0 + d )
+      GL.Vertex( 0 + w, y, 0 - d )
+      GL.Vertex( 0 - w, y, 0 - d )
+    GL.End
   end
   
   def draw_reflection
-      #GL.Disable( GL::TEXTURE_2D )
+      GL.Disable( GL::TEXTURE_2D )
       GL.Enable( GL::LIGHTING )
       GL.PushMatrix
         GL.Scalef(1.0,-1.0, 1.0)
@@ -206,20 +221,10 @@ class GroundPlane
   end
   
   def draw
-    if @g_plane# and $manager.glview.cameras[$manager.glview.current_cam_index].position.y > @g_plane.origin.y
-      glDisable(GL_DEPTH_TEST)
-      glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE)
-      glEnable(GL_STENCIL_TEST)
-      glStencilFunc(GL_ALWAYS, 0x1, 0x1)
-      glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE)
-      draw_floor
-      glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
-      glEnable(GL_DEPTH_TEST)
-      glStencilFunc(GL_NOTEQUAL, 0x1, 0x1)
-      glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP)
+    if @g_plane and $manager.glview.cameras[$manager.glview.current_cam_index].position.y > @g_plane.origin.y
       draw_reflection
-      glDisable(GL_STENCIL_TEST)
       draw_floor
+      draw_shadow
     end
   end
 end
@@ -452,7 +457,7 @@ class GLView < Gtk::DrawingArea
 		# define background
 		GL.ClearColor( *$preferences[:background_color] )
 		GL.ClearDepth(1.0)
-		GL.ClearStencil(0x0)
+		GL.ClearStencil(0.0)
 		# set up lighting
 		GL.Light(GL::LIGHT0, GL::DIFFUSE, $preferences[:first_light_color])
 		GL.Light(GL::LIGHT0, GL::POSITION, $preferences[:first_light_position])
