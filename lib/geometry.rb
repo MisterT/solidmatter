@@ -531,7 +531,7 @@ module ChainCompletion
 	# close loops that broke because of imprecision
 	def close_broken_loops
 	  for dynamic_pos in @segments.select{|s| s.is_a? Line }.map{|line| [line.pos1, line.pos2] }.flatten
-	  	for static_pos in @segments.select{|s| not s.is_a? Line }.map{|seg| seg.snap_points }.flatten
+	  	for static_pos in @segments.reject{|s| s.is_a? Line }.map{|seg| seg.snap_points }.flatten
 	  		if dynamic_pos.near_to static_pos
 	  			dynamic_pos.x = static_pos.x
 	  			dynamic_pos.y = static_pos.y
@@ -1526,8 +1526,9 @@ class Solid
 	end
 	
 	def tesselate
-	  #XXX polys should be stiched together at seams
-	  @faces.inject([]){|triangles,f| triangles + f.tesselate }
+	  tris = @faces.inject([]){|triangles,f| triangles + f.tesselate }
+	  tris.flatten.each{|p1| tris.flatten.each{|p2| p1.take_coords_from p2 if p1.near_to p2 } }
+	  tris
 	end
 	
 	def dup
@@ -1601,17 +1602,7 @@ class Operator
 		@settings = @save_settings
 		ok
 	end
-=begin
-	def create_toolbar
-		@toolbar = Gtk::Toolbar.new
-		@toolbar.toolbar_style = Gtk::Toolbar::BOTH
-		@toolbar.icon_size = Gtk::IconSize::SMALL_TOOLBAR
-		fill_toolbar 
-		toolbar.append( Gtk::SeparatorToolItem.new){}
-		@toolbar.append( Gtk::Stock::CANCEL, GetText._("Exit operator without saving changes"),"Operator/Cancel"){ cancel }
-		@toolbar.append( Gtk::Stock::OK, GetText._("Save changes and exit operator"),"Operator/Ok"){ ok }
-	end
-=end
+	
 private
 	def fill_toolbar 
 		raise "Error in #{self} : Operator#fill_toolbar must be overriden by child class"

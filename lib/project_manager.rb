@@ -456,7 +456,7 @@ public
 	
 	def export_selection
 	  parts = @selection.map{|s| s.class == Assembly ? s.contained_parts : s }.flatten
-	  parts = @main_assembly.contained_parts.map{|p| p.visible } if parts.empty?
+	  parts = @main_assembly.contained_parts.select{|p| p.visible } if parts.empty?
 	  ExportDialog.new do |filetype|
       dia = FileOpenDialog.new filetype
       if dia.run == Gtk::Dialog::RESPONSE_ACCEPT
