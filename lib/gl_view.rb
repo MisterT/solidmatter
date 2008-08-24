@@ -178,17 +178,7 @@ class GroundPlane
     glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, @res_x, @res_y, 0, GL_RGBA, GL_UNSIGNED_BYTE, raw )
   end
   
-  def draw
-    if @g_plane and $manager.glview.cameras[$manager.glview.current_cam_index].position.y > @g_plane.origin.y
-      # render reflection
-      GL.Disable( GL::TEXTURE_2D )
-      GL.Enable( GL::LIGHTING )
-      GL.PushMatrix
-        GL.Scalef(1.0,-1.0, 1.0)
-        GL.Translate(0, -@g_plane.origin.y + 0.02, 0)
-        @objects.each{|o| GL.CallList o.displaylist }
-      GL.PopMatrix
-      # render shadow
+  def draw_floor
       GL.BindTexture( GL::TEXTURE_2D, @tex )
       GL.Enable( GL::TEXTURE_2D )
       hw = @g_width/2.0
@@ -203,6 +193,32 @@ class GroundPlane
         glTexCoord2f(0.0, 0.0)
         GL.Vertex( @g_plane.origin.x - hw, @g_plane.origin.y, @g_plane.origin.z - hd )
       GL.End
+  end
+  
+  def draw_reflection
+      GL.Disable( GL::TEXTURE_2D )
+      GL.Enable( GL::LIGHTING )
+      GL.PushMatrix
+        GL.Scalef(1.0,-1.0, 1.0)
+        GL.Translate(0, -@g_plane.origin.y + 0.02, 0)
+        @objects.each{|o| GL.CallList o.displaylist }
+      GL.PopMatrix
+  end
+  
+  def draw
+    if @g_plane and $manager.glview.cameras[$manager.glview.current_cam_index].position.y > @g_plane.origin.y
+      glDisable(GL_DEPTH_TEST)
+      glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE)
+      glEnable(GL_STENCIL_TEST)
+      glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE)
+      glStencilFunc(GL_ALWAYS, 1, 0xffffffff)
+      draw_floor
+      glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
+      glEnable(GL_DEPTH_TEST)
+      glStencilFunc(GL_EQUAL, 1, 0xffffffff)
+      glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP)
+      draw_reflection
+      glDisable(GL_STENCIL_TEST)
     end
   end
 end
