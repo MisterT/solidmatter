@@ -95,7 +95,7 @@ end
 
 
 class GroundPlane
-  def initialize res_x=32, res_y=32
+  def initialize res_x=16, res_y=16
     @res_x, @res_y = res_x, res_y
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
     @tex = GL.GenTextures(1)[0]
@@ -196,7 +196,7 @@ class GroundPlane
   end
   
   def draw_reflection
-      GL.Disable( GL::TEXTURE_2D )
+      #GL.Disable( GL::TEXTURE_2D )
       GL.Enable( GL::LIGHTING )
       GL.PushMatrix
         GL.Scalef(1.0,-1.0, 1.0)
@@ -206,19 +206,20 @@ class GroundPlane
   end
   
   def draw
-    if @g_plane and $manager.glview.cameras[$manager.glview.current_cam_index].position.y > @g_plane.origin.y
+    if @g_plane# and $manager.glview.cameras[$manager.glview.current_cam_index].position.y > @g_plane.origin.y
       glDisable(GL_DEPTH_TEST)
       glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE)
       glEnable(GL_STENCIL_TEST)
+      glStencilFunc(GL_ALWAYS, 0x1, 0x1)
       glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE)
-      glStencilFunc(GL_ALWAYS, 1, 0xffffffff)
       draw_floor
       glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
       glEnable(GL_DEPTH_TEST)
-      glStencilFunc(GL_EQUAL, 1, 0xffffffff)
+      glStencilFunc(GL_NOTEQUAL, 0x1, 0x1)
       glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP)
       draw_reflection
       glDisable(GL_STENCIL_TEST)
+      draw_floor
     end
   end
 end
@@ -451,6 +452,7 @@ class GLView < Gtk::DrawingArea
 		# define background
 		GL.ClearColor( *$preferences[:background_color] )
 		GL.ClearDepth(1.0)
+		GL.ClearStencil(0x0)
 		# set up lighting
 		GL.Light(GL::LIGHT0, GL::DIFFUSE, $preferences[:first_light_color])
 		GL.Light(GL::LIGHT0, GL::POSITION, $preferences[:first_light_position])
@@ -525,7 +527,7 @@ class GLView < Gtk::DrawingArea
 		glcontext = self.gl_context
 		gldrawable = self.gl_drawable
 		gldrawable.gl_begin( glcontext )
-			GL.Clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT)
+			GL.Clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT | GL::STENCIL_BUFFER_BIT)
 			GL.Disable(GL::TEXTURE_2D)
 			GL.LoadIdentity
 			# setup camera position und rotation
