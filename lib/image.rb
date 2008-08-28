@@ -176,7 +176,7 @@ class Pixel
     @red   *= value
     @green *= value
     @blue  *= value
-    @alpha *= value
+    #@alpha *= value
   end
   
   def add( pix )

@@ -94,10 +94,16 @@ private
 end
 
 
+def load_texture( im, id )
+  raw = im.map{|pix| pix.to_a }.flatten.map{|p| (p * 255).round.to_i }.pack("C*")
+  GL.BindTexture( GL::TEXTURE_2D, id )
+  glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, im.width, im.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, raw )
+end
+
+
 class GroundPlane
   def initialize res_x=32, res_y=32
     @res_x, @res_y = res_x, res_y
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
     @tex = GL.GenTextures(1)[0]
     GL.BindTexture( GL::TEXTURE_2D, @tex )
     GL.TexEnvf( GL::TEXTURE_ENV, GL::TEXTURE_ENV_MODE, GL::REPLACE )
@@ -154,7 +160,7 @@ class GroundPlane
         p.alpha = 0.0 if x == 0 or y == 0 or x == map.width-1 or y == map.height-1
         map.set_pixel(x,y, p)
       end
-      load_image map
+      load_texture( map, @tex )
     end
   end
   
@@ -168,12 +174,6 @@ class GroundPlane
     else
       nil
     end
-  end
-  
-  def load_image im
-    raw = im.map{|pix| pix.to_a }.flatten.map{|p| (p * 256).round.to_i }.pack("C*")
-    GL.BindTexture( GL::TEXTURE_2D, @tex )
-    glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, @res_x, @res_y, 0, GL_RGBA, GL_UNSIGNED_BYTE, raw )
   end
   
   def draw_shadow
@@ -198,7 +198,7 @@ class GroundPlane
     GL.Disable( GL::TEXTURE_2D )
     GL.Disable( GL::LIGHTING )
     c = $preferences[:background_color].dup
-    c.pop ; c.push 0.95
+    c.pop ; c.push 0.92
     GL.Color4f( *c )
     w = d = 200
     y = @g_plane.origin.y - 0.01
@@ -213,11 +213,14 @@ class GroundPlane
   def draw_reflection
       GL.Disable( GL::TEXTURE_2D )
       GL.Enable( GL::LIGHTING )
+      GL.Enable( GL::NORMALIZE )
       GL.PushMatrix
         GL.Scalef(1.0,-1.0, 1.0)
         GL.Translate(0, -@g_plane.origin.y + 0.02, 0)
+        #XXX lightsources should be mirrored as well
         @objects.each{|o| GL.CallList o.displaylist }
       GL.PopMatrix
+      GL.Disable( GL::NORMALIZE )
   end
   
   def draw
@@ -466,14 +469,35 @@ class GLView < Gtk::DrawingArea
 		GL.Enable(GL::LIGHTING)
 		GL.Enable(GL::LIGHT0)
 		GL.Enable(GL::LIGHT1)
+		# stuff
 		GL.Enable(GL::DEPTH_TEST)
 		GL.Hint(GL::PERSPECTIVE_CORRECTION_HINT, GL::NICEST)
+    GL.Enable(GL_AUTO_NORMAL)
+    GL.Enable(GL_NORMALIZE)
+    GL.PixelStorei(GL_UNPACK_ALIGNMENT, 1)
 		# set stipple pattern for focus transparency
 		GL.PolygonStipple [0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55] * 16
+		# make sure highlighting doesn'z flicker
 		GL.Enable(GL::POLYGON_OFFSET_FILL)
     GL.PolygonOffset(1.0, 1.0)
+    # prepare shadows and reflections
     @ground = GroundPlane.new
-		#@ground.load_image Image.new("../data/icons/big/square.png")
+    # load enviroment map
+    @spheremap = GL.GenTextures(1)[0]
+    GL.BindTexture( GL::TEXTURE_2D, @spheremap )
+    GL.TexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
+    GL.TexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP)
+    GL.TexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP)
+    GL.TexParameterf( GL::TEXTURE_2D, GL::TEXTURE_MIN_FILTER, GL_LINEAR )
+    GL.TexParameterf( GL::TEXTURE_2D, GL::TEXTURE_MAG_FILTER, GL_LINEAR )
+    GL.TexParameterf( GL::TEXTURE_2D, GL::TEXTURE_WRAP_S, GL::CLAMP )
+    GL.TexParameterf( GL::TEXTURE_2D, GL::TEXTURE_WRAP_T, GL::CLAMP )
+    map = Image.new('../data/icons/fx_spheremapping.png')
+    map.each_pixel do |x,y, p|
+      p.alpha = 0.99 
+      map.set_pixel(x,y, p)
+    end
+    load_texture( map, @spheremap )
     render_style :regular
 		gldrawable.gl_end
 	end
@@ -577,7 +601,14 @@ class GLView < Gtk::DrawingArea
     		  end
   				GL.Color4f( *$preferences[:background_color] )
   			  unless @picking_pass and $manager.work_sketch
-  			    GL.CallList top_comp.displaylist      if [:shaded,  :overlay,   :hidden_lines ].any?{|e| e == @displaymode}
+            GL.BindTexture( GL::TEXTURE_2D, @spheremap )
+            glEnable(GL_TEXTURE_GEN_S)
+            glEnable(GL_TEXTURE_GEN_T)
+            glEnable(GL_TEXTURE_2D)
+  			    GL.CallList top_comp.displaylist if [:shaded,  :overlay,   :hidden_lines ].any?{|e| e == @displaymode}
+            glDisable(GL_TEXTURE_GEN_S)
+            glDisable(GL_TEXTURE_GEN_T)
+            glDisable(GL_TEXTURE_2D)
   			    top_comp.selected ? GL.Color3f(1,0,0) : GL.Color3f(1,1,1)
   			    GL.CallList top_comp.wire_displaylist if [:overlay, :wireframe, :hidden_lines ].any?{|e| e == @displaymode} or top_comp.selected
   			    top_comp.draw_cog
