@@ -139,7 +139,7 @@ class GroundPlane
               wz = @g_plane.origin.z - @g_depth/2.0  + (y.to_f/@res_y)*@g_depth
               p = Point.new(wx,wz)
               if poly.contains? p
-                value = 0.7 * (1.0 - face_dist/@g_height)
+                value = 0.8 * (1.0 - face_dist/@g_height)
                 if value > pix.red 
                   pix.red   = value
                   pix.green = value
@@ -494,7 +494,7 @@ class GLView < Gtk::DrawingArea
     GL.TexParameterf( GL::TEXTURE_2D, GL::TEXTURE_WRAP_T, GL::CLAMP )
     map = Image.new('../data/icons/fx_spheremapping.png')
     map.each_pixel do |x,y, p|
-      p.alpha = 0.99 
+      p.alpha = 0.99
       map.set_pixel(x,y, p)
     end
     load_texture( map, @spheremap )

@@ -4,7 +4,10 @@
 #  Copyright (c) 2008. All rights reserved.
 
 require 'libglade2'
-require 'dbus'
+begin
+  require 'dbus'
+rescue LoadError
+end
 
 
 class JoinProjectDialog
