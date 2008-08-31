@@ -81,6 +81,13 @@ class Camera
 		@position += up_vec * value
 		move_forward value.abs/3.0
 	end
+	
+	def stereo
+	  left, right = self.dup, self.dup
+	  left.position  = left.position  - right_vec / 2.0
+	  right.position = right.position + right_vec / 2.0
+	  [left, right]
+	end
 private
 	def rotate_around( axis, angle )
 		# move camera temporarily with target to origin
@@ -558,14 +565,17 @@ class GLView < Gtk::DrawingArea
 		glcontext = self.gl_context
 		gldrawable = self.gl_drawable
 		gldrawable.gl_begin( glcontext )
-			GL.Clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT | GL::STENCIL_BUFFER_BIT)
+			GL.Clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT | GL::STENCIL_BUFFER_BIT) unless @stereo and @second_stereo_pass
 			GL.Disable(GL::TEXTURE_2D)
 			GL.LoadIdentity
 			# setup camera position und rotation
 			cam = @cameras[@current_cam_index]
-			GLU.LookAt(cam.position.x, cam.position.y, cam.position.z,
-				 		     cam.target.x,   cam.target.y,   cam.target.z,
-						     cam.up_vec.x,   cam.up_vec.y,   cam.up_vec.z)
+			cams = @stereo ? cam.stereo : [cam]
+		  cams.each do |c|
+			  GLU.LookAt(c.position.x, c.position.y, c.position.z,
+				   		     c.target.x,   c.target.y,   c.target.z,
+						       c.up_vec.x,   c.up_vec.y,   c.up_vec.z)
+		  end
 			# draw assembly components and sketches
 			draw_coordinate_axes unless @do_not_swap
 			GL.LineStipple(5, 0x1C47)
