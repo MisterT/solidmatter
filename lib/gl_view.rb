@@ -81,13 +81,7 @@ class Camera
 		@position += up_vec * value
 		move_forward value.abs/3.0
 	end
-	
-	def stereo
-	  left, right = self.dup, self.dup
-	  left.position  = left.position  - right_vec / 2.0
-	  right.position = right.position + right_vec / 2.0
-	  [left, right]
-	end
+
 private
 	def rotate_around( axis, angle )
 		# move camera temporarily with target to origin
@@ -565,17 +559,14 @@ class GLView < Gtk::DrawingArea
 		glcontext = self.gl_context
 		gldrawable = self.gl_drawable
 		gldrawable.gl_begin( glcontext )
-			GL.Clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT | GL::STENCIL_BUFFER_BIT) unless @stereo and @second_stereo_pass
+			GL.Clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT | GL::STENCIL_BUFFER_BIT)
 			GL.Disable(GL::TEXTURE_2D)
 			GL.LoadIdentity
 			# setup camera position und rotation
 			cam = @cameras[@current_cam_index]
-			cams = @stereo ? cam.stereo : [cam]
-		  cams.each do |c|
-			  GLU.LookAt(c.position.x, c.position.y, c.position.z,
-				   		     c.target.x,   c.target.y,   c.target.z,
-						       c.up_vec.x,   c.up_vec.y,   c.up_vec.z)
-		  end
+		  GLU.LookAt(cam.position.x, cam.position.y, cam.position.z,
+			   		     cam.target.x,   cam.target.y,   cam.target.z,
+					       cam.up_vec.x,   cam.up_vec.y,   cam.up_vec.z)
 			# draw assembly components and sketches
 			draw_coordinate_axes unless @do_not_swap
 			GL.LineStipple(5, 0x1C47)
@@ -613,20 +604,22 @@ class GLView < Gtk::DrawingArea
     		  end
   				GL.Color4f( *$preferences[:background_color] )
   			  unless @picking_pass and $manager.work_sketch
-  			    if top_comp.information[:material].reflectivity > 0
-              GL.BindTexture( GL::TEXTURE_2D, @spheremap )
-              glEnable(GL_TEXTURE_GEN_S)
-              glEnable(GL_TEXTURE_GEN_T)
-              glEnable(GL_TEXTURE_2D)
+  			    if [:shaded,  :overlay, :hidden_lines ].any?{|e| e == @displaymode}
+    			    if top_comp.information[:material].reflectivity > 0
+                GL.BindTexture( GL::TEXTURE_2D, @spheremap )
+                glEnable(GL_TEXTURE_GEN_S)
+                glEnable(GL_TEXTURE_GEN_T)
+                glEnable(GL_TEXTURE_2D)
+              end
+              glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, top_comp.information[:material].color + [1.0])
+              s = top_comp.information[:material].specularity
+              glMaterial(GL_FRONT_AND_BACK, GL_SPECULAR, [s, s, s, 1.0])
+              glMaterial(GL_FRONT_AND_BACK, GL_SHININESS, top_comp.information[:material].smoothness)
+    			    GL.CallList top_comp.displaylist
+              glDisable(GL_TEXTURE_GEN_S)
+              glDisable(GL_TEXTURE_GEN_T)
+              glDisable(GL_TEXTURE_2D)
             end
-            glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, top_comp.information[:material].color + [1.0])
-            s = top_comp.information[:material].specularity
-            glMaterial(GL_FRONT_AND_BACK, GL_SPECULAR, [s, s, s, 1.0])
-            glMaterial(GL_FRONT_AND_BACK, GL_SHININESS, top_comp.information[:material].smoothness)
-  			    GL.CallList top_comp.displaylist if [:shaded,  :overlay, :hidden_lines ].any?{|e| e == @displaymode}
-            glDisable(GL_TEXTURE_GEN_S)
-            glDisable(GL_TEXTURE_GEN_T)
-            glDisable(GL_TEXTURE_2D)
   			    top_comp.selected ? GL.Color3f(1,0,0) : GL.Color3f(1,1,1)
   			    GL.CallList top_comp.wire_displaylist if [:overlay, :wireframe, :hidden_lines ].any?{|e| e == @displaymode} or top_comp.selected
   			    top_comp.draw_cog
@@ -959,9 +952,7 @@ class GLView < Gtk::DrawingArea
 		res ||= $preferences[:thumb_res]
   	back = Image.new(res, res)
 		object = screen.matte_floodfill(0,0).trim.resize_to_fit( res,res )
-		comp = back.blend( object, 0.99, 0.01, Magick::CenterGravity )
-		floor = comp.wet_floor(0.45, 0.5)
-		composite = back.blend( floor, 0.65, 0.35, Magick::SouthGravity ).blend( object, 0.99, 0.01, Magick::CenterGravity )
+		composite = back.blend( object, 0.99, 0.01, Magick::CenterGravity )
 		composite[:caption] = name
 		composite = composite.polaroid
 		redraw
