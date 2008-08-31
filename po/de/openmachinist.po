@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: openmachinist 0.0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-08-31 20:55+0200\n"
-"PO-Revision-Date: 2008-08-31 20:55+0200\n"
+"POT-Creation-Date: 2008-09-01 01:54+0200\n"
+"PO-Revision-Date: 2008-09-01 01:54+0200\n"
 "Last-Translator: Björn Breitgoff <breidibreit@web.de>\n"
 "Language-Team: German\n"
 "MIME-Version: 1.0\n"
@@ -16,27 +16,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: lib/geometry.rb:1457
+#: lib/geometry.rb:1458
 msgid "<b>Calculating solid volume...</b>"
 msgstr "<b>Körpervolumen wird berechnet...</b>"
 
-#: lib/geometry.rb:1495
+#: lib/geometry.rb:1496
 msgid "sampling bucket"
 msgstr "prüfe Teilvolumen"
 
-#: lib/geometry.rb:1591
+#: lib/geometry.rb:1592
 msgid "Exit operator without saving changes"
 msgstr "Operator verlassen ohne zu speichern"
 
-#: lib/geometry.rb:1592
+#: lib/geometry.rb:1593
 msgid "Save changes and exit operator"
 msgstr "Änderungen speichern und Operator verlassen"
 
-#: lib/geometry.rb:1752
+#: lib/geometry.rb:1753
 msgid "Part could not be built"
 msgstr "Bauteil konnte nicht errechnet werden"
 
-#: lib/geometry.rb:1753
+#: lib/geometry.rb:1754
 msgid "Please recheck all operator settings and close any open sketch regions!"
 msgstr ""
 "Bitte alle Zeichnungen und Operatoreinstellungen noch einmal überprüfen"
@@ -596,6 +596,14 @@ msgstr "Projekte auf Server"
 #: lib/account_editor.rb:30
 msgid "User's projects"
 msgstr "Zugriff"
+
+#: lib/gl_view.rb:121
+msgid "<b>Rendering shadowmap...</b>"
+msgstr "<b>Schatten wird berechnet...</b>"
+
+#: lib/gl_view.rb:127
+msgid "Processing scanline "
+msgstr "Errechne Zeile "
 
 #: lib/om_server_gui.rb:51
 msgid "_Manage users and projects"

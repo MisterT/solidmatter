@@ -114,12 +114,17 @@ class GroundPlane
     GL.TexParameterf( GL::TEXTURE_2D, GL::TEXTURE_WRAP_T, GL::CLAMP )
   end
   
-  def generate_shadowmap objects
+  def generate_shadowmap objects=$manager.all_part_instances.select{|p| p.visible }
     @g_plane, @g_width, @g_height, @g_depth = ground objects
     @objects = objects
-    if @g_plane
+    if @g_plane and $manager.glview.render_shadows
+	  	progress = ProgressDialog.new GetText._("<b>Rendering shadowmap...</b>")
+	  	progress.fraction = 0.0
+  		increment = 1.0 / @res_x 
       map = Image.new @res_x, @res_y
       for x in 0...@res_x
+				progress.fraction += increment
+				progress.text = GetText._("Processing scanline ") + "#{x}/#{@res_x}"
         for y in 0...@res_y
           pix = Pixel.new
           pix_finished = false
@@ -162,6 +167,7 @@ class GroundPlane
         map.set_pixel(x,y, p)
       end
       load_texture( map, @tex )
+      progress.close
     end
   end
   
@@ -219,7 +225,7 @@ class GroundPlane
         GL.Scalef(1.0,-1.0, 1.0)
         GL.Translate(0, -@g_plane.origin.y + 0.02, 0)
         #XXX lightsources should be mirrored as well
-        @objects.each{|o| GL.CallList o.displaylist }
+        @objects.each{|o| $manager.glview.draw_part o }
       GL.PopMatrix
       GL.Disable( GL::NORMALIZE )
   end
@@ -228,7 +234,7 @@ class GroundPlane
     if @g_plane and $manager.glview.cameras[$manager.glview.current_cam_index].position.y > @g_plane.origin.y
       draw_reflection
       draw_floor
-      draw_shadow
+      draw_shadow if $manager.glview.render_shadows and not $manager.glview.displaymode == :wireframe
     end
   end
   
@@ -240,7 +246,7 @@ end
 
 class GLView < Gtk::DrawingArea
 	attr_accessor :num_callists, :immediate_draw_routines, :selection_color
-	attr_reader :displaymode, :ground, :cameras, :current_cam_index
+	attr_reader :displaymode, :ground, :cameras, :current_cam_index, :render_shadows
 	def initialize
 		super
 		@selection_color = [1,0,1]
@@ -559,6 +565,11 @@ class GLView < Gtk::DrawingArea
 		end
 	end
 	
+	def render_shadows= b
+	  @render_shadows = b
+	  @ground.generate_shadowmap
+	end
+	
 	def redraw
 		glcontext = self.gl_context
 		gldrawable = self.gl_drawable
@@ -584,6 +595,39 @@ class GLView < Gtk::DrawingArea
 		gldrawable.gl_end
 	end
 	
+	def draw_part p
+	  [:shaded,  :overlay].any?{|e| e == @displaymode} ? (GL.Enable GL::LIGHTING) : (GL.Disable GL::LIGHTING)
+	  if p.transparent and $preferences[:stencil_transparency]
+	    GL.Enable GL::POLYGON_STIPPLE
+	    GL.Enable GL::LINE_STIPPLE
+	    GL.LineStipple(5, 0x1C47)
+    end
+	  GL.Color4f( *$preferences[:background_color] )
+    unless @picking_pass and $manager.work_sketch
+      if [:shaded,  :overlay, :hidden_lines ].any?{|e| e == @displaymode}
+	      if p.information[:material].reflectivity > 0
+          GL.BindTexture( GL::TEXTURE_2D, @spheremap )
+          glEnable(GL_TEXTURE_GEN_S)
+          glEnable(GL_TEXTURE_GEN_T)
+          glEnable(GL_TEXTURE_2D)
+        end
+        glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, p.information[:material].color + [1.0])
+        s = p.information[:material].specularity
+        glMaterial(GL_FRONT_AND_BACK, GL_SPECULAR, [s, s, s, 1.0])
+        glMaterial(GL_FRONT_AND_BACK, GL_SHININESS, p.information[:material].smoothness)
+	      GL.CallList p.displaylist
+        glDisable(GL_TEXTURE_GEN_S)
+        glDisable(GL_TEXTURE_GEN_T)
+        glDisable(GL_TEXTURE_2D)
+      end
+      p.selected ? GL.Color3f(1,0,0) : GL.Color3f(1,1,1)
+      GL.CallList p.wire_displaylist if [:overlay, :wireframe, :hidden_lines ].any?{|e| e == @displaymode} or p.selected
+      p.draw_cog
+    end
+    GL.Disable GL::POLYGON_STIPPLE
+    GL.Disable GL::LINE_STIPPLE
+	end
+	
 	def recurse_draw top_comp
 	  if top_comp.visible
   		GL.PushMatrix
@@ -600,36 +644,7 @@ class GLView < Gtk::DrawingArea
   			  GL.Disable GL::LIGHTING
   				GL.CallList top_comp.selection_displaylist unless $manager.work_sketch
   			else
-  				[:shaded,  :overlay].any?{|e| e == @displaymode} ? (GL.Enable GL::LIGHTING) : (GL.Disable GL::LIGHTING)
-  				if top_comp.transparent and $preferences[:stencil_transparency]
-  				  GL.Enable GL::POLYGON_STIPPLE
-  				  GL.Enable GL::LINE_STIPPLE
-  				  GL.LineStipple(5, 0x1C47)
-    		  end
-  				GL.Color4f( *$preferences[:background_color] )
-  			  unless @picking_pass and $manager.work_sketch
-  			    if [:shaded,  :overlay, :hidden_lines ].any?{|e| e == @displaymode}
-    			    if top_comp.information[:material].reflectivity > 0
-                GL.BindTexture( GL::TEXTURE_2D, @spheremap )
-                glEnable(GL_TEXTURE_GEN_S)
-                glEnable(GL_TEXTURE_GEN_T)
-                glEnable(GL_TEXTURE_2D)
-              end
-              glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, top_comp.information[:material].color + [1.0])
-              s = top_comp.information[:material].specularity
-              glMaterial(GL_FRONT_AND_BACK, GL_SPECULAR, [s, s, s, 1.0])
-              glMaterial(GL_FRONT_AND_BACK, GL_SHININESS, top_comp.information[:material].smoothness)
-    			    GL.CallList top_comp.displaylist
-              glDisable(GL_TEXTURE_GEN_S)
-              glDisable(GL_TEXTURE_GEN_T)
-              glDisable(GL_TEXTURE_2D)
-            end
-  			    top_comp.selected ? GL.Color3f(1,0,0) : GL.Color3f(1,1,1)
-  			    GL.CallList top_comp.wire_displaylist if [:overlay, :wireframe, :hidden_lines ].any?{|e| e == @displaymode} or top_comp.selected
-  			    top_comp.draw_cog
-			    end
-  			  GL.Disable GL::POLYGON_STIPPLE
-  			  GL.Disable GL::LINE_STIPPLE
+          draw_part top_comp
   			end
   			top_comp.working_planes.each{|wp| recurse_draw wp }
   			top_comp.unused_sketches.each{|sketch| recurse_draw sketch }

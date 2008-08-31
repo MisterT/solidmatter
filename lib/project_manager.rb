@@ -387,6 +387,7 @@ public
       	#begin
 					File::open( filename ) do |file|
 						scene = Marshal::restore file 
+						@glview.ground.clean_up
 						exchange_all_gl_components do
 						  thumbnail               = scene[0]
 							@name                   = scene[1]
@@ -398,11 +399,10 @@ public
 							@all_sketches           = scene[7]
 						end
 					end
-					@glview.ground.clean_up
 					change_working_level @main_assembly 
 					@filename = filename
 					self.has_been_changed = false
-					#@all_parts.each{|p| p.build } #XXX this shouldn't really be needed
+					@all_parts.each{|p| p.build } #XXX this shouldn't really be needed
 					@glview.zoom_onto @all_part_instances.select{|i| i.visible }
   			#rescue
   			#  dialog = Gtk::MessageDialog.new(@main_win, 
@@ -440,12 +440,12 @@ public
   		if @filename
   		  @selection.deselect_all
   			File::open( @filename, "w" ) do |file|
-  			  @all_parts.each{|p| p.solid = Solid.new }
+  			  #@all_parts.each{|p| p.solid = Solid.new }
   			  puts "projectname: " + project_name
   				Marshal::dump( [@glview.image_of_instances(@all_part_instances,8,100,project_name).to_tiny, 
   												@name, @main_assembly, @all_assemblies,	@all_parts, @all_part_instances,
   												@all_assembly_instances, @all_sketches], file )
-  				@all_parts.each{|p| p.build } 
+  				#@all_parts.each{|p| p.build } 
   			end
   			self.has_been_changed = false
   			return true

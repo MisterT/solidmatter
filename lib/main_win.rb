@@ -88,7 +88,7 @@ class OpenMachinistMainWin < Gtk::Window
 				[GetText._("/View/sep4"), "<Separator>"],
 				[GetText._("/View/Show working planes"), "<CheckItem>", nil, nil, lambda{}],
 				[GetText._("/View/Diagnostic shading"),  "<CheckItem>", nil, nil, lambda{}],			
-				[GetText._("/View/Render shadows"),      "<CheckItem>", nil, nil, lambda{}],
+				[GetText._("/View/Render shadows"),      "<CheckItem>", nil, nil, lambda{|e,w| $manager.glview.render_shadows = w.active? }],
 				[GetText._("/View/sep4"), "<Separator>"],
 				[GetText._("/View/Fullscreen"),   "<StockItem>", nil, Gtk::Stock::FULLSCREEN,  lambda{ @fullscreen ? (self.unfullscreen and @fullscreen = false) : (self.fullscreen and @fullscreen = true) }],
 			[GetText._("/_Tools")],

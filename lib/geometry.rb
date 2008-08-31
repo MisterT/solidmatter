@@ -1436,6 +1436,7 @@ class Solid
 	alias area surface_area
 	
 	def volume_and_cog
+	  GC.enable
 	  bbox = bounding_box
 	  if bbox
 	    left  = bbox.map{|v| v.x }.min
@@ -1744,7 +1745,7 @@ class Part < Component
 			$manager.glview.rebuild_selection_pass_colors
 			$manager.component_changed self
 			self.all_sketches.each{|sk| sk.refetch_plane_from_solid }
-			$manager.glview.ground.generate_shadowmap $manager.all_part_instances.select{|p| p.visible }
+			$manager.glview.ground.generate_shadowmap
 		else
 			dia = Gtk::MessageDialog.new( nil, Gtk::Dialog::DESTROY_WITH_PARENT,
 							                           Gtk::MessageDialog::WARNING,
