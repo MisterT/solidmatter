@@ -42,7 +42,7 @@ class ComponentBrowser
 	    t.parent.remove t if t.parent
 	    vbox.add t
 	    name = @parts[t].name
-	    vbox.add Gtk::Label.new(name.shorten 13)
+	    #vbox.add Gtk::Label.new(name.shorten 13)
 	    b.add vbox
 	    b.set_size_request( @btn_width, 110 )
 	    b.draw_indicator = true

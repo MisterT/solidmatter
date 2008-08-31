@@ -258,7 +258,7 @@ public
 	
 	def new_assembly
 		# create assembly and make it the work assembly
-		assembly = Assembly.new( unique_name(GetText._("assembly")), self )
+		assembly = Assembly.new( unique_name(GetText._("assembly")) )
 		@all_assemblies.push assembly
 		new_instance( assembly )
 	end
@@ -398,6 +398,7 @@ public
 							@all_sketches           = scene[7]
 						end
 					end
+					@glview.ground.clean_up
 					change_working_level @main_assembly 
 					@filename = filename
 					self.has_been_changed = false

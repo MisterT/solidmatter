@@ -292,6 +292,11 @@ class Circle < Arc
     radius = center.distance_to p1
     Circle.new( center, radius, sketch)
   end
+  
+  def snap_points
+    quadrants = [0, 90, 180, 270].map{|a| point_at a }
+  	super + quadrants
+  end
 end
 
 
@@ -1453,7 +1458,7 @@ class Solid
 	    progress.fraction = 0.0
 	    subvolumes_finished = 0
 	    increment = 1.0 / divisions**3
-	    @faces.each{|f| f.pretesselate }
+	    @faces.select{|f| f.is_a? PlanarFace }.each{|f| f.pretesselate }
 	    for ix in 0...divisions
 	      box_left = left + (ix * x_span)
 	      for iy in 0...divisions
@@ -1507,7 +1512,7 @@ class Solid
 	def contains? p
 	  l = InfiniteLine.new( p, Vector[0,1,0] )
 	  intersections = 0
-	  for f in faces.select{|f| f.is_a? PlanarFace } #XXX should work for all faces
+	  for f in @faces.select{|f| f.is_a? PlanarFace } #XXX should work for all faces
 	    sect = l.intersect_with f.plane
 	    # only consider the ray going in one direction
 	    if sect.y > p.y
@@ -1630,7 +1635,7 @@ class Component
     @component_id = Component.new_id
     @thumbnail = nil
 	end
-	
+=begin
 	def thumbnail
 	  @thumbnail ? @thumbnail.to_native : nil
 	end
@@ -1638,7 +1643,7 @@ class Component
 	def thumbnail= im
 	 @thumbnail = im.to_tiny
 	end
-	
+=end
 	def draw_cog
 	  if @cog
       qobj = GLU.NewQuadric
@@ -1739,7 +1744,7 @@ class Part < Component
 			$manager.glview.rebuild_selection_pass_colors
 			$manager.component_changed self
 			self.all_sketches.each{|sk| sk.refetch_plane_from_solid }
-			$manager.glview.ground.generate_shadowmap [self]
+			$manager.glview.ground.generate_shadowmap $manager.all_part_instances.select{|p| p.visible }
 		else
 			dia = Gtk::MessageDialog.new( nil, Gtk::Dialog::DESTROY_WITH_PARENT,
 							                           Gtk::MessageDialog::WARNING,

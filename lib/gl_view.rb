@@ -231,6 +231,10 @@ class GroundPlane
       draw_shadow
     end
   end
+  
+  def clean_up
+    @objects = []
+  end
 end
 
 
