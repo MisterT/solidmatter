@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: openmachinist 0.0.2\n"
-"POT-Creation-Date: 2008-08-20 03:29+0200\n"
+"POT-Creation-Date: 2008-08-31 20:55+0200\n"
 "PO-Revision-Date: 2008-08-16 02:14+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,27 +16,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: lib/geometry.rb:1417
+#: lib/geometry.rb:1457
 msgid "<b>Calculating solid volume...</b>"
 msgstr ""
 
-#: lib/geometry.rb:1455
+#: lib/geometry.rb:1495
 msgid "sampling bucket"
 msgstr ""
 
-#: lib/geometry.rb:1545
+#: lib/geometry.rb:1591
 msgid "Exit operator without saving changes"
 msgstr ""
 
-#: lib/geometry.rb:1546
+#: lib/geometry.rb:1592
 msgid "Save changes and exit operator"
 msgstr ""
 
-#: lib/geometry.rb:1701
+#: lib/geometry.rb:1752
 msgid "Part could not be built"
 msgstr ""
 
-#: lib/geometry.rb:1702
+#: lib/geometry.rb:1753
 msgid "Please recheck all operator settings and close any open sketch regions!"
 msgstr ""
 
@@ -64,19 +64,23 @@ msgstr ""
 msgid "The save request was cancelled by another user"
 msgstr ""
 
-#: lib/file_open_dialog.rb:11
+#: lib/file_open_dialog.rb:12
 msgid "Save project as.."
 msgstr ""
 
-#: lib/file_open_dialog.rb:11
+#: lib/file_open_dialog.rb:13
 msgid "Choose project file"
 msgstr ""
 
-#: lib/file_open_dialog.rb:21
+#: lib/file_open_dialog.rb:15
+msgid "Export as..."
+msgstr ""
+
+#: lib/file_open_dialog.rb:26
 msgid "Open Machinist project"
 msgstr ""
 
-#: lib/file_open_dialog.rb:25
+#: lib/file_open_dialog.rb:36
 msgid "All filetypes"
 msgstr ""
 
@@ -100,403 +104,407 @@ msgstr ""
 msgid "/File/Save project as..."
 msgstr ""
 
-#: lib/main_win.rb:62 lib/main_win.rb:65
+#: lib/main_win.rb:62
+msgid "/File/Export selection..."
+msgstr ""
+
+#: lib/main_win.rb:63 lib/main_win.rb:66
 msgid "/File/sep1"
 msgstr ""
 
-#: lib/main_win.rb:63
+#: lib/main_win.rb:64
 msgid "/File/Project information"
 msgstr ""
 
-#: lib/main_win.rb:64
+#: lib/main_win.rb:65
 msgid "/File/Make project public..."
 msgstr ""
 
-#: lib/main_win.rb:66
+#: lib/main_win.rb:67
 msgid "/File/Print..."
 msgstr ""
 
-#: lib/main_win.rb:67
+#: lib/main_win.rb:68
 msgid "/File/sep2"
 msgstr ""
 
-#: lib/main_win.rb:68
+#: lib/main_win.rb:69
 msgid "/File/Quit"
 msgstr ""
 
-#: lib/main_win.rb:69
+#: lib/main_win.rb:70
 msgid "/_Edit"
 msgstr ""
 
-#: lib/main_win.rb:70
+#: lib/main_win.rb:71
 msgid "/Edit/Undo"
 msgstr ""
 
-#: lib/main_win.rb:71
+#: lib/main_win.rb:72
 msgid "/Edit/Redo"
 msgstr ""
 
-#: lib/main_win.rb:72 lib/main_win.rb:77
+#: lib/main_win.rb:73 lib/main_win.rb:78
 msgid "/Edit/sep4"
 msgstr ""
 
-#: lib/main_win.rb:73
+#: lib/main_win.rb:74
 msgid "/Edit/Cut"
 msgstr ""
 
-#: lib/main_win.rb:74
+#: lib/main_win.rb:75
 msgid "/Edit/Copy"
 msgstr ""
 
-#: lib/main_win.rb:75
+#: lib/main_win.rb:76
 msgid "/Edit/Paste"
 msgstr ""
 
-#: lib/main_win.rb:76
+#: lib/main_win.rb:77
 msgid "/Edit/Delete"
 msgstr ""
 
-#: lib/main_win.rb:78
+#: lib/main_win.rb:79
 msgid "/Edit/Preferences"
 msgstr ""
 
-#: lib/main_win.rb:79
+#: lib/main_win.rb:80
 msgid "/_View"
 msgstr ""
 
-#: lib/main_win.rb:80
+#: lib/main_win.rb:81
 msgid "/View/Front"
 msgstr ""
 
-#: lib/main_win.rb:81
+#: lib/main_win.rb:82
 msgid "/View/Back"
 msgstr ""
 
-#: lib/main_win.rb:82
+#: lib/main_win.rb:83
 msgid "/View/Right"
 msgstr ""
 
-#: lib/main_win.rb:83
+#: lib/main_win.rb:84
 msgid "/View/Left"
 msgstr ""
 
-#: lib/main_win.rb:84
+#: lib/main_win.rb:85
 msgid "/View/Top"
 msgstr ""
 
-#: lib/main_win.rb:85
+#: lib/main_win.rb:86
 msgid "/View/Bottom"
 msgstr ""
 
-#: lib/main_win.rb:86
+#: lib/main_win.rb:87
 msgid "/View/Isometric"
 msgstr ""
 
-#: lib/main_win.rb:87 lib/main_win.rb:91
+#: lib/main_win.rb:88 lib/main_win.rb:92
 msgid "/View/sep4"
 msgstr ""
 
-#: lib/main_win.rb:88
+#: lib/main_win.rb:89
 msgid "/View/Show working planes"
 msgstr ""
 
-#: lib/main_win.rb:89
+#: lib/main_win.rb:90
 msgid "/View/Diagnostic shading"
 msgstr ""
 
-#: lib/main_win.rb:90
+#: lib/main_win.rb:91
 msgid "/View/Render shadows"
 msgstr ""
 
-#: lib/main_win.rb:92
+#: lib/main_win.rb:93
 msgid "/View/Fullscreen"
 msgstr ""
 
-#: lib/main_win.rb:93
+#: lib/main_win.rb:94
 msgid "/_Tools"
 msgstr ""
 
-#: lib/main_win.rb:94
+#: lib/main_win.rb:95
 msgid "/Tools/Measure distance"
 msgstr ""
 
-#: lib/main_win.rb:95
+#: lib/main_win.rb:96
 msgid "/Tools/Measure area"
 msgstr ""
 
-#: lib/main_win.rb:96
+#: lib/main_win.rb:97
 msgid "/Tools/Measure angle"
 msgstr ""
 
-#: lib/main_win.rb:97 lib/main_win.rb:100
+#: lib/main_win.rb:98 lib/main_win.rb:101
 msgid "/Tools/sep4"
 msgstr ""
 
-#: lib/main_win.rb:98
+#: lib/main_win.rb:99
 msgid "/Tools/Analyze interference"
 msgstr ""
 
-#: lib/main_win.rb:99
+#: lib/main_win.rb:100
 msgid "/Tools/Bill of materials"
 msgstr ""
 
-#: lib/main_win.rb:101
+#: lib/main_win.rb:102
 msgid "/Tools/Material editor"
 msgstr ""
 
-#: lib/main_win.rb:102
+#: lib/main_win.rb:103
 msgid "/_Simulation"
 msgstr ""
 
-#: lib/main_win.rb:103
+#: lib/main_win.rb:104
 msgid "/Simulation/Update constraints"
 msgstr ""
 
-#: lib/main_win.rb:104
+#: lib/main_win.rb:105
 msgid "/Simulation/Update sub-assembly constraints"
 msgstr ""
 
-#: lib/main_win.rb:105 lib/main_win.rb:108
+#: lib/main_win.rb:106 lib/main_win.rb:109
 msgid "/Simulation/sep4"
 msgstr ""
 
-#: lib/main_win.rb:106
+#: lib/main_win.rb:107
 msgid "/Simulation/Auto-update constraints"
 msgstr ""
 
-#: lib/main_win.rb:107
+#: lib/main_win.rb:108
 msgid "/Simulation/Auto-update sub-assembly constraints"
 msgstr ""
 
-#: lib/main_win.rb:109
+#: lib/main_win.rb:110
 msgid "/Simulation/Activate contact solver"
 msgstr ""
 
-#: lib/main_win.rb:110
+#: lib/main_win.rb:111
 msgid "/Simulation/Define contact set..."
 msgstr ""
 
-#: lib/main_win.rb:111
+#: lib/main_win.rb:112
 msgid "/_Help"
 msgstr ""
 
-#: lib/main_win.rb:112
+#: lib/main_win.rb:113
 msgid "/Help/_About Solid|matter"
 msgstr ""
 
-#: lib/main_win.rb:128
+#: lib/main_win.rb:129
 msgid " New"
 msgstr ""
 
-#: lib/main_win.rb:131
+#: lib/main_win.rb:132
 msgid "Create a new project, part or assembly"
 msgstr ""
 
-#: lib/main_win.rb:132
+#: lib/main_win.rb:133
 msgid " Save"
 msgstr ""
 
-#: lib/main_win.rb:136
+#: lib/main_win.rb:137
 msgid "Save current part or assembly"
 msgstr ""
 
-#: lib/main_win.rb:139
+#: lib/main_win.rb:140
 msgid "Select"
 msgstr ""
 
-#: lib/main_win.rb:141
+#: lib/main_win.rb:142
 msgid "Choose selection mode"
 msgstr ""
 
-#: lib/main_win.rb:142
+#: lib/main_win.rb:143
 msgid "Return"
 msgstr ""
 
-#: lib/main_win.rb:142
+#: lib/main_win.rb:143
 msgid "Work on parent assembly"
 msgstr ""
 
-#: lib/main_win.rb:146
+#: lib/main_win.rb:147
 msgid " Camera"
 msgstr ""
 
-#: lib/main_win.rb:149
+#: lib/main_win.rb:150
 msgid "Position the 3d viewpoint"
 msgstr ""
 
-#: lib/main_win.rb:150
+#: lib/main_win.rb:151
 msgid " Zoom selection"
 msgstr ""
 
-#: lib/main_win.rb:153
+#: lib/main_win.rb:154
 msgid "Fit all selected objects into view"
 msgstr ""
 
-#: lib/main_win.rb:154
+#: lib/main_win.rb:155
 msgid " Look at"
 msgstr ""
 
-#: lib/main_win.rb:157
+#: lib/main_win.rb:158
 msgid "Make view orthogonal to selected plane"
 msgstr ""
 
-#: lib/main_win.rb:159
+#: lib/main_win.rb:160
 msgid "Previous"
 msgstr ""
 
-#: lib/main_win.rb:159
+#: lib/main_win.rb:160
 msgid "Previous camera location"
 msgstr ""
 
-#: lib/main_win.rb:166
+#: lib/main_win.rb:167
 msgid "Next camera location"
 msgstr ""
 
-#: lib/main_win.rb:169
+#: lib/main_win.rb:170
 msgid "Select shading mode for the viewport"
 msgstr ""
 
-#: lib/main_win.rb:172
+#: lib/main_win.rb:173
 msgid "Focus"
 msgstr ""
 
-#: lib/main_win.rb:180
+#: lib/main_win.rb:181
 msgid "Make all components except the current one transparent"
 msgstr ""
 
-#: lib/main_win.rb:225
+#: lib/main_win.rb:226
 msgid "Insert"
 msgstr ""
 
-#: lib/main_win.rb:226
+#: lib/main_win.rb:227
 msgid "Library"
 msgstr ""
 
-#: lib/main_win.rb:228 lib/main_win.rb:275
+#: lib/main_win.rb:229 lib/main_win.rb:276
 msgid "Constrain"
 msgstr ""
 
-#: lib/main_win.rb:229
+#: lib/main_win.rb:230
 msgid "Contacts"
 msgstr ""
 
-#: lib/main_win.rb:230
+#: lib/main_win.rb:231
 msgid "Spring"
 msgstr ""
 
-#: lib/main_win.rb:231
+#: lib/main_win.rb:232
 msgid "Belt"
 msgstr ""
 
-#: lib/main_win.rb:232
+#: lib/main_win.rb:233
 msgid "Animate"
 msgstr ""
 
-#: lib/main_win.rb:234 lib/main_win.rb:281
+#: lib/main_win.rb:235 lib/main_win.rb:282
 msgid "Grid pattern"
 msgstr ""
 
-#: lib/main_win.rb:235 lib/main_win.rb:282
+#: lib/main_win.rb:236 lib/main_win.rb:283
 msgid "Circular pattern"
 msgstr ""
 
-#: lib/main_win.rb:236 lib/main_win.rb:256 lib/main_win.rb:283
+#: lib/main_win.rb:237 lib/main_win.rb:257 lib/main_win.rb:284
 msgid "Mirror"
 msgstr ""
 
-#: lib/main_win.rb:241 lib/operators.rb:84
+#: lib/main_win.rb:242 lib/operators.rb:84
 msgid "Sketch"
 msgstr ""
 
-#: lib/main_win.rb:243
+#: lib/main_win.rb:244
 msgid "Extrude"
 msgstr ""
 
-#: lib/main_win.rb:244
+#: lib/main_win.rb:245
 msgid "Revolve"
 msgstr ""
 
-#: lib/main_win.rb:245
+#: lib/main_win.rb:246
 msgid "Hole"
 msgstr ""
 
-#: lib/main_win.rb:246
+#: lib/main_win.rb:247
 msgid "Shell"
 msgstr ""
 
-#: lib/main_win.rb:247
+#: lib/main_win.rb:248
 msgid "Loft"
 msgstr ""
 
-#: lib/main_win.rb:248
+#: lib/main_win.rb:249
 msgid "Sweep"
 msgstr ""
 
-#: lib/main_win.rb:249
+#: lib/main_win.rb:250
 msgid "Coil"
 msgstr ""
 
-#: lib/main_win.rb:251 lib/main_win.rb:271
+#: lib/main_win.rb:252 lib/main_win.rb:272
 msgid "Fillet"
 msgstr ""
 
-#: lib/main_win.rb:252
+#: lib/main_win.rb:253
 msgid "Chamfer"
 msgstr ""
 
-#: lib/main_win.rb:253
+#: lib/main_win.rb:254
 msgid "Draft"
 msgstr ""
 
-#: lib/main_win.rb:255
+#: lib/main_win.rb:256
 msgid "Pattern"
 msgstr ""
 
-#: lib/main_win.rb:261
+#: lib/main_win.rb:262
 msgid "Line"
 msgstr ""
 
-#: lib/main_win.rb:263
+#: lib/main_win.rb:264
 msgid "Line tool"
 msgstr ""
 
-#: lib/main_win.rb:264
+#: lib/main_win.rb:265
 msgid "Circle"
 msgstr ""
 
-#: lib/main_win.rb:266
+#: lib/main_win.rb:267
 msgid "Circle tool"
 msgstr ""
 
-#: lib/main_win.rb:267
+#: lib/main_win.rb:268
 msgid "Arc"
 msgstr ""
 
-#: lib/main_win.rb:269
+#: lib/main_win.rb:270
 msgid "Arc tool"
 msgstr ""
 
-#: lib/main_win.rb:270
+#: lib/main_win.rb:271
 msgid "Rectangle"
 msgstr ""
 
-#: lib/main_win.rb:272
+#: lib/main_win.rb:273
 msgid "Polygon"
 msgstr ""
 
-#: lib/main_win.rb:274
+#: lib/main_win.rb:275
 msgid "Dimension"
 msgstr ""
 
-#: lib/main_win.rb:277
+#: lib/main_win.rb:278
 msgid "Trim"
 msgstr ""
 
-#: lib/main_win.rb:279
+#: lib/main_win.rb:280
 msgid "Project"
 msgstr ""
 
-#: lib/main_win.rb:284
+#: lib/main_win.rb:285
 msgid "Offset"
 msgstr ""
 
@@ -566,17 +574,7 @@ msgid ""
 "Do you want to delete it?"
 msgstr ""
 
-#: lib/project_manager.rb:412
-msgid "Bad file format"
-msgstr ""
-
-#: lib/project_manager.rb:413
-msgid ""
-"The file format is unsupported.\n"
-"Maybe this file was saved with an older version of Solid|matter"
-msgstr ""
-
-#: lib/project_manager.rb:814 lib/project_manager.rb:815
+#: lib/project_manager.rb:832 lib/project_manager.rb:833
 msgid "Untitled"
 msgstr ""
 
@@ -746,7 +744,7 @@ msgstr ""
 msgid "Click left to delete subsegments of your sketch:"
 msgstr ""
 
-#: lib/join_project_dialog.rb:17
+#: lib/join_project_dialog.rb:20
 msgid "Servers on local network"
 msgstr ""
 
@@ -823,7 +821,7 @@ msgstr ""
 #: data/glade/join_project.glade:9 data/glade/save_request.glade:9
 #: data/glade/open_project.glade:9 data/glade/component_browser.glade:9
 #: data/glade/progress.glade:8 data/glade/progress.glade:97
-#: data/glade/project_dialog.glade:9
+#: data/glade/export_dialog.glade:9 data/glade/project_dialog.glade:9
 msgid " "
 msgstr ""
 
@@ -1226,19 +1224,19 @@ msgstr ""
 msgid "Smoothness: "
 msgstr ""
 
-#: data/glade/material_editor.glade:258
+#: data/glade/material_editor.glade:259
 msgid "Specularity:    "
 msgstr ""
 
-#: data/glade/material_editor.glade:292
+#: data/glade/material_editor.glade:294
 msgid "Reflectivity:    "
 msgstr ""
 
-#: data/glade/material_editor.glade:326
+#: data/glade/material_editor.glade:329
 msgid "Density:                                 "
 msgstr ""
 
-#: data/glade/material_editor.glade:353
+#: data/glade/material_editor.glade:356
 msgid "g/cm³"
 msgstr ""
 
@@ -1571,6 +1569,40 @@ msgid ""
 "request and retry at a later time."
 msgstr ""
 
+#: data/glade/export_dialog.glade:46
+msgid ""
+"\n"
+"<b>Export selected geometry</b>\n"
+msgstr ""
+
+#: data/glade/export_dialog.glade:83
+msgid "Format: "
+msgstr ""
+
+#: data/glade/export_dialog.glade:133
+msgid "Surface resolution:"
+msgstr ""
+
+#: data/glade/export_dialog.glade:143
+msgid "Max. COG deviation:"
+msgstr ""
+
+#: data/glade/export_dialog.glade:192
+msgid "mm"
+msgstr ""
+
+#: data/glade/export_dialog.glade:215
+msgid "Show _preview"
+msgstr ""
+
+#: data/glade/export_dialog.glade:233
+msgid "<b>Export quality settings</b>"
+msgstr ""
+
+#: data/glade/export_dialog.glade:290
+msgid "_Export"
+msgstr ""
+
 #: data/glade/about.glade:9
 msgid "About Solid|matter"
 msgstr ""
@@ -1580,11 +1612,12 @@ msgid "Copyright (c) 2008, Björn Breitgoff\n"
 msgstr ""
 
 #: data/glade/about.glade:22
-msgid "A parametrical, 3d, mechanical design application"
+msgid ""
+"A parametrical, 3d, mechanical design application for the Gnome desktop."
 msgstr ""
 
 #: data/glade/about.glade:24
-msgid "http://openmachinist.sourceforge.net"
+msgid "openmachinist.sourceforge.net"
 msgstr ""
 
 #: data/glade/about.glade:25
