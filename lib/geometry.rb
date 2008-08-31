@@ -1759,17 +1759,7 @@ class Part < Component
 		# generate mesh and write to displaylist
 	  GL.NewList( @displaylist, GL::COMPILE)
 	    # draw shaded faces
-		  @solid.faces.each do |face|
-			  #col = @information[:material].color
-			  #GL.Color4f(col[0], col[1], col[2], @information[:material].opacity)
-				#GL.Begin( GL::POLYGON )
-				#face.segments.each do |seg|
-          #GL.TexCoord2f(0.995, 0.005)
-					#GL.Vertex( seg.pos1.x, seg.pos1.y, seg.pos1.z )
-				#end
-				face.draw
-				#GL.End
-			end
+		  @solid.faces.each{|f| f.draw }
 		GL.EndList
 		build_wire_displaylist
 	end

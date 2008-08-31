@@ -463,8 +463,10 @@ class GLView < Gtk::DrawingArea
 		GL.ClearStencil(0.0)
 		# set up lighting
 		GL.Light(GL::LIGHT0, GL::DIFFUSE, $preferences[:first_light_color])
+		GL.Light(GL::LIGHT0, GL::AMBIENT, [ 0.1, 0.1, 0.1, 1.0 ])
 		GL.Light(GL::LIGHT0, GL::POSITION, $preferences[:first_light_position])
 		GL.Light(GL::LIGHT1, GL::DIFFUSE, $preferences[:second_light_color])
+		GL.Light(GL::LIGHT1, GL::AMBIENT, [ 0.1, 0.1, 0.1, 1.0 ])
 		GL.Light(GL::LIGHT1, GL::POSITION, $preferences[:second_light_position])
 		GL.Enable(GL::LIGHTING)
 		GL.Enable(GL::LIGHT0)
@@ -601,11 +603,17 @@ class GLView < Gtk::DrawingArea
     		  end
   				GL.Color4f( *$preferences[:background_color] )
   			  unless @picking_pass and $manager.work_sketch
-            GL.BindTexture( GL::TEXTURE_2D, @spheremap )
-            glEnable(GL_TEXTURE_GEN_S)
-            glEnable(GL_TEXTURE_GEN_T)
-            glEnable(GL_TEXTURE_2D)
-  			    GL.CallList top_comp.displaylist if [:shaded,  :overlay,   :hidden_lines ].any?{|e| e == @displaymode}
+  			    if top_comp.information[:material].reflectivity > 0
+              GL.BindTexture( GL::TEXTURE_2D, @spheremap )
+              glEnable(GL_TEXTURE_GEN_S)
+              glEnable(GL_TEXTURE_GEN_T)
+              glEnable(GL_TEXTURE_2D)
+            end
+            glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, top_comp.information[:material].color + [1.0])
+            s = top_comp.information[:material].specularity
+            glMaterial(GL_FRONT_AND_BACK, GL_SPECULAR, [s, s, s, 1.0])
+            glMaterial(GL_FRONT_AND_BACK, GL_SHININESS, top_comp.information[:material].smoothness)
+  			    GL.CallList top_comp.displaylist if [:shaded,  :overlay, :hidden_lines ].any?{|e| e == @displaymode}
             glDisable(GL_TEXTURE_GEN_S)
             glDisable(GL_TEXTURE_GEN_T)
             glDisable(GL_TEXTURE_2D)

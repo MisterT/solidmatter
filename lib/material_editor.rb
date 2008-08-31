@@ -31,7 +31,7 @@ class Material
     else
       @color = [rand, rand, rand]
       @specularity  = rand
-      @smoothness   = rand
+      @smoothness   = rand * 10
       @reflectivity = rand
       @opacity      = 1.0
       @density      = rand
@@ -47,14 +47,17 @@ end
 class MaterialEditor
 	def initialize materials 
 	  @materials = materials
+	  @starting_up = true
 	  @glade = GladeXML.new( "../data/glade/material_editor.glade", nil, 'openmachinist' ) {|handler| method(handler)}
 	  @combo = @glade['material_combo']
 	  @materials.each{|m| @combo.append_text m.name }
 	  @combo.active = 0
 	  show_current_material
+    @starting_up = false
   end
   
-  def ok_handle w 
+  def ok_handle w
+    settings_changed
     @glade['material_editor'].destroy
   end
   
@@ -78,19 +81,26 @@ class MaterialEditor
   end
   
   def show_current_material
-    col = @materials[@combo.active].color
-	  @glade['color_btn'].color = Gdk::Color.new( *col.map{|c| c * 65535.0 } )
-    @glade['name_entry'].text = @materials[@combo.active].name
-
+    mat = @materials[@combo.active]
+	  @glade['color_btn'].color = Gdk::Color.new( *mat.color.map{|c| c * 65535.0 } )
+    @glade['name_entry'].text = mat.name
+    @glade['reflectivity_scale'].value = mat.reflectivity
+    @glade['specularity_scale'].value = mat.specularity
+    @glade['smoothness_scale'].value = mat.smoothness
   end
   
-  def settings_changed w
-    unless @combo.active == -1
+  def settings_changed
+    unless @combo.active == -1 or @starting_up
+      mat = @materials[@combo.active]
       name =  @glade['name_entry'].text
-      @materials[@combo.active].name = name
+      mat.name = name
       @combo.active_iter[0] = name
       col = @glade['color_btn'].color
-      @materials[@combo.active].color = [col.red, col.green, col.blue].map{|c| c / 65535.0 }
+      mat.color = [col.red, col.green, col.blue].map{|c| c / 65535.0 }
+      mat.reflectivity = @glade['reflectivity_scale'].value
+      mat.specularity = @glade['specularity_scale'].value
+      mat.smoothness = @glade['smoothness_scale'].value
+      $manager.glview.redraw
     end
   end
 end
