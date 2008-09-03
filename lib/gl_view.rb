@@ -118,7 +118,8 @@ class GroundPlane
     @g_plane, @g_width, @g_height, @g_depth = ground objects
     @objects = objects
     if @g_plane and $manager.glview.render_shadows
-	  	progress = ProgressDialog.new GetText._("<b>Rendering shadowmap...</b>")
+      cancel = false
+	  	progress = ProgressDialog.new( GetText._("<b>Rendering shadowmap...</b>") ){ cancel = true }
 	  	progress.fraction = 0.0
   		increment = 1.0 / @res_x 
       map = Image.new @res_x, @res_y
@@ -126,6 +127,7 @@ class GroundPlane
 				progress.fraction += increment
 				progress.text = GetText._("Processing scanline ") + "#{x}/#{@res_x}"
         for y in 0...@res_y
+          break if cancel
           pix = Pixel.new
           pix_finished = false
           for o in objects
@@ -160,14 +162,17 @@ class GroundPlane
           map.set_pixel( x,y, pix )
         end
       end
-      map.gaussian_blur(3).gaussian_blur(3).each_pixel do |x,y, p|
-        p.alpha = p.red
-        p.red, p.green, p.blue = 0.0,0.0,0.0
-        p.alpha = 0.0 if x == 0 or y == 0 or x == map.width-1 or y == map.height-1
-        map.set_pixel(x,y, p)
+      unless cancel
+        map.gaussian_blur(3).gaussian_blur(3).each_pixel do |x,y, p|
+          p.alpha = p.red
+          p.red, p.green, p.blue = 0.0,0.0,0.0
+          p.alpha = 0.0 if x == 0 or y == 0 or x == map.width-1 or y == map.height-1
+          map.set_pixel(x,y, p)
+        end
+        load_texture( map, @tex )
       end
-      load_texture( map, @tex )
       progress.close
+      $manager.glview.redraw
     end
   end
   

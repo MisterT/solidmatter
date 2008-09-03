@@ -10,6 +10,7 @@ class ProgressDialog
     @glade = GladeXML.new( "../data/glade/progress.glade", nil, 'openmachinist' ) {|handler| method(handler)}
     @glade['title_label'].markup = title if title
     self.fraction = 0.0
+    @block = Proc.new if block_given?
   end
   
   def fraction
@@ -28,7 +29,7 @@ class ProgressDialog
   end
 
   def cancel
-    close
+    @block.call if @block
   end
   
   def close

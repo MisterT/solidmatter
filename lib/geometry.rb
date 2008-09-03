@@ -1455,7 +1455,8 @@ class Solid
 	    max_change_per_box = max_change * divisions / box_volume
 	    subvolumes = []
 	    cog = Vector[0,0,0]
-	    progress = ProgressDialog.new GetText._("<b>Calculating solid volume...</b>")
+	    cancel = false
+	    progress = ProgressDialog.new( GetText._("<b>Calculating solid volume...</b>") ){ cancel = true }
 	    progress.fraction = 0.0
 	    subvolumes_finished = 0
 	    increment = 1.0 / divisions**3
@@ -1466,6 +1467,7 @@ class Solid
 	        box_lower = lower + (iy * y_span)
 	        for iz in 0...divisions
 	          box_back = back + (iz * z_span)
+	          break if cancel
 	          # shoot samples into each subvolume until it converges
 	          #subvolumes << Thread.start(box_left, box_lower, box_back) do |le,lo,ba|
 	            le,lo,ba = box_left, box_lower, box_back
@@ -1483,7 +1485,7 @@ class Solid
 	                share = hits / shots_fired
 	                change = (share - old_share).abs
 	                old_share = share
-	                progress.fraction = progress.fraction
+	                #progress.fraction = progress.fraction
                 end
 	            end while change > max_change_per_box
 	            # calculate volume for this box
@@ -1504,7 +1506,7 @@ class Solid
 	    cog /= volume
 	    Gtk::main_iteration while Gtk::events_pending?
 	    progress.close
-	    [volume, cog]
+	    cancel ? nil : [volume, cog]
     else
       [0.0, Vector[0,0,0]]
     end
@@ -1810,7 +1812,8 @@ class Part < Component
 	end
 	
 	def update_cog
-	  @cog = volume_and_cog.last
+	  vc = volume_and_cog
+	  @cog = vc.last if vc
 	end
 	
 	def dimensions
