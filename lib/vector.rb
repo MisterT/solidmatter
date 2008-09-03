@@ -79,7 +79,7 @@ class Vector
 	end
 
 	def reverse!
-		3.times{|i| @elements[i] = -@elements[i] }
+		@elements.size.times{|i| @elements[i] = -@elements[i] }
 		return self
 	end
 	alias invert! reverse!

@@ -7,7 +7,7 @@ require 'matrix'
 include Math
 
 module Matrix4x4
-	def Matrix4x4::mult(vec,mat)
+	def Matrix4x4.mult(vec,mat)
 		if vec.kind_of? Vector and mat.square? and mat.row_size == 4
 			# create 3x3 matrix without transforms
 			m = Matrix[*
@@ -27,7 +27,7 @@ module Matrix4x4
 		end
 	end
 
-	def Matrix4x4::null_matrix
+	def Matrix4x4.null_matrix
 		Matrix[
 		 [0,0,0,0],
 		 [0,0,0,0],
@@ -36,7 +36,7 @@ module Matrix4x4
 		]
 	end
 
-	def Matrix4x4::neutral_matrix
+	def Matrix4x4.neutral_matrix
 		Matrix[
 		 [1,0,0,0],
 		 [0,1,0,0],
@@ -45,7 +45,7 @@ module Matrix4x4
 		]
 	end
 
-	def Matrix4x4::translation_matrix(trans_vec)
+	def Matrix4x4.translation_matrix(trans_vec)
 		Matrix[
 		 [1,0,0,trans_vec[0]],
 		 [0,1,0,trans_vec[1]],
@@ -54,7 +54,7 @@ module Matrix4x4
 		]
 	end
 
-	def Matrix4x4::scale_matrix(scale_vec)
+	def Matrix4x4.scale_matrix(scale_vec)
 		Matrix[
 		 [scale_vec[0],       0,             0,        0],
 		 [     0,        scale_vec[1],       0,        0],
@@ -63,7 +63,7 @@ module Matrix4x4
 		]
 	end
 
-	def Matrix4x4::rotation_matrix(point, axis, angle)
+	def Matrix4x4.rotation_matrix(point, axis, angle)
 		# make point alligned at origin
 		origin_mat = Matrix[
 			 [1, 0, 0, -point.x],
@@ -95,7 +95,7 @@ module Matrix4x4
 		return rot_mat
 	end
 
-	def Matrix4x4::euler_rotation(axis, angle)
+	def Matrix4x4.euler_rotation(axis, angle)
 		c = cos(angle)
 		s = sin(angle)
 		t = 1 - c
@@ -108,7 +108,7 @@ module Matrix4x4
 		]
 	end
 
-	def Matrix4x4::x_rotation_matrix(angle)
+	def Matrix4x4.x_rotation_matrix(angle)
 		Matrix[
 		 [1,      0,          0,       0],
 		 [0,  cos(angle),-sin(angle),  0],
@@ -117,7 +117,7 @@ module Matrix4x4
 		]
 	end
 
-	def Matrix4x4::y_rotation_matrix(angle)
+	def Matrix4x4.y_rotation_matrix(angle)
 		Matrix[
 		 [cos(angle),   0,  sin(angle),  0],
 		 [     0,       1,      0,       0],
@@ -126,7 +126,7 @@ module Matrix4x4
 		]
 	end
 
-	def Matrix4x4::z_rotation_matrix(angle)
+	def Matrix4x4.z_rotation_matrix(angle)
 		Matrix[
 		 [cos(angle),  -sin(angle),  0,  0],
 		 [sin(angle),   cos(angle),  0,  0],
