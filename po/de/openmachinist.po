@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: openmachinist 0.0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-09-01 01:54+0200\n"
+"POT-Creation-Date: 2008-09-04 20:22+0200\n"
 "PO-Revision-Date: 2008-09-01 01:54+0200\n"
 "Last-Translator: Björn Breitgoff <breidibreit@web.de>\n"
 "Language-Team: German\n"
@@ -16,52 +16,52 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: lib/geometry.rb:1458
+#: lib/geometry.rb:1463
 msgid "<b>Calculating solid volume...</b>"
 msgstr "<b>Körpervolumen wird berechnet...</b>"
 
-#: lib/geometry.rb:1496
+#: lib/geometry.rb:1502
 msgid "sampling bucket"
 msgstr "prüfe Teilvolumen"
 
-#: lib/geometry.rb:1592
+#: lib/geometry.rb:1598
 msgid "Exit operator without saving changes"
 msgstr "Operator verlassen ohne zu speichern"
 
-#: lib/geometry.rb:1593
+#: lib/geometry.rb:1599
 msgid "Save changes and exit operator"
 msgstr "Änderungen speichern und Operator verlassen"
 
-#: lib/geometry.rb:1753
+#: lib/geometry.rb:1759
 msgid "Part could not be built"
 msgstr "Bauteil konnte nicht errechnet werden"
 
-#: lib/geometry.rb:1754
+#: lib/geometry.rb:1760
 msgid "Please recheck all operator settings and close any open sketch regions!"
 msgstr ""
 "Bitte alle Zeichnungen und Operatoreinstellungen noch einmal überprüfen"
 
-#: lib/multi_user.rb:304
+#: lib/multi_user.rb:303
 msgid "Connection error"
 msgstr "Verbindungsfehler"
 
-#: lib/multi_user.rb:305
+#: lib/multi_user.rb:304
 msgid "Could not connect to the requested server"
 msgstr "Verbindung zum gewählten Server konnte nicht hergestellt werden"
 
-#: lib/multi_user.rb:341
+#: lib/multi_user.rb:335
 msgid "Login failed"
 msgstr "Anmeldung fehlgeschlagen"
 
-#: lib/multi_user.rb:342
+#: lib/multi_user.rb:336
 msgid "Please make sure that your login information is correct"
 msgstr "Bitte überprüfen Sie ihre Anmeldedaten"
 
-#: lib/multi_user.rb:380
+#: lib/multi_user.rb:374
 msgid "Request canceled"
 msgstr "Anfrage abgebrochen"
 
-#: lib/multi_user.rb:381
+#: lib/multi_user.rb:375
 msgid "The save request was cancelled by another user"
 msgstr "Die Sicherungsanfrage wurde von einem anderen Nutzer abgebrochen"
 
@@ -509,78 +509,6 @@ msgstr "Projektion"
 msgid "Offset"
 msgstr "Abstand"
 
-#: lib/project_manager.rb:88
-msgid "Aluminum"
-msgstr "Aluminium"
-
-#: lib/project_manager.rb:89
-msgid "Steel"
-msgstr "Stahl"
-
-#: lib/project_manager.rb:90
-msgid "Copper"
-msgstr "Kupfer"
-
-#: lib/project_manager.rb:91
-msgid "Carbon"
-msgstr "Karbon"
-
-#: lib/project_manager.rb:92
-msgid "Glass"
-msgstr "Glas"
-
-#: lib/project_manager.rb:93
-msgid "Polystyrol"
-msgstr "Polystyrol"
-
-#: lib/project_manager.rb:94
-msgid "Poly-acryl"
-msgstr "Poly-acryl"
-
-#: lib/project_manager.rb:119
-msgid "<not saved>"
-msgstr "<nicht gesichert>"
-
-#: lib/project_manager.rb:138
-msgid "Untitled project"
-msgstr "Unbenanntes Projekt"
-
-#: lib/project_manager.rb:140
-msgid "Untitled assembly"
-msgstr "Unbenannte Baugruppe"
-
-#: lib/project_manager.rb:188
-msgid "Rebuilding operator "
-msgstr "Operator wird berechnet"
-
-#: lib/project_manager.rb:254
-msgid "part"
-msgstr "Bauteil"
-
-#: lib/project_manager.rb:261
-msgid "assembly"
-msgstr "Baugruppe"
-
-#: lib/project_manager.rb:271
-msgid "sketch"
-msgstr "Zeichnung"
-
-#: lib/project_manager.rb:344
-msgid "Delete Sketch?"
-msgstr "Zeichnung löschen?"
-
-#: lib/project_manager.rb:347
-msgid ""
-"The operator includes an associated sketch.\n"
-"Do you want to delete it?"
-msgstr ""
-"Der Operator enhält eine zugeordnete Zeichnung.\n"
-"Soll diese ebenfalls gelöscht werden?"
-
-#: lib/project_manager.rb:832 lib/project_manager.rb:833
-msgid "Untitled"
-msgstr "Unbenanntes"
-
 #: lib/simulation_settings.rb:17
 msgid "All part instances"
 msgstr "Alle Bauteilinstanzen"
@@ -597,11 +525,83 @@ msgstr "Projekte auf Server"
 msgid "User's projects"
 msgstr "Zugriff"
 
-#: lib/gl_view.rb:121
+#: lib/project.rb:15
+msgid "Aluminum"
+msgstr "Aluminium"
+
+#: lib/project.rb:16
+msgid "Steel"
+msgstr "Stahl"
+
+#: lib/project.rb:17
+msgid "Copper"
+msgstr "Kupfer"
+
+#: lib/project.rb:18
+msgid "Carbon"
+msgstr "Karbon"
+
+#: lib/project.rb:19
+msgid "Glass"
+msgstr "Glas"
+
+#: lib/project.rb:20
+msgid "Polystyrol"
+msgstr "Polystyrol"
+
+#: lib/project.rb:21
+msgid "Poly-acryl"
+msgstr "Poly-acryl"
+
+#: lib/project.rb:23
+msgid "Untitled project"
+msgstr "Unbenanntes Projekt"
+
+#: lib/project.rb:25
+msgid "Untitled assembly"
+msgstr "Unbenannte Baugruppe"
+
+#: lib/project.rb:56
+msgid "Rebuilding operator "
+msgstr "Operator wird berechnet"
+
+#: lib/project.rb:88
+msgid "part"
+msgstr "Bauteil"
+
+#: lib/project.rb:95
+msgid "assembly"
+msgstr "Baugruppe"
+
+#: lib/project.rb:105
+msgid "sketch"
+msgstr "Zeichnung"
+
+#: lib/project.rb:173
+msgid "Delete Sketch?"
+msgstr "Zeichnung löschen?"
+
+#: lib/project.rb:176
+msgid ""
+"The operator includes an associated sketch.\n"
+"Do you want to delete it?"
+msgstr ""
+"Der Operator enhält eine zugeordnete Zeichnung.\n"
+"Soll diese ebenfalls gelöscht werden?"
+
+#: lib/project.rb:213 lib/project.rb:214
+msgid "Untitled"
+msgstr "Unbenanntes"
+
+#: lib/manager.rb:106
+msgid "<not saved>"
+msgstr "<nicht gesichert>"
+
+#: lib/gl_view.rb:123
 msgid "<b>Rendering shadowmap...</b>"
 msgstr "<b>Schatten wird berechnet...</b>"
 
-#: lib/gl_view.rb:127
+#: lib/gl_view.rb:130
 msgid "Processing scanline "
 msgstr "Errechne Zeile "
 

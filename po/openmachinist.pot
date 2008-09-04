@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: openmachinist 0.0.2\n"
-"POT-Creation-Date: 2008-09-01 01:54+0200\n"
+"POT-Creation-Date: 2008-09-04 20:22+0200\n"
 "PO-Revision-Date: 2008-08-16 02:14+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,51 +16,51 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: lib/geometry.rb:1458
+#: lib/geometry.rb:1463
 msgid "<b>Calculating solid volume...</b>"
 msgstr ""
 
-#: lib/geometry.rb:1496
+#: lib/geometry.rb:1502
 msgid "sampling bucket"
 msgstr ""
 
-#: lib/geometry.rb:1592
+#: lib/geometry.rb:1598
 msgid "Exit operator without saving changes"
 msgstr ""
 
-#: lib/geometry.rb:1593
+#: lib/geometry.rb:1599
 msgid "Save changes and exit operator"
 msgstr ""
 
-#: lib/geometry.rb:1753
+#: lib/geometry.rb:1759
 msgid "Part could not be built"
 msgstr ""
 
-#: lib/geometry.rb:1754
+#: lib/geometry.rb:1760
 msgid "Please recheck all operator settings and close any open sketch regions!"
 msgstr ""
 
-#: lib/multi_user.rb:304
+#: lib/multi_user.rb:303
 msgid "Connection error"
 msgstr ""
 
-#: lib/multi_user.rb:305
+#: lib/multi_user.rb:304
 msgid "Could not connect to the requested server"
 msgstr ""
 
-#: lib/multi_user.rb:341
+#: lib/multi_user.rb:335
 msgid "Login failed"
 msgstr ""
 
-#: lib/multi_user.rb:342
+#: lib/multi_user.rb:336
 msgid "Please make sure that your login information is correct"
 msgstr ""
 
-#: lib/multi_user.rb:380
+#: lib/multi_user.rb:374
 msgid "Request canceled"
 msgstr ""
 
-#: lib/multi_user.rb:381
+#: lib/multi_user.rb:375
 msgid "The save request was cancelled by another user"
 msgstr ""
 
@@ -508,76 +508,6 @@ msgstr ""
 msgid "Offset"
 msgstr ""
 
-#: lib/project_manager.rb:88
-msgid "Aluminum"
-msgstr ""
-
-#: lib/project_manager.rb:89
-msgid "Steel"
-msgstr ""
-
-#: lib/project_manager.rb:90
-msgid "Copper"
-msgstr ""
-
-#: lib/project_manager.rb:91
-msgid "Carbon"
-msgstr ""
-
-#: lib/project_manager.rb:92
-msgid "Glass"
-msgstr ""
-
-#: lib/project_manager.rb:93
-msgid "Polystyrol"
-msgstr ""
-
-#: lib/project_manager.rb:94
-msgid "Poly-acryl"
-msgstr ""
-
-#: lib/project_manager.rb:119
-msgid "<not saved>"
-msgstr ""
-
-#: lib/project_manager.rb:138
-msgid "Untitled project"
-msgstr ""
-
-#: lib/project_manager.rb:140
-msgid "Untitled assembly"
-msgstr ""
-
-#: lib/project_manager.rb:188
-msgid "Rebuilding operator "
-msgstr ""
-
-#: lib/project_manager.rb:254
-msgid "part"
-msgstr ""
-
-#: lib/project_manager.rb:261
-msgid "assembly"
-msgstr ""
-
-#: lib/project_manager.rb:271
-msgid "sketch"
-msgstr ""
-
-#: lib/project_manager.rb:344
-msgid "Delete Sketch?"
-msgstr ""
-
-#: lib/project_manager.rb:347
-msgid ""
-"The operator includes an associated sketch.\n"
-"Do you want to delete it?"
-msgstr ""
-
-#: lib/project_manager.rb:832 lib/project_manager.rb:833
-msgid "Untitled"
-msgstr ""
-
 #: lib/simulation_settings.rb:17
 msgid "All part instances"
 msgstr ""
@@ -594,11 +524,81 @@ msgstr ""
 msgid "User's projects"
 msgstr ""
 
-#: lib/gl_view.rb:121
+#: lib/project.rb:15
+msgid "Aluminum"
+msgstr ""
+
+#: lib/project.rb:16
+msgid "Steel"
+msgstr ""
+
+#: lib/project.rb:17
+msgid "Copper"
+msgstr ""
+
+#: lib/project.rb:18
+msgid "Carbon"
+msgstr ""
+
+#: lib/project.rb:19
+msgid "Glass"
+msgstr ""
+
+#: lib/project.rb:20
+msgid "Polystyrol"
+msgstr ""
+
+#: lib/project.rb:21
+msgid "Poly-acryl"
+msgstr ""
+
+#: lib/project.rb:23
+msgid "Untitled project"
+msgstr ""
+
+#: lib/project.rb:25
+msgid "Untitled assembly"
+msgstr ""
+
+#: lib/project.rb:56
+msgid "Rebuilding operator "
+msgstr ""
+
+#: lib/project.rb:88
+msgid "part"
+msgstr ""
+
+#: lib/project.rb:95
+msgid "assembly"
+msgstr ""
+
+#: lib/project.rb:105
+msgid "sketch"
+msgstr ""
+
+#: lib/project.rb:173
+msgid "Delete Sketch?"
+msgstr ""
+
+#: lib/project.rb:176
+msgid ""
+"The operator includes an associated sketch.\n"
+"Do you want to delete it?"
+msgstr ""
+
+#: lib/project.rb:213 lib/project.rb:214
+msgid "Untitled"
+msgstr ""
+
+#: lib/manager.rb:106
+msgid "<not saved>"
+msgstr ""
+
+#: lib/gl_view.rb:123
 msgid "<b>Rendering shadowmap...</b>"
 msgstr ""
 
-#: lib/gl_view.rb:127
+#: lib/gl_view.rb:130
 msgid "Processing scanline "
 msgstr ""
 

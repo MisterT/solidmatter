@@ -123,9 +123,11 @@ public
       @client.exit if @client
       @client = nil
     	@selection = Selection.new
+    	@glview.ground.clean_up if @not_starting_up
     	@project = Project.new
     	@work_component = @project.main_assembly
     	@work_sketch = nil
+    	@filename = nil
     	self.has_been_changed = false
     	@op_view.set_base_component( @project.main_assembly ) if @op_view
     	@toolstack = [ PartSelectionTool.new ] if @glview
@@ -138,7 +140,7 @@ public
 	end
 
 	def make_project_public
-	  MakePublicDialog.new self do |server, port|
+	  MakePublicDialog.new do |server, port|
   	  @client = ProjectClient.new( server, port )
   	  if @client.working
     	  @project.save

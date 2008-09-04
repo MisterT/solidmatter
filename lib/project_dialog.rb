@@ -22,8 +22,8 @@ class ProjectInformationDialog
   def ok_handle( w )
     @project.name   = @glade['name_entry'].text    
     @project.author = @glade['author_entry'].text  
-    @project.correct_title
-    @project.has_been_changed = true
+    $manager.correct_title if $manager
+    $manager.has_been_changed = true if $manager
     @callback.call if @callback
     puts "called callback" if @callback
     @glade['project_dialog'].destroy

@@ -112,6 +112,7 @@ class GroundPlane
     GL.TexParameterf( GL::TEXTURE_2D, GL::TEXTURE_MAG_FILTER, GL_LINEAR )
     GL.TexParameterf( GL::TEXTURE_2D, GL::TEXTURE_WRAP_S, GL::CLAMP )
     GL.TexParameterf( GL::TEXTURE_2D, GL::TEXTURE_WRAP_T, GL::CLAMP )
+    clean_up
   end
   
   def generate_shadowmap objects=$manager.project.all_part_instances.select{|p| p.visible }
@@ -119,7 +120,7 @@ class GroundPlane
     @objects = objects
     if @g_plane and $manager.glview.render_shadows
       cancel = false
-	  	progress = ProgressDialog.new( GetText._("<b>Rendering shadowmap...</b>") ){ cancel = true ; $manager.glview.render_shadows = false }
+	  	progress = ProgressDialog.new( GetText._("<b>Rendering shadowmap...</b>") ){ cancel = true }
 	  	progress.fraction = 0.0
   		increment = 1.0 / @res_x 
       map = Image.new @res_x, @res_y
@@ -246,6 +247,12 @@ class GroundPlane
   
   def clean_up
     @objects = []
+    map = Image.new @res_x, @res_y
+    map.each_pixel do |x,y, p|
+      p.alpha = 0.0
+      map.set_pixel(x,y, p)
+    end
+    load_texture( map, @tex )
   end
 end
 

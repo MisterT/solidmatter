@@ -241,13 +241,13 @@ class Arc < Segment
     span = (@start_angle - @end_angle).abs
   	if span > 0
 		  angle = @start_angle
-		  increment = span / $preferences[:surface_resolution]
+		  increment = span.to_f / $preferences[:surface_resolution]
 		  @points.clear
-		  while (angle - @end_angle).abs > increment
+		  begin
 		  	@points.push point_at angle
 		  	angle += increment
 		  	angle = angle - 360 if angle > 360
-		  end
+		  end until (angle - @end_angle).abs < increment
 		  @points << point_at( @end_angle )
 		end
     @lines = []

@@ -61,7 +61,7 @@ class OpenMachinistMainWin < Gtk::Window
 				[GetText._("/File/Save project as..."),      "<StockItem>", nil, Gtk::Stock::SAVE, lambda{ $manager.save_file_as }],
 				[GetText._("/File/Export selection..."),     "<StockItem>", nil, Gtk::Stock::SAVE, lambda{ $manager.export_selection }],
 				[GetText._("/File/sep1"), "<Separator>"],
-				[GetText._("/File/Project information"),    "<StockItem>", nil, Gtk::Stock::INFO, lambda{ $manager.display_properties }],
+				[GetText._("/File/Project information"),    "<StockItem>", nil, Gtk::Stock::INFO, lambda{ $manager.project.display_properties }],
 				[GetText._("/File/Make project public..."), "<StockItem>", nil, Gtk::Stock::NETWORK, lambda{ $manager.make_project_public }],
 				[GetText._("/File/sep1"), "<Separator>"],
 				[GetText._("/File/Print..."), "<StockItem>", nil, Gtk::Stock::PRINT_PREVIEW, lambda{}],

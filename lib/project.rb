@@ -4,9 +4,12 @@
 #  Copyright (c) 2008. All rights reserved.
 
 require 'project_dialog.rb'
+require 'material_editor.rb'
+require 'geometry.rb'
+
 
 class Project
-  attr_accessor :project_id, :materials, :main_assembly, :all_assemblies, :all_parts,
+  attr_accessor :project_id, :materials, :main_assembly, :all_assemblies, :all_parts, :colliding_instances,
                 :all_assembly_instances, :all_part_instances, :all_sketches, :name, :author, :unit_system
 	def initialize
 		@materials = [ Material.new( GetText._("Aluminum")),

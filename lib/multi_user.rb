@@ -86,8 +86,7 @@ class ProjectServer
   end
   
   def add_project
-    pr = ProjectManager.new( nil, nil, nil, nil, nil, nil, nil, nil, nil )
-    pr.name = "Untitled project"
+    pr = Project.new
     pr.project_id = new_id
     @projects.push pr
     nil
