@@ -4,7 +4,7 @@
 #  Copyright (c) 2008. All rights reserved.
 
 require 'libglade2'
-require 'join_project_dialog.rb'
+require 'ui/join_project_dialog.rb'
 
 
 class OpenProjectDialog

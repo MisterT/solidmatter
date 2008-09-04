@@ -6,10 +6,10 @@
 require 'quaternion.rb'
 require 'sketch.rb'
 require 'units.rb'
-require 'material_editor.rb'
-require 'part_dialog.rb'
-require 'assembly_dialog.rb'
-require 'progress_dialog.rb'
+require 'ui/material_editor.rb'
+require 'ui/part_dialog.rb'
+require 'ui/assembly_dialog.rb'
+require 'ui/progress_dialog.rb'
 
 
 class Face

@@ -6,7 +6,7 @@
 require 'rubygems'
 require 'ruby-prof'
 require 'thread'
-require 'main_win.rb'
+require 'ui/main_win.rb'
 require 'preferences.rb'
 require 'gtk_threadsafe.rb'
 

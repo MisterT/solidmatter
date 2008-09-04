@@ -3,8 +3,8 @@
 #  Created by Björn Breitgoff on unknown date.
 #  Copyright (c) 2008. All rights reserved.
 
-require 'project_dialog.rb'
-require 'material_editor.rb'
+require 'ui/project_dialog.rb'
+require 'ui/material_editor.rb'
 require 'geometry.rb'
 
 

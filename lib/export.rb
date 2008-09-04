@@ -3,8 +3,8 @@
 #  Created by Björn Breitgoff on unknown date.
 #  Copyright (c) 2008. All rights reserved.
 
-require 'file_open_dialog.rb'
-require 'export_dialog.rb'
+require 'ui/file_open_dialog.rb'
+require 'ui/export_dialog.rb'
 
 
 class Exporter
@@ -42,4 +42,5 @@ private
     return stl
   end
 end
+
 

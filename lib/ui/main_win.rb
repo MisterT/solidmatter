@@ -11,11 +11,11 @@ require 'gl_view.rb'
 require 'op_view.rb'
 require 'manager.rb'
 require 'geometry.rb'
-require 'about_dialog.rb'
-require 'new_dialog.rb'
-require 'component_browser.rb'
-require 'open_project_dialog.rb'
-require 'server_win.rb'
+require 'ui/about_dialog.rb'
+require 'ui/new_dialog.rb'
+require 'ui/component_browser.rb'
+require 'ui/open_project_dialog.rb'
+require 'ui/server_win.rb'
 
 class OpenMachinistMainWin < Gtk::Window
 	def initialize

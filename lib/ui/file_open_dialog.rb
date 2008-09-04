@@ -4,7 +4,7 @@
 #  Copyright (c) 2008. All rights reserved.
 
 require 'gtk2'
-require 'component_browser'
+require 'ui/component_browser'
 
 class FileOpenDialog < Gtk::FileChooserDialog
   def initialize mode=:open

@@ -13,8 +13,8 @@ else
   require 'rubygems'
   require 'drb'
   require 'multi_user.rb'
-  require 'server_win.rb'
-  require 'about_dialog'
+  require 'ui/server_win.rb'
+  require 'ui/about_dialog'
   require 'preferences'
   require 'gtk_threadsafe.rb'
   

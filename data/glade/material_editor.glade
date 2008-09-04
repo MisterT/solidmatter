@@ -92,6 +92,7 @@
                         <signal name="changed" handler="combo_changed"/>
                       </widget>
                       <packing>
+                        <property name="expand">False</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -203,6 +204,7 @@
                         <signal name="color_set" handler="settings_changed"/>
                       </widget>
                       <packing>
+                        <property name="expand">False</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -291,7 +293,7 @@
                       <widget class="GtkLabel" id="label13">
                         <property name="visible">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                        <property name="label" translatable="yes">Reflectivity:    </property>
+                        <property name="label" translatable="yes">Reflectivity:     </property>
                       </widget>
                       <packing>
                         <property name="expand">False</property>
@@ -326,7 +328,7 @@
                       <widget class="GtkLabel" id="label15">
                         <property name="visible">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                        <property name="label" translatable="yes">Density:                                 </property>
+                        <property name="label" translatable="yes">Density:          </property>
                       </widget>
                       <packing>
                         <property name="expand">False</property>

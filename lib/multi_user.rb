@@ -6,9 +6,9 @@
 require 'drb'
 require 'socket'
 require 'project.rb'
-require 'account_editor.rb'
-require 'save_request_dialog.rb'
-require 'wait_for_save_dialog.rb'
+require 'ui/account_editor.rb'
+require 'ui/save_request_dialog.rb'
+require 'ui/wait_for_save_dialog.rb'
 
 
 class UserAccount

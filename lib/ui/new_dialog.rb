@@ -4,7 +4,7 @@
 #  Copyright (c) 2007. All rights reserved.
 
 require 'libglade2'
-require 'new_project_dialog.rb'
+require 'ui/new_project_dialog.rb'
 
 class NewDialog
   def initialize
