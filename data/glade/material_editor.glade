@@ -76,7 +76,9 @@
                       <widget class="GtkLabel" id="label6">
                         <property name="visible">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                        <property name="label" translatable="yes">Material:          </property>
+                        <property name="xalign">0</property>
+                        <property name="label" translatable="yes">Material:</property>
+                        <property name="width_chars">12</property>
                       </widget>
                       <packing>
                         <property name="expand">False</property>
@@ -153,7 +155,9 @@
                       <widget class="GtkLabel" id="label3">
                         <property name="visible">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                        <property name="label" translatable="yes">Name:              </property>
+                        <property name="xalign">0</property>
+                        <property name="label" translatable="yes">Name:</property>
+                        <property name="width_chars">12</property>
                       </widget>
                       <packing>
                         <property name="expand">False</property>
@@ -186,7 +190,9 @@
                       <widget class="GtkLabel" id="label14">
                         <property name="visible">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                        <property name="label" translatable="yes">Color:               </property>
+                        <property name="xalign">0</property>
+                        <property name="label" translatable="yes">Color:</property>
+                        <property name="width_chars">12</property>
                       </widget>
                       <packing>
                         <property name="expand">False</property>
@@ -223,7 +229,9 @@
                       <widget class="GtkLabel" id="label8">
                         <property name="visible">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                        <property name="label" translatable="yes">Smoothness: </property>
+                        <property name="xalign">0</property>
+                        <property name="label" translatable="yes">Smoothness:</property>
+                        <property name="width_chars">12</property>
                       </widget>
                       <packing>
                         <property name="expand">False</property>
@@ -258,7 +266,9 @@
                       <widget class="GtkLabel" id="label7">
                         <property name="visible">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                        <property name="label" translatable="yes">Specularity:    </property>
+                        <property name="xalign">0</property>
+                        <property name="label" translatable="yes">Specularity:</property>
+                        <property name="width_chars">12</property>
                       </widget>
                       <packing>
                         <property name="expand">False</property>
@@ -293,7 +303,9 @@
                       <widget class="GtkLabel" id="label13">
                         <property name="visible">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                        <property name="label" translatable="yes">Reflectivity:     </property>
+                        <property name="xalign">0</property>
+                        <property name="label" translatable="yes">Reflectivity:</property>
+                        <property name="width_chars">12</property>
                       </widget>
                       <packing>
                         <property name="expand">False</property>
@@ -328,7 +340,9 @@
                       <widget class="GtkLabel" id="label15">
                         <property name="visible">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                        <property name="label" translatable="yes">Density:          </property>
+                        <property name="xalign">0</property>
+                        <property name="label" translatable="yes">Density:</property>
+                        <property name="width_chars">12</property>
                       </widget>
                       <packing>
                         <property name="expand">False</property>

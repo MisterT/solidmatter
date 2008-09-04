@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: openmachinist 0.0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-09-05 01:14+0200\n"
-"PO-Revision-Date: 2008-09-05 01:14+0200\n"
+"POT-Creation-Date: 2008-09-05 01:42+0200\n"
+"PO-Revision-Date: 2008-09-05 01:42+0200\n"
 "Last-Translator: Björn Breitgoff <breidibreit@web.de>\n"
 "Language-Team: German\n"
 "MIME-Version: 1.0\n"
@@ -846,8 +846,8 @@ msgstr ""
 "\n"
 "<b>Baugruppeneigenschaften</b>\n"
 
-#: data/glade/assembly_dialog.glade:92 data/glade/part_dialog.glade:93
-#: data/glade/project_dialog.glade:92
+#: data/glade/assembly_dialog.glade:92 data/glade/material_editor.glade:159
+#: data/glade/part_dialog.glade:93 data/glade/project_dialog.glade:92
 msgid "Name:"
 msgstr "Name:"
 
@@ -916,7 +916,7 @@ msgstr "Neue Baugruppe"
 msgid "Create new Part"
 msgstr "Neues Bauteil"
 
-#: data/glade/new_dialog.glade:138 data/glade/preferences.glade:1677
+#: data/glade/new_dialog.glade:138 data/glade/preferences.glade:1919
 msgid "gtk-close"
 msgstr "gtk-close"
 
@@ -1221,7 +1221,45 @@ msgstr "<b>Animationen</b>"
 msgid "Display"
 msgstr "Darstellung"
 
-#: data/glade/preferences.glade:1666
+#: data/glade/preferences.glade:1677
+msgid "Left eye:"
+msgstr "Linkes Auge:"
+
+#: data/glade/preferences.glade:1708
+msgid "Right eye:"
+msgstr "Rechtes Auge:"
+
+#: data/glade/preferences.glade:1741
+msgid "<b>Colors</b>"
+msgstr "<b>Farben</b>"
+
+#: data/glade/preferences.glade:1779
+msgid "Eye distance:"
+msgstr "Augenabstand:"
+
+#: data/glade/preferences.glade:1805
+msgid "cm"
+msgstr "cm"
+
+#: data/glade/preferences.glade:1826
+msgid "Focused"
+msgstr "Fokussiert"
+
+#: data/glade/preferences.glade:1839
+msgid "Parallel"
+msgstr "Parallel"
+
+#: data/glade/preferences.glade:1862
+msgid "<b>Spatial settings</b>"
+msgstr ""
+"\n"
+"<b>Räumliche Einstellungen</b>\n"
+
+#: data/glade/preferences.glade:1884
+msgid "Stereo vision"
+msgstr "Stereoskopie"
+
+#: data/glade/preferences.glade:1908
 msgid "gtk-help"
 msgstr "gtk-help"
 
@@ -1233,35 +1271,31 @@ msgstr ""
 "\n"
 "<b> Werstoffe erzeugen und bearbeiten</b>\n"
 
-#: data/glade/material_editor.glade:79
-msgid "Material:          "
-msgstr "Werkstoff:        "
+#: data/glade/material_editor.glade:80
+msgid "Material:"
+msgstr "Werkstoff:"
 
-#: data/glade/material_editor.glade:156
-msgid "Name:              "
-msgstr "Name:              "
+#: data/glade/material_editor.glade:194
+msgid "Color:"
+msgstr "Farbe:"
 
-#: data/glade/material_editor.glade:189
-msgid "Color:               "
-msgstr "Farbe:               "
+#: data/glade/material_editor.glade:233
+msgid "Smoothness:"
+msgstr "Glätte:"
 
-#: data/glade/material_editor.glade:226
-msgid "Smoothness: "
-msgstr "Glätte: "
+#: data/glade/material_editor.glade:270
+msgid "Specularity:"
+msgstr "Glanz:"
 
-#: data/glade/material_editor.glade:261
-msgid "Specularity:    "
-msgstr "Glanz:    "
+#: data/glade/material_editor.glade:307
+msgid "Reflectivity:"
+msgstr "Reflektion:"
 
-#: data/glade/material_editor.glade:296
-msgid "Reflectivity:     "
-msgstr "Reflektion:     "
+#: data/glade/material_editor.glade:344
+msgid "Density:"
+msgstr "Dichte:"
 
-#: data/glade/material_editor.glade:331
-msgid "Density:          "
-msgstr "Dichte:        "
-
-#: data/glade/material_editor.glade:358
+#: data/glade/material_editor.glade:372
 msgid "g/cm³"
 msgstr "g/cm³"
 
@@ -1757,6 +1791,12 @@ msgstr "Unterschiedliche Baugruppen:"
 #: data/glade/project_dialog.glade:384
 msgid "<b>Bill of Materials</b>"
 msgstr "<b>Materialliste</b>"
+
+#~ msgid "Name:              "
+#~ msgstr "Name:              "
+
+#~ msgid "Color:               "
+#~ msgstr "Farbe:               "
 
 #~ msgid "/View/Show working planes"
 #~ msgstr "/Ansicht/Arbeitsebenen zeigen"
