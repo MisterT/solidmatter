@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: openmachinist 0.0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-09-04 20:22+0200\n"
-"PO-Revision-Date: 2008-09-01 01:54+0200\n"
+"POT-Creation-Date: 2008-09-05 01:14+0200\n"
+"PO-Revision-Date: 2008-09-05 01:14+0200\n"
 "Last-Translator: Björn Breitgoff <breidibreit@web.de>\n"
 "Language-Team: German\n"
 "MIME-Version: 1.0\n"
@@ -16,514 +16,29 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: lib/geometry.rb:1463
-msgid "<b>Calculating solid volume...</b>"
-msgstr "<b>Körpervolumen wird berechnet...</b>"
-
-#: lib/geometry.rb:1502
-msgid "sampling bucket"
-msgstr "prüfe Teilvolumen"
-
-#: lib/geometry.rb:1598
-msgid "Exit operator without saving changes"
-msgstr "Operator verlassen ohne zu speichern"
-
-#: lib/geometry.rb:1599
-msgid "Save changes and exit operator"
-msgstr "Änderungen speichern und Operator verlassen"
-
-#: lib/geometry.rb:1759
-msgid "Part could not be built"
-msgstr "Bauteil konnte nicht errechnet werden"
-
-#: lib/geometry.rb:1760
-msgid "Please recheck all operator settings and close any open sketch regions!"
-msgstr ""
-"Bitte alle Zeichnungen und Operatoreinstellungen noch einmal überprüfen"
-
-#: lib/multi_user.rb:303
+#: lib/multi_user.rb:247
 msgid "Connection error"
 msgstr "Verbindungsfehler"
 
-#: lib/multi_user.rb:304
+#: lib/multi_user.rb:248
 msgid "Could not connect to the requested server"
 msgstr "Verbindung zum gewählten Server konnte nicht hergestellt werden"
 
-#: lib/multi_user.rb:335
+#: lib/multi_user.rb:279
 msgid "Login failed"
 msgstr "Anmeldung fehlgeschlagen"
 
-#: lib/multi_user.rb:336
+#: lib/multi_user.rb:280
 msgid "Please make sure that your login information is correct"
 msgstr "Bitte überprüfen Sie ihre Anmeldedaten"
 
-#: lib/multi_user.rb:374
+#: lib/multi_user.rb:318
 msgid "Request canceled"
 msgstr "Anfrage abgebrochen"
 
-#: lib/multi_user.rb:375
+#: lib/multi_user.rb:319
 msgid "The save request was cancelled by another user"
 msgstr "Die Sicherungsanfrage wurde von einem anderen Nutzer abgebrochen"
-
-#: lib/file_open_dialog.rb:12
-msgid "Save project as.."
-msgstr "Projekt sichern als..."
-
-#: lib/file_open_dialog.rb:13
-msgid "Choose project file"
-msgstr "Projektdatei wählen"
-
-#: lib/file_open_dialog.rb:15
-msgid "Export as..."
-msgstr "Exportieren..."
-
-#: lib/file_open_dialog.rb:26
-msgid "Open Machinist project"
-msgstr "Solid|matter Projekt"
-
-#: lib/file_open_dialog.rb:36
-msgid "All filetypes"
-msgstr "Alle Dateiarten"
-
-#: lib/main_win.rb:57
-msgid "/_File"
-msgstr "/_Datei"
-
-#: lib/main_win.rb:58
-msgid "/File/New project..."
-msgstr "/Datei/Neues Projekt..."
-
-#: lib/main_win.rb:59
-msgid "/File/Open project..."
-msgstr "/Datei/Projekt öffnen..."
-
-#: lib/main_win.rb:60
-msgid "/File/_Save project"
-msgstr "/Datei/Projekt _sichern"
-
-#: lib/main_win.rb:61
-msgid "/File/Save project as..."
-msgstr "/Datei/Projekt sichern als..."
-
-#: lib/main_win.rb:62
-msgid "/File/Export selection..."
-msgstr "/Datei/Auswahl exportieren..."
-
-#: lib/main_win.rb:63 lib/main_win.rb:66
-msgid "/File/sep1"
-msgstr "/Datei/sep1"
-
-#: lib/main_win.rb:64
-msgid "/File/Project information"
-msgstr "/Datei/Projektinformationen"
-
-#: lib/main_win.rb:65
-msgid "/File/Make project public..."
-msgstr "/Datei/Projekt veröffentlichen..."
-
-#: lib/main_win.rb:67
-msgid "/File/Print..."
-msgstr "/Datei/Drucken..."
-
-#: lib/main_win.rb:68
-msgid "/File/sep2"
-msgstr "/Datei/sep2"
-
-#: lib/main_win.rb:69
-msgid "/File/Quit"
-msgstr "/Datei/Beenden"
-
-#: lib/main_win.rb:70
-msgid "/_Edit"
-msgstr "/_Bearbeiten"
-
-#: lib/main_win.rb:71
-msgid "/Edit/Undo"
-msgstr "/Bearbeiten/Rückgängig"
-
-#: lib/main_win.rb:72
-msgid "/Edit/Redo"
-msgstr "/Bearbeiten/Wiederholen"
-
-#: lib/main_win.rb:73 lib/main_win.rb:78
-msgid "/Edit/sep4"
-msgstr "/Bearbeiten/sep4"
-
-#: lib/main_win.rb:74
-msgid "/Edit/Cut"
-msgstr "/Bearbeiten/Ausschneiden"
-
-#: lib/main_win.rb:75
-msgid "/Edit/Copy"
-msgstr "/Bearbeiten/Kopieren"
-
-#: lib/main_win.rb:76
-msgid "/Edit/Paste"
-msgstr "/Bearbeiten/Einfügen"
-
-#: lib/main_win.rb:77
-msgid "/Edit/Delete"
-msgstr "/Bearbeiten/Entfernen"
-
-#: lib/main_win.rb:79
-msgid "/Edit/Preferences"
-msgstr "/Bearbeiten/Einstellungen"
-
-#: lib/main_win.rb:80
-msgid "/_View"
-msgstr "/_Ansicht"
-
-#: lib/main_win.rb:81
-msgid "/View/Front"
-msgstr "/Ansicht/Vorne"
-
-#: lib/main_win.rb:82
-msgid "/View/Back"
-msgstr "/Ansicht/Hinten"
-
-#: lib/main_win.rb:83
-msgid "/View/Right"
-msgstr "/Ansicht/Rechts"
-
-#: lib/main_win.rb:84
-msgid "/View/Left"
-msgstr "/Ansicht/Links"
-
-#: lib/main_win.rb:85
-msgid "/View/Top"
-msgstr "/Ansicht/Oben"
-
-#: lib/main_win.rb:86
-msgid "/View/Bottom"
-msgstr "/Ansicht/Unten"
-
-#: lib/main_win.rb:87
-msgid "/View/Isometric"
-msgstr "/Ansicht/Isometrisch"
-
-#: lib/main_win.rb:88 lib/main_win.rb:92
-msgid "/View/sep4"
-msgstr "/Ansicht/sep4"
-
-#: lib/main_win.rb:89
-msgid "/View/Show working planes"
-msgstr "/Ansicht/Arbeitsebenen zeigen"
-
-#: lib/main_win.rb:90
-msgid "/View/Diagnostic shading"
-msgstr "/Ansicht/Diagnosedarstellung"
-
-#: lib/main_win.rb:91
-msgid "/View/Render shadows"
-msgstr "/Ansicht/Schatten darstellen"
-
-#: lib/main_win.rb:93
-msgid "/View/Fullscreen"
-msgstr "/Ansicht/Vollbild"
-
-#: lib/main_win.rb:94
-msgid "/_Tools"
-msgstr "/_Werkzeug"
-
-#: lib/main_win.rb:95
-msgid "/Tools/Measure distance"
-msgstr "/Werkzeug/Abstand messen"
-
-#: lib/main_win.rb:96
-msgid "/Tools/Measure area"
-msgstr "/Werkzeug/Fläche messen"
-
-#: lib/main_win.rb:97
-msgid "/Tools/Measure angle"
-msgstr "/Werkzeug/Winkel messen"
-
-#: lib/main_win.rb:98 lib/main_win.rb:101
-msgid "/Tools/sep4"
-msgstr "/Werkzeug/sep4"
-
-#: lib/main_win.rb:99
-msgid "/Tools/Analyze interference"
-msgstr "/Werkzeug/Auf Überschneidung prüfen"
-
-#: lib/main_win.rb:100
-msgid "/Tools/Bill of materials"
-msgstr "/Werkzeug/Materialliste"
-
-#: lib/main_win.rb:102
-msgid "/Tools/Material editor"
-msgstr "/Werkzeug/Werkstoffeditor"
-
-#: lib/main_win.rb:103
-msgid "/_Simulation"
-msgstr "/_Simulation"
-
-#: lib/main_win.rb:104
-msgid "/Simulation/Update constraints"
-msgstr "/Simulation/Beschränkungen aktualisieren"
-
-#: lib/main_win.rb:105
-msgid "/Simulation/Update sub-assembly constraints"
-msgstr "/Simulation/Update sub-assembly constraints"
-
-#: lib/main_win.rb:106 lib/main_win.rb:109
-msgid "/Simulation/sep4"
-msgstr "/Simulation/sep4"
-
-#: lib/main_win.rb:107
-msgid "/Simulation/Auto-update constraints"
-msgstr "/Simulation/Beschränkungen aktuell halten"
-
-#: lib/main_win.rb:108
-msgid "/Simulation/Auto-update sub-assembly constraints"
-msgstr "/Simulation/Auto-update sub-assembly constraints"
-
-#: lib/main_win.rb:110
-msgid "/Simulation/Activate contact solver"
-msgstr "/Simulation/Auf Kollisionen prüfen"
-
-#: lib/main_win.rb:111
-msgid "/Simulation/Define contact set..."
-msgstr "/Simulation/Kontaktgruppe definieren..."
-
-#: lib/main_win.rb:112
-msgid "/_Help"
-msgstr "/_Hilfe"
-
-#: lib/main_win.rb:113
-msgid "/Help/_About Solid|matter"
-msgstr "/Hilfe/Ü_ber Solid|matter"
-
-#: lib/main_win.rb:129
-msgid " New"
-msgstr " Neu"
-
-#: lib/main_win.rb:132
-msgid "Create a new project, part or assembly"
-msgstr "Neues Projekt, Bauteil oder Baugruppe erstellen"
-
-#: lib/main_win.rb:133
-msgid " Save"
-msgstr " Sichern"
-
-#: lib/main_win.rb:137
-msgid "Save current part or assembly"
-msgstr "Save current part or assembly"
-
-#: lib/main_win.rb:140
-msgid "Select"
-msgstr "Auswahl"
-
-#: lib/main_win.rb:142
-msgid "Choose selection mode"
-msgstr "Auswahlmodus"
-
-#: lib/main_win.rb:143
-msgid "Return"
-msgstr "Hoch"
-
-#: lib/main_win.rb:143
-msgid "Work on parent assembly"
-msgstr "An übergeordneter Baugruppe arbeiten"
-
-#: lib/main_win.rb:147
-msgid " Camera"
-msgstr "Kamera"
-
-#: lib/main_win.rb:150
-msgid "Position the 3d viewpoint"
-msgstr "Ansicht verändern"
-
-#: lib/main_win.rb:151
-msgid " Zoom selection"
-msgstr " Einpassen"
-
-#: lib/main_win.rb:154
-msgid "Fit all selected objects into view"
-msgstr "Zoom auf die ausgewählten Objekte"
-
-#: lib/main_win.rb:155
-msgid " Look at"
-msgstr " Ansehen"
-
-#: lib/main_win.rb:158
-msgid "Make view orthogonal to selected plane"
-msgstr "Ansicht im rechten Winkel zur gewählten Fläche stellen"
-
-#: lib/main_win.rb:160
-msgid "Previous"
-msgstr "Zurück"
-
-#: lib/main_win.rb:160
-msgid "Previous camera location"
-msgstr "Vorherige Ansicht"
-
-#: lib/main_win.rb:167
-msgid "Next camera location"
-msgstr "Nächst Ansicht"
-
-#: lib/main_win.rb:170
-msgid "Select shading mode for the viewport"
-msgstr "Darstellungsmodus wählen"
-
-#: lib/main_win.rb:173
-msgid "Focus"
-msgstr "Fokus"
-
-#: lib/main_win.rb:181
-msgid "Make all components except the current one transparent"
-msgstr "Zeigt alle Komponenten ausser der aktuellen transparent"
-
-#: lib/main_win.rb:226
-msgid "Insert"
-msgstr "Einfügen"
-
-#: lib/main_win.rb:227
-msgid "Library"
-msgstr "Sammlung"
-
-#: lib/main_win.rb:229 lib/main_win.rb:276
-msgid "Constrain"
-msgstr "Beschränken"
-
-#: lib/main_win.rb:230
-msgid "Contacts"
-msgstr "Kontakte"
-
-#: lib/main_win.rb:231
-msgid "Spring"
-msgstr "Feder"
-
-#: lib/main_win.rb:232
-msgid "Belt"
-msgstr "Riemen"
-
-#: lib/main_win.rb:233
-msgid "Animate"
-msgstr "Animieren"
-
-#: lib/main_win.rb:235 lib/main_win.rb:282
-msgid "Grid pattern"
-msgstr "Rastermuster"
-
-#: lib/main_win.rb:236 lib/main_win.rb:283
-msgid "Circular pattern"
-msgstr "Kreismuster"
-
-#: lib/main_win.rb:237 lib/main_win.rb:257 lib/main_win.rb:284
-msgid "Mirror"
-msgstr "Spiegeln"
-
-#: lib/main_win.rb:242 lib/operators.rb:84
-msgid "Sketch"
-msgstr "Zeichnung"
-
-#: lib/main_win.rb:244
-msgid "Extrude"
-msgstr "Extrudieren"
-
-#: lib/main_win.rb:245
-msgid "Revolve"
-msgstr "Drehen"
-
-#: lib/main_win.rb:246
-msgid "Hole"
-msgstr "Loch"
-
-#: lib/main_win.rb:247
-msgid "Shell"
-msgstr "Hülle"
-
-#: lib/main_win.rb:248
-msgid "Loft"
-msgstr "Überzug"
-
-#: lib/main_win.rb:249
-msgid "Sweep"
-msgstr "Führung"
-
-#: lib/main_win.rb:250
-msgid "Coil"
-msgstr "Spule"
-
-#: lib/main_win.rb:252 lib/main_win.rb:272
-msgid "Fillet"
-msgstr "Verrundung"
-
-#: lib/main_win.rb:253
-msgid "Chamfer"
-msgstr "Fase"
-
-#: lib/main_win.rb:254
-msgid "Draft"
-msgstr "Draft"
-
-#: lib/main_win.rb:256
-msgid "Pattern"
-msgstr "Muster"
-
-#: lib/main_win.rb:262
-msgid "Line"
-msgstr "Linie"
-
-#: lib/main_win.rb:264
-msgid "Line tool"
-msgstr "Linienwerkzeug"
-
-#: lib/main_win.rb:265
-msgid "Circle"
-msgstr "Kreis"
-
-#: lib/main_win.rb:267
-msgid "Circle tool"
-msgstr "Kreiswerkzeug"
-
-#: lib/main_win.rb:268
-msgid "Arc"
-msgstr "Bogen"
-
-#: lib/main_win.rb:270
-msgid "Arc tool"
-msgstr "Bogenwerkzeug"
-
-#: lib/main_win.rb:271
-msgid "Rectangle"
-msgstr "Rechteck"
-
-#: lib/main_win.rb:273
-msgid "Polygon"
-msgstr "Vieleck"
-
-#: lib/main_win.rb:275
-msgid "Dimension"
-msgstr "Bemaßung"
-
-#: lib/main_win.rb:278
-msgid "Trim"
-msgstr "Schneiden"
-
-#: lib/main_win.rb:280
-msgid "Project"
-msgstr "Projektion"
-
-#: lib/main_win.rb:285
-msgid "Offset"
-msgstr "Abstand"
-
-#: lib/simulation_settings.rb:17
-msgid "All part instances"
-msgstr "Alle Bauteilinstanzen"
-
-#: lib/simulation_settings.rb:29
-msgid "Parts checked for collisions"
-msgstr "Geprüft"
-
-#: lib/account_editor.rb:18
-msgid "Projects on server"
-msgstr "Projekte auf Server"
-
-#: lib/account_editor.rb:30
-msgid "User's projects"
-msgstr "Zugriff"
 
 #: lib/project.rb:15
 msgid "Aluminum"
@@ -593,15 +108,15 @@ msgstr ""
 msgid "Untitled"
 msgstr "Unbenanntes"
 
-#: lib/manager.rb:106
+#: lib/manager.rb:107
 msgid "<not saved>"
 msgstr "<nicht gesichert>"
 
-#: lib/gl_view.rb:123
+#: lib/gl_view.rb:130
 msgid "<b>Rendering shadowmap...</b>"
 msgstr "<b>Schatten wird berechnet...</b>"
 
-#: lib/gl_view.rb:130
+#: lib/gl_view.rb:137
 msgid "Processing scanline "
 msgstr "Errechne Zeile "
 
@@ -645,37 +160,58 @@ msgstr "Wert messen"
 msgid "Bind to measured value"
 msgstr "An gemessenen Wert binden"
 
-#: lib/operators.rb:108
+#: lib/operators.rb:85 lib/ui/main_win.rb:242
+msgid "Sketch"
+msgstr "Zeichnung"
+
+#: lib/operators.rb:109
 msgid "Type"
 msgstr "Art"
 
-#: lib/operators.rb:121
+#: lib/operators.rb:122
 msgid "Direction"
 msgstr "Richtung"
 
-#: lib/operators.rb:138
+#: lib/operators.rb:139
 msgid "Constant depth"
 msgstr "Feste Tiefe"
 
-#: lib/operators.rb:139
+#: lib/operators.rb:140
 msgid "Up to selection"
 msgstr "Bis Auswahl"
 
-#: lib/operators.rb:142
+#: lib/operators.rb:143
 msgid "Extrusion limit"
 msgstr "Extrusionsgrenze"
 
-#: lib/operators.rb:146
+#: lib/operators.rb:147
 msgid "Depth"
 msgstr "Tiefe"
 
-#: lib/server_win.rb:17
-msgid "Projects"
-msgstr "Projekte"
+#: lib/components.rb:185
+msgid "<b>Calculating solid volume...</b>"
+msgstr "<b>Körpervolumen wird berechnet...</b>"
 
-#: lib/server_win.rb:29
-msgid "Users"
-msgstr "Nutzer"
+#: lib/components.rb:224
+msgid "sampling bucket"
+msgstr "prüfe Teilvolumen"
+
+#: lib/components.rb:320
+msgid "Exit operator without saving changes"
+msgstr "Operator verlassen ohne zu speichern"
+
+#: lib/components.rb:321
+msgid "Save changes and exit operator"
+msgstr "Änderungen speichern und Operator verlassen"
+
+#: lib/components.rb:480
+msgid "Part could not be built"
+msgstr "Bauteil konnte nicht errechnet werden"
+
+#: lib/components.rb:481
+msgid "Please recheck all operator settings and close any open sketch regions!"
+msgstr ""
+"Bitte alle Zeichnungen und Operatoreinstellungen noch einmal überprüfen"
 
 #: lib/tools.rb:91
 msgid "Finish using tool"
@@ -757,11 +293,475 @@ msgstr "Zeichnung bearbeiten:"
 msgid "Click left to delete subsegments of your sketch:"
 msgstr "Bereich der Zeichnung zum wegschneiden wählen:"
 
-#: lib/join_project_dialog.rb:20
+#: lib/ui/file_open_dialog.rb:12
+msgid "Save project as.."
+msgstr "Projekt sichern als..."
+
+#: lib/ui/file_open_dialog.rb:13
+msgid "Choose project file"
+msgstr "Projektdatei wählen"
+
+#: lib/ui/file_open_dialog.rb:15
+msgid "Export as..."
+msgstr "Exportieren..."
+
+#: lib/ui/file_open_dialog.rb:26
+msgid "Open Machinist project"
+msgstr "Solid|matter Projekt"
+
+#: lib/ui/file_open_dialog.rb:36
+msgid "All filetypes"
+msgstr "Alle Dateiarten"
+
+#: lib/ui/main_win.rb:57
+msgid "/_File"
+msgstr "/_Datei"
+
+#: lib/ui/main_win.rb:58
+msgid "/File/New project..."
+msgstr "/Datei/Neues Projekt..."
+
+#: lib/ui/main_win.rb:59
+msgid "/File/Open project..."
+msgstr "/Datei/Projekt öffnen..."
+
+#: lib/ui/main_win.rb:60
+msgid "/File/_Save project"
+msgstr "/Datei/Projekt _sichern"
+
+#: lib/ui/main_win.rb:61
+msgid "/File/Save project as..."
+msgstr "/Datei/Projekt sichern als..."
+
+#: lib/ui/main_win.rb:62
+msgid "/File/Export selection..."
+msgstr "/Datei/Auswahl exportieren..."
+
+#: lib/ui/main_win.rb:63 lib/ui/main_win.rb:66
+msgid "/File/sep1"
+msgstr "/Datei/sep1"
+
+#: lib/ui/main_win.rb:64
+msgid "/File/Project information"
+msgstr "/Datei/Projektinformationen"
+
+#: lib/ui/main_win.rb:65
+msgid "/File/Make project public..."
+msgstr "/Datei/Projekt veröffentlichen..."
+
+#: lib/ui/main_win.rb:67
+msgid "/File/Print..."
+msgstr "/Datei/Drucken..."
+
+#: lib/ui/main_win.rb:68
+msgid "/File/sep2"
+msgstr "/Datei/sep2"
+
+#: lib/ui/main_win.rb:69
+msgid "/File/Quit"
+msgstr "/Datei/Beenden"
+
+#: lib/ui/main_win.rb:70
+msgid "/_Edit"
+msgstr "/_Bearbeiten"
+
+#: lib/ui/main_win.rb:71
+msgid "/Edit/Undo"
+msgstr "/Bearbeiten/Rückgängig"
+
+#: lib/ui/main_win.rb:72
+msgid "/Edit/Redo"
+msgstr "/Bearbeiten/Wiederholen"
+
+#: lib/ui/main_win.rb:73 lib/ui/main_win.rb:78
+msgid "/Edit/sep4"
+msgstr "/Bearbeiten/sep4"
+
+#: lib/ui/main_win.rb:74
+msgid "/Edit/Cut"
+msgstr "/Bearbeiten/Ausschneiden"
+
+#: lib/ui/main_win.rb:75
+msgid "/Edit/Copy"
+msgstr "/Bearbeiten/Kopieren"
+
+#: lib/ui/main_win.rb:76
+msgid "/Edit/Paste"
+msgstr "/Bearbeiten/Einfügen"
+
+#: lib/ui/main_win.rb:77
+msgid "/Edit/Delete"
+msgstr "/Bearbeiten/Entfernen"
+
+#: lib/ui/main_win.rb:79
+msgid "/Edit/Preferences"
+msgstr "/Bearbeiten/Einstellungen"
+
+#: lib/ui/main_win.rb:80
+msgid "/_View"
+msgstr "/_Ansicht"
+
+#: lib/ui/main_win.rb:81
+msgid "/View/Front"
+msgstr "/Ansicht/Vorne"
+
+#: lib/ui/main_win.rb:82
+msgid "/View/Back"
+msgstr "/Ansicht/Hinten"
+
+#: lib/ui/main_win.rb:83
+msgid "/View/Right"
+msgstr "/Ansicht/Rechts"
+
+#: lib/ui/main_win.rb:84
+msgid "/View/Left"
+msgstr "/Ansicht/Links"
+
+#: lib/ui/main_win.rb:85
+msgid "/View/Top"
+msgstr "/Ansicht/Oben"
+
+#: lib/ui/main_win.rb:86
+msgid "/View/Bottom"
+msgstr "/Ansicht/Unten"
+
+#: lib/ui/main_win.rb:87
+msgid "/View/Isometric"
+msgstr "/Ansicht/Isometrisch"
+
+#: lib/ui/main_win.rb:88 lib/ui/main_win.rb:92
+msgid "/View/sep4"
+msgstr "/Ansicht/sep4"
+
+#: lib/ui/main_win.rb:89
+msgid "/View/Stereo vision"
+msgstr "/Ansicht/Stereoskopisch"
+
+#: lib/ui/main_win.rb:90
+msgid "/View/Diagnostic shading"
+msgstr "/Ansicht/Diagnosedarstellung"
+
+#: lib/ui/main_win.rb:91
+msgid "/View/Render shadows"
+msgstr "/Ansicht/Schatten darstellen"
+
+#: lib/ui/main_win.rb:93
+msgid "/View/Fullscreen"
+msgstr "/Ansicht/Vollbild"
+
+#: lib/ui/main_win.rb:94
+msgid "/_Tools"
+msgstr "/_Werkzeug"
+
+#: lib/ui/main_win.rb:95
+msgid "/Tools/Measure distance"
+msgstr "/Werkzeug/Abstand messen"
+
+#: lib/ui/main_win.rb:96
+msgid "/Tools/Measure area"
+msgstr "/Werkzeug/Fläche messen"
+
+#: lib/ui/main_win.rb:97
+msgid "/Tools/Measure angle"
+msgstr "/Werkzeug/Winkel messen"
+
+#: lib/ui/main_win.rb:98 lib/ui/main_win.rb:101
+msgid "/Tools/sep4"
+msgstr "/Werkzeug/sep4"
+
+#: lib/ui/main_win.rb:99
+msgid "/Tools/Analyze interference"
+msgstr "/Werkzeug/Auf Überschneidung prüfen"
+
+#: lib/ui/main_win.rb:100
+msgid "/Tools/Bill of materials"
+msgstr "/Werkzeug/Materialliste"
+
+#: lib/ui/main_win.rb:102
+msgid "/Tools/Material editor"
+msgstr "/Werkzeug/Werkstoffeditor"
+
+#: lib/ui/main_win.rb:103
+msgid "/_Simulation"
+msgstr "/_Simulation"
+
+#: lib/ui/main_win.rb:104
+msgid "/Simulation/Update constraints"
+msgstr "/Simulation/Beschränkungen aktualisieren"
+
+#: lib/ui/main_win.rb:105
+msgid "/Simulation/Update sub-assembly constraints"
+msgstr "/Simulation/Update sub-assembly constraints"
+
+#: lib/ui/main_win.rb:106 lib/ui/main_win.rb:109
+msgid "/Simulation/sep4"
+msgstr "/Simulation/sep4"
+
+#: lib/ui/main_win.rb:107
+msgid "/Simulation/Auto-update constraints"
+msgstr "/Simulation/Beschränkungen aktuell halten"
+
+#: lib/ui/main_win.rb:108
+msgid "/Simulation/Auto-update sub-assembly constraints"
+msgstr "/Simulation/Auto-update sub-assembly constraints"
+
+#: lib/ui/main_win.rb:110
+msgid "/Simulation/Activate contact solver"
+msgstr "/Simulation/Auf Kollisionen prüfen"
+
+#: lib/ui/main_win.rb:111
+msgid "/Simulation/Define contact set..."
+msgstr "/Simulation/Kontaktgruppe definieren..."
+
+#: lib/ui/main_win.rb:112
+msgid "/_Help"
+msgstr "/_Hilfe"
+
+#: lib/ui/main_win.rb:113
+msgid "/Help/_About Solid|matter"
+msgstr "/Hilfe/Ü_ber Solid|matter"
+
+#: lib/ui/main_win.rb:129
+msgid " New"
+msgstr " Neu"
+
+#: lib/ui/main_win.rb:132
+msgid "Create a new project, part or assembly"
+msgstr "Neues Projekt, Bauteil oder Baugruppe erstellen"
+
+#: lib/ui/main_win.rb:133
+msgid " Save"
+msgstr " Sichern"
+
+#: lib/ui/main_win.rb:137
+msgid "Save current part or assembly"
+msgstr "Save current part or assembly"
+
+#: lib/ui/main_win.rb:140
+msgid "Select"
+msgstr "Auswahl"
+
+#: lib/ui/main_win.rb:142
+msgid "Choose selection mode"
+msgstr "Auswahlmodus"
+
+#: lib/ui/main_win.rb:143
+msgid "Return"
+msgstr "Hoch"
+
+#: lib/ui/main_win.rb:143
+msgid "Work on parent assembly"
+msgstr "An übergeordneter Baugruppe arbeiten"
+
+#: lib/ui/main_win.rb:147
+msgid " Camera"
+msgstr "Kamera"
+
+#: lib/ui/main_win.rb:150
+msgid "Position the 3d viewpoint"
+msgstr "Ansicht verändern"
+
+#: lib/ui/main_win.rb:151
+msgid " Zoom selection"
+msgstr " Einpassen"
+
+#: lib/ui/main_win.rb:154
+msgid "Fit all selected objects into view"
+msgstr "Zoom auf die ausgewählten Objekte"
+
+#: lib/ui/main_win.rb:155
+msgid " Look at"
+msgstr " Ansehen"
+
+#: lib/ui/main_win.rb:158
+msgid "Make view orthogonal to selected plane"
+msgstr "Ansicht im rechten Winkel zur gewählten Fläche stellen"
+
+#: lib/ui/main_win.rb:160
+msgid "Previous"
+msgstr "Zurück"
+
+#: lib/ui/main_win.rb:160
+msgid "Previous camera location"
+msgstr "Vorherige Ansicht"
+
+#: lib/ui/main_win.rb:167
+msgid "Next camera location"
+msgstr "Nächst Ansicht"
+
+#: lib/ui/main_win.rb:170
+msgid "Select shading mode for the viewport"
+msgstr "Darstellungsmodus wählen"
+
+#: lib/ui/main_win.rb:173
+msgid "Focus"
+msgstr "Fokus"
+
+#: lib/ui/main_win.rb:181
+msgid "Make all components except the current one transparent"
+msgstr "Zeigt alle Komponenten ausser der aktuellen transparent"
+
+#: lib/ui/main_win.rb:226
+msgid "Insert"
+msgstr "Einfügen"
+
+#: lib/ui/main_win.rb:227
+msgid "Library"
+msgstr "Sammlung"
+
+#: lib/ui/main_win.rb:229 lib/ui/main_win.rb:276
+msgid "Constrain"
+msgstr "Beschränken"
+
+#: lib/ui/main_win.rb:230
+msgid "Contacts"
+msgstr "Kontakte"
+
+#: lib/ui/main_win.rb:231
+msgid "Spring"
+msgstr "Feder"
+
+#: lib/ui/main_win.rb:232
+msgid "Belt"
+msgstr "Riemen"
+
+#: lib/ui/main_win.rb:233
+msgid "Animate"
+msgstr "Animieren"
+
+#: lib/ui/main_win.rb:235 lib/ui/main_win.rb:282
+msgid "Grid pattern"
+msgstr "Rastermuster"
+
+#: lib/ui/main_win.rb:236 lib/ui/main_win.rb:283
+msgid "Circular pattern"
+msgstr "Kreismuster"
+
+#: lib/ui/main_win.rb:237 lib/ui/main_win.rb:257 lib/ui/main_win.rb:284
+msgid "Mirror"
+msgstr "Spiegeln"
+
+#: lib/ui/main_win.rb:244
+msgid "Extrude"
+msgstr "Extrudieren"
+
+#: lib/ui/main_win.rb:245
+msgid "Revolve"
+msgstr "Drehen"
+
+#: lib/ui/main_win.rb:246
+msgid "Hole"
+msgstr "Loch"
+
+#: lib/ui/main_win.rb:247
+msgid "Shell"
+msgstr "Hülle"
+
+#: lib/ui/main_win.rb:248
+msgid "Loft"
+msgstr "Überzug"
+
+#: lib/ui/main_win.rb:249
+msgid "Sweep"
+msgstr "Führung"
+
+#: lib/ui/main_win.rb:250
+msgid "Coil"
+msgstr "Spule"
+
+#: lib/ui/main_win.rb:252 lib/ui/main_win.rb:272
+msgid "Fillet"
+msgstr "Verrundung"
+
+#: lib/ui/main_win.rb:253
+msgid "Chamfer"
+msgstr "Fase"
+
+#: lib/ui/main_win.rb:254
+msgid "Draft"
+msgstr "Draft"
+
+#: lib/ui/main_win.rb:256
+msgid "Pattern"
+msgstr "Muster"
+
+#: lib/ui/main_win.rb:262
+msgid "Line"
+msgstr "Linie"
+
+#: lib/ui/main_win.rb:264
+msgid "Line tool"
+msgstr "Linienwerkzeug"
+
+#: lib/ui/main_win.rb:265
+msgid "Circle"
+msgstr "Kreis"
+
+#: lib/ui/main_win.rb:267
+msgid "Circle tool"
+msgstr "Kreiswerkzeug"
+
+#: lib/ui/main_win.rb:268
+msgid "Arc"
+msgstr "Bogen"
+
+#: lib/ui/main_win.rb:270
+msgid "Arc tool"
+msgstr "Bogenwerkzeug"
+
+#: lib/ui/main_win.rb:271
+msgid "Rectangle"
+msgstr "Rechteck"
+
+#: lib/ui/main_win.rb:273
+msgid "Polygon"
+msgstr "Vieleck"
+
+#: lib/ui/main_win.rb:275
+msgid "Dimension"
+msgstr "Bemaßung"
+
+#: lib/ui/main_win.rb:278
+msgid "Trim"
+msgstr "Schneiden"
+
+#: lib/ui/main_win.rb:280
+msgid "Project"
+msgstr "Projektion"
+
+#: lib/ui/main_win.rb:285
+msgid "Offset"
+msgstr "Abstand"
+
+#: lib/ui/simulation_settings.rb:17
+msgid "All part instances"
+msgstr "Alle Bauteilinstanzen"
+
+#: lib/ui/simulation_settings.rb:29
+msgid "Parts checked for collisions"
+msgstr "Geprüft"
+
+#: lib/ui/account_editor.rb:18
+msgid "Projects on server"
+msgstr "Projekte auf Server"
+
+#: lib/ui/account_editor.rb:30
+msgid "User's projects"
+msgstr "Zugriff"
+
+#: lib/ui/server_win.rb:17
+msgid "Projects"
+msgstr "Projekte"
+
+#: lib/ui/server_win.rb:29
+msgid "Users"
+msgstr "Nutzer"
+
+#: lib/ui/join_project_dialog.rb:20
 msgid "Servers on local network"
 msgstr "Server im lokalen Netzwerk"
 
-#: lib/close_project_confirmation.rb:13
+#: lib/ui/close_project_confirmation.rb:13
 msgid "Save changes to "
 msgstr "Änderungen sichern an "
 
@@ -1237,31 +1237,31 @@ msgstr ""
 msgid "Material:          "
 msgstr "Werkstoff:        "
 
-#: data/glade/material_editor.glade:155
+#: data/glade/material_editor.glade:156
 msgid "Name:              "
 msgstr "Name:              "
 
-#: data/glade/material_editor.glade:188
+#: data/glade/material_editor.glade:189
 msgid "Color:               "
 msgstr "Farbe:               "
 
-#: data/glade/material_editor.glade:224
+#: data/glade/material_editor.glade:226
 msgid "Smoothness: "
 msgstr "Glätte: "
 
-#: data/glade/material_editor.glade:259
+#: data/glade/material_editor.glade:261
 msgid "Specularity:    "
 msgstr "Glanz:    "
 
-#: data/glade/material_editor.glade:294
-msgid "Reflectivity:    "
-msgstr "Reflektion:    "
+#: data/glade/material_editor.glade:296
+msgid "Reflectivity:     "
+msgstr "Reflektion:     "
 
-#: data/glade/material_editor.glade:329
-msgid "Density:                                 "
-msgstr "Dichte:                     "
+#: data/glade/material_editor.glade:331
+msgid "Density:          "
+msgstr "Dichte:        "
 
-#: data/glade/material_editor.glade:356
+#: data/glade/material_editor.glade:358
 msgid "g/cm³"
 msgstr "g/cm³"
 
@@ -1757,6 +1757,12 @@ msgstr "Unterschiedliche Baugruppen:"
 #: data/glade/project_dialog.glade:384
 msgid "<b>Bill of Materials</b>"
 msgstr "<b>Materialliste</b>"
+
+#~ msgid "/View/Show working planes"
+#~ msgstr "/Ansicht/Arbeitsebenen zeigen"
+
+#~ msgid "Density:                                 "
+#~ msgstr "Dichte:                     "
 
 #~ msgid "Bad file format"
 #~ msgstr "Unlesbares Dateiformat"

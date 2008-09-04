@@ -86,7 +86,7 @@ class OpenMachinistMainWin < Gtk::Window
 				[GetText._("/View/Bottom"),        "<Item>", nil, nil, lambda{}],
 				[GetText._("/View/Isometric"),     "<Item>", nil, nil, lambda{}],
 				[GetText._("/View/sep4"), "<Separator>"],
-				[GetText._("/View/Show working planes"), "<CheckItem>", nil, nil, lambda{}],
+				[GetText._("/View/Stereo vision"),       "<CheckItem>", nil, nil, lambda{|e,w| $manager.glview.stereo = w.active? }],
 				[GetText._("/View/Diagnostic shading"),  "<CheckItem>", nil, nil, lambda{}],			
 				[GetText._("/View/Render shadows"),      "<CheckItem>", nil, nil, lambda{|e,w| $manager.glview.render_shadows = w.active? }],
 				[GetText._("/View/sep4"), "<Separator>"],

@@ -81,6 +81,13 @@ class Camera
 		@position += up_vec * value
 		move_forward value.abs/3.0
 	end
+	
+	def stereo
+	  left, right = dup, dup
+	  left.position  = @position + right_vec * -0.1
+	  right.position = @position + right_vec *  0.1
+	  [left, right]
+	end
 
 private
 	def rotate_around( axis, angle )
@@ -258,7 +265,7 @@ end
 
 
 class GLView < Gtk::DrawingArea
-	attr_accessor :num_callists, :immediate_draw_routines, :selection_color
+	attr_accessor :num_callists, :immediate_draw_routines, :selection_color, :stereo
 	attr_reader :displaymode, :ground, :cameras, :current_cam_index, :render_shadows
 	def initialize
 		super
@@ -587,11 +594,27 @@ class GLView < Gtk::DrawingArea
 		glcontext = self.gl_context
 		gldrawable = self.gl_drawable
 		gldrawable.gl_begin( glcontext )
-			GL.Clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT | GL::STENCIL_BUFFER_BIT)
+	    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
+	    GL.Clear(GL::COLOR_BUFFER_BIT)
+	    GL.Clear(GL::DEPTH_BUFFER_BIT)
+	    cam = @cameras[@current_cam_index]
+		  if @stereo and not @selection_pass
+		    glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_TRUE)
+		    draw cam.stereo.first
+		    GL.Clear(GL::DEPTH_BUFFER_BIT)
+		    glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE)
+		    draw cam.stereo.last
+		  else
+		    draw cam
+		  end
+			gldrawable.swap_buffers unless @selection_pass or @picking_pass or @do_not_swap
+		gldrawable.gl_end
+	end
+	
+	def draw cam
 			GL.Disable(GL::TEXTURE_2D)
 			GL.LoadIdentity
 			# setup camera position und rotation
-			cam = @cameras[@current_cam_index]
 		  GLU.LookAt(cam.position.x, cam.position.y, cam.position.z,
 			   		     cam.target.x,   cam.target.y,   cam.target.z,
 					       cam.up_vec.x,   cam.up_vec.y,   cam.up_vec.z)
@@ -604,8 +627,6 @@ class GLView < Gtk::DrawingArea
 			GL.Disable(GL::LIGHTING)
 			@immediate_draw_routines.each{|r| r.call } unless @selection_pass or @picking_pass
 			@ground.draw unless @selection_pass or @picking_pass
-			gldrawable.swap_buffers unless @selection_pass or @picking_pass or @do_not_swap
-		gldrawable.gl_end
 	end
 	
 	def draw_part p
