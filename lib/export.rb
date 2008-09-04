@@ -8,7 +8,7 @@ require 'export_dialog.rb'
 
 
 class Exporter
-  def self.export parts
+  def export parts
     ExportDialog.new do |filetype|
       dia = FileOpenDialog.new filetype
       if dia.run == Gtk::Dialog::RESPONSE_ACCEPT
@@ -23,7 +23,7 @@ class Exporter
     end
   end
 private
-  def self.generate_stl parts
+  def generate_stl parts
     stl = "solid #{@name}\n"
     for p in parts
       for tri in p.solid.tesselate

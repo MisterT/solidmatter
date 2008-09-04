@@ -12,6 +12,7 @@ require 'make_public_dialog.rb'
 require 'close_project_confirmation.rb'
 require 'simulation_settings.rb'
 require 'file_open_dialog.rb'
+require 'export.rb'
 
 class Selection
 	def initialize
