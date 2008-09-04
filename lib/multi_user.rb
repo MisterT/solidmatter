@@ -42,40 +42,8 @@ class ProjectServer
     @clients  = []
     @changes  = []
     @requests = []
-    #@server = TCPServer.open $preferences[:server_port]
-    #@thread = Thread.start{ listen }
   end
-=begin
-  def listen
-    @do_listen = true
-    threads = []
-    while @do_listen
-      client = @server.accept
-      threads << Thread.start(client) do |c|
-        #$SAFE = 1
-        query = c.recvfrom(100000000)[0].chomp
-        unless query == "dummy"
-          puts "SERVER: trying to unmarshal query"
-          meth, args = Marshal.load query
-          puts "SERVER: got #{meth} and #{args}"
-          if meth.to_s == "stop"
-            @do_listen = false
-            # send one last signal so the server-loop can quit
-            TCPSocket.open( 'localhost', $preferences[:server_port]){|s| s.puts "dummy" }
-            (threads - [Thread.current]).each{|t| t.join }
-          else
-            ret_val = self.send( meth, *args )
-            puts "SERVER: sending return value...#{ret_val.class}"
-            c.puts Marshal.dump(ret_val)
-            c.flush
-          end
-        end
-        c.close
-      end
-    end
-    @server.close
-  end
-=end
+
   def projects
     # make sure objects get dumped
     prs = @projects.map{|p| p.dup }
@@ -262,30 +230,6 @@ class ProjectServer
   end
 end
 
-=begin
-class ServerProxy
-  def initialize( address, port )
-    @address = address
-    @port = port
-  end
-  
-  def method_missing( meth, *args )
-    ret_val = nil
-    TCPSocket.open( @address, @port ) do |s|
-      query = Marshal.dump([meth,args])
-      puts "generated query with meth:#{meth} and args:#{args}"
-      s.puts query
-      puts "sent query"
-      unless meth.to_s == "stop"
-        ret_val = s.recvfrom(100000000)[0].chomp
-        ret_val = Marshal.load(ret_val)
-        puts "got return value #{ret_val}"
-      end
-    end
-    return ret_val
-  end
-end
-=end
 
 class ProjectClient
   attr_reader :server, :working, :projectname
