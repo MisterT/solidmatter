@@ -3,18 +3,15 @@
 #  Created by Björn Breitgoff on unknown date.
 #  Copyright (c) 2008. All rights reserved.
 
-require 'gtk2'
 require 'geometry.rb'
 require 'operators.rb'
 require 'tools.rb'
 require 'multi_user.rb'
 require 'material_editor.rb'
-require 'project_dialog.rb'
 require 'make_public_dialog.rb'
 require 'close_project_confirmation.rb'
 require 'simulation_settings.rb'
 require 'file_open_dialog.rb'
-require 'export_dialog.rb'
 
 class Selection
 	def initialize
@@ -62,13 +59,13 @@ class Selection
 	end
 end
 
-class ProjectManager
-	attr_accessor :filename, :project_id, :focus_view, :materials, :save_btn, :return_btn, :previous_btn, :next_btn,
-	              :main_assembly, :all_assemblies, :all_parts, :all_assembly_instances, 
-	              :all_part_instances, :all_sketches, :name, :author, :main_win,
-	              :point_snap, :grid_snap, :use_sketch_guides, :clipboard, :unit_system
-	attr_reader :selection, :work_component, :work_sketch,
-	            :glview, :op_view, :has_been_changed, :keys_pressed, :keymap, :work_operator
+
+class Manager
+	attr_accessor :focus_view, :save_btn, :return_btn, :previous_btn, :next_btn, :clipboard,
+	              :main_win, :point_snap, :grid_snap, :use_sketch_guides, :filename
+	attr_reader :selection, :work_component, :work_sketch, :work_operator, :project,
+	            :glview, :op_view, :keys_pressed, :keymap, :has_been_changed
+	            
 	def initialize( main_win, op_view, glview, asm_toolbar, prt_toolbar, sketch_toolbar, statusbar, main_vbox, op_view_controls )
 	  $manager = self
 	  @main_win = main_win
@@ -85,33 +82,23 @@ class ProjectManager
 		@point_snap = true
 		@grid_snap = false
 		@use_sketch_guides = false
-		@materials = [ Material.new( GetText._("Aluminum")),
-                   Material.new( GetText._("Steel")),
-                   Material.new( GetText._("Copper")),
-                   Material.new( GetText._("Carbon")),
-                   Material.new( GetText._("Glass")),
-                   Material.new( GetText._("Polystyrol")),
-                   Material.new( GetText._("Poly-acryl")) ]
     @keymap = { 65505 => :Shift,
                 65507 => :Ctrl,
                 65406 => :Alt,
                 65307 => :Esc,
                 65288 => :Backspace,
                 65535 => :Del}  
-    @unit_system = $preferences[:default_unit_system]
 	  new_project
 	end
 	
 public
-  def all_instances
-    @all_part_instances + @all_assembly_instances
-  end
-
   def project_name
     if @client
       @client.projectname
+    elsif @project
+      @project.name
     else
-      @name
+      ""
     end
   end
   
@@ -132,79 +119,32 @@ public
   
 	def new_project
 	  CloseProjectConfirmation.new do |response|
-	    save_file if response == :save
+	    @project.save if response == :save
       @client.exit if @client
       @client = nil
-    	@name = GetText._("Untitled project")
-    	@author = ""
-    	@main_assembly = Instance.new( Assembly.new( GetText._("Untitled assembly") ) )
     	@selection = Selection.new
-    	@work_component = @main_assembly
+    	@project = Project.new
+    	@work_component = @project.main_assembly
     	@work_sketch = nil
-    	exchange_all_gl_components do
-      	@all_assemblies         = [@main_assembly.real_component]
-      	@all_parts              = []
-      	@all_part_instances     = []
-      	@all_assembly_instances = [@main_assembly]
-      	@all_sketches           = []
-  	  end
-    	new_part if $preferences[:create_part_on_new_project] and @not_starting_up
-    	@colliding_instances    = []
-    	@filename = nil
     	self.has_been_changed = false
-    	@op_view.set_base_component( @main_assembly ) if @op_view
+    	@op_view.set_base_component( @project.main_assembly ) if @op_view
     	@toolstack = [ PartSelectionTool.new ] if @glview
-    	display_properties if @not_starting_up
+    	@project.display_properties if @not_starting_up
     	@glview.redraw if @not_starting_up
     	@not_starting_up = true
     	@op_view.update if @op_view
     	yield if block_given?
   	end
 	end
-	
-	def exchange_all_gl_components
-		if @not_starting_up
-			@glview.delete_all_displaylists
-	    @all_parts.each{|p| p.clean_up ; p.working_planes.each{|pl| pl.clean_up } }
-	    @all_sketches.each{|sk| sk.clean_up }
-    end
-	  yield
-	  if @not_starting_up
-	  	@all_sketches.each do |sk| 
-        sk.displaylist = @glview.add_displaylist
-        sk.build_displaylist
-      end
-	  	progress = ProgressDialog.new
-	  	progress.fraction = 0.0
-	  	num_ops = @all_parts.map{|p| p.operators}.flatten.size
-  		op_i = 1
-  		increment = 1.0 / num_ops
-  	  @all_parts.each do |p| 
-  	    p.displaylist = @glview.add_displaylist
-  	    p.wire_displaylist = @glview.add_displaylist
-  	    p.selection_displaylist = @glview.add_displaylist
-  	    p.build do |op| 
-  				progress.fraction += increment
-  				progress.text = GetText._("Rebuilding operator ") + "'#{op.name}' (#{op_i}/#{num_ops})" 
-  				op_i += 1
-  			end
-  	    p.working_planes.each do |pl| 
-  	      pl.displaylist = @glview.add_displaylist
-  	      pl.build_displaylists
-	      end
-      end
-      progress.close
-    end
-	end
-	
+
 	def make_project_public
 	  MakePublicDialog.new self do |server, port|
   	  @client = ProjectClient.new( server, port )
   	  if @client.working
-    	  save_file
-    	  if @filename and not @client.available_projects.map{|pr| pr.name }.include? @name
-          @client.server.add_project self 
-          valid = @client.join_project( @name, 'synthetic', 'bla' )
+    	  @project.save
+    	  if @project.filename and not @client.available_projects.map{|pr| pr.name }.include? @project.name
+          @client.server.add_project @project 
+          valid = @client.join_project( @project.name, 'synthetic', 'bla' )
           if not valid
             @client.exit
     	      @client = nil
@@ -232,148 +172,12 @@ public
 	def component_changed comp
 	 @client.component_changed comp if @client
 	end
-  ###                                                                              ###
-  ######---------------------- Creation of new components ----------------------######
-  ###             	                                                               ###
-	def new_instance( component, show_properties=true )
-	  # make sure we are inserting into an assembly
-		working_level_up while @work_component.class == Part
-		# make component instance the work component
-		instance = Instance.new( component, @work_component )
-		#@work_component.components.push instance
-		#@all_part_instances.push instance if instance.class == Part
-		#@all_assembly_instances.push instance if instance.class == Assembly
-		add_object instance
-		change_working_level instance
-		instance.display_properties if show_properties
-		instance
-	end
-	
-	def new_part
-		# create part and make its instance the work part
-		part = Part.new( unique_name( GetText._("part") ) )
-		@all_parts.push part
-		new_instance( part )
-	end
-	
-	def new_assembly
-		# create assembly and make it the work assembly
-		assembly = Assembly.new( unique_name(GetText._("assembly")) )
-		@all_assemblies.push assembly
-		new_instance( assembly )
+
+	def add_object( inst, insert=true )
+	  @project.add_object( inst, insert )
+    @client.component_added inst if inst.is_a? Instance and @client and @client.working
 	end
 
-	def new_sketch( template=nil )
-	  # pick plane for sketch
-	  activate_tool('plane_select', true) do |plane|
-	    if plane
-    		# create sketch and make it the work sketch
-    		sketch = Sketch.new( unique_name( GetText._("sketch") ), @work_component, plane )
-    		if template
-    		  sketch.segments = template.segments.map{|s| seg = s.dup ; seg.sketch = sketch ; seg }
-    		  sketch.build_displaylist
-		    end
-    		@all_sketches.push sketch
-    		@work_component.unused_sketches.push( sketch )
-    		#@work_component.working_planes.push sketch.plane
-    		@op_view.update
-    		sketch_mode sketch
-		  end
-	  end
-	end
-	
-	def share_sketch
-	  
-	end
-	
-	def add_object( inst, insert=true )
-    if inst.is_a? Instance
-      # check if we already know the real_component
-      real_comp = (@all_parts + @all_assemblies).select{|e| e.component_id == inst.real_component.component_id }.first
-      # add part
-      if inst.class == Part
-        @all_part_instances.push inst
-        @all_part_instances.uniq!
-        if real_comp
-          inst.real_component = real_comp
-        else
-          @all_parts.push inst.real_component
-          inst.displaylist = @glview.add_displaylist
-          inst.build
-        end
-      # add assembly
-      elsif inst.class == Assembly
-        @all_assembly_instances.push inst
-        if real_comp
-          inst.real_component = real_comp
-        else
-          @all_assemblies.push inst.real_component
-          inst.components.each{|c| add_object( c, false ) }
-        end
-      end
-      if insert
-        working_level_up while @work_component.class == Part
-        @work_component.components.push inst
-        @op_view.update
-      end
-      @client.component_added inst if @client and @client.working
-    # add segment
-    elsif inst.is_a? Segment and @work_sketch
-      @work_sketch.segments.push inst
-      @work_sketch.build_displaylist
-    end
-    @glview.redraw
-	end
-	
-	def delete_object obj_or_id
-	  obj = (obj_or_id.is_a? Integer) ? all_instances.select{|inst| inst.instance_id == obj_or_id }.first : obj_or_id
-	  if obj.is_a? Instance and obj.parent
-      obj.parent.remove_component obj
-      @all_assembly_instances.delete obj
-      @all_part_instances.delete obj
-    elsif obj.is_a? Component
-    	all_instances.each{|inst| delete_object inst if inst.real_component == obj }
-    	@all_parts.delete obj
-    elsif obj.is_a? Operator 
-      sketch = obj.settings[:sketch]
-      if sketch
-     	  dia = Gtk::MessageDialog.new(@main_win, 
-                                     Gtk::Dialog::DESTROY_WITH_PARENT,
-                                     Gtk::MessageDialog::QUESTION,
-                                     Gtk::MessageDialog::BUTTONS_NONE,
-                                     GetText._("Delete Sketch?"))
-        dia.add_buttons( [Gtk::Stock::NO, Gtk::Dialog::RESPONSE_NO],
-         		             [Gtk::Stock::DELETE, Gtk::Dialog::RESPONSE_YES] )
-	      dia.secondary_text = GetText._("The operator includes an associated sketch.\nDo you want to delete it?")
-			  dia.run do |resp|
-					if resp == Gtk::Dialog::RESPONSE_YES
-						@all_sketches.delete sketch
-			  		sketch.clean_up	
-			  	else
-			  		@work_component.unused_sketches.push sketch
-			  		sketch.op = nil
-			  		sketch.visible = true
-					end
-					dia.destroy
-				end
-	    end
-	    @work_component.remove_operator obj
-    elsif obj.is_a? Sketch
-    	if obj.op
-    		obj.op.settings[:segments] = nil
-    		obj.op.settings[:sketch] = nil
-    		obj.op.part.build obj.op
-    	end
-    	obj.parent.unused_sketches.delete obj
-    	@all_sketches.delete obj
-			obj.clean_up	
-    elsif obj.is_a? Segment
-      obj.sketch.segments.delete obj
-      obj.sketch.build_displaylist
-    end
-    @op_view.update
-    @glview.redraw
-	end
 ###                                                                 ###
 ######---------------------- File handling ----------------------######
 ###                                                                 ###
@@ -385,25 +189,15 @@ public
       	filename = dia.filename
       	dia.destroy
       	#begin
+      	  @glview.ground.clean_up
 					File::open( filename ) do |file|
-						scene = Marshal::restore file 
-						@glview.ground.clean_up
-						exchange_all_gl_components do
-						  thumbnail               = scene[0]
-							@name                   = scene[1]
-							@main_assembly          = scene[2]
-							@all_assemblies         = scene[3]
-							@all_parts              = scene[4]
-      				@all_part_instances     = scene[5]
-      				@all_assembly_instances = scene[6]
-							@all_sketches           = scene[7]
-						end
-					end
-					change_working_level @main_assembly 
+            thumbnail, @project = Marshal::restore file 
+          end
+					change_working_level @project.main_assembly 
 					@filename = filename
 					self.has_been_changed = false
-					@all_parts.each{|p| p.build } #XXX this shouldn't really be needed
-					@glview.zoom_onto @all_part_instances.select{|i| i.visible }
+					@project.all_parts.each{|p| p.build } #XXX this shouldn't really be needed
+					@glview.zoom_onto @project.all_part_instances.select{|i| i.visible }
   			#rescue
   			#  dialog = Gtk::MessageDialog.new(@main_win, 
 				#                                  Gtk::Dialog::DESTROY_WITH_PARENT,
@@ -441,10 +235,7 @@ public
   		  @selection.deselect_all
   			File::open( @filename, "w" ) do |file|
   			  #@all_parts.each{|p| p.solid = Solid.new }
-  			  puts "projectname: " + project_name
-  				Marshal::dump( [@glview.image_of_instances(@all_part_instances,8,100,project_name).to_tiny, 
-  												@name, @main_assembly, @all_assemblies,	@all_parts, @all_part_instances,
-  												@all_assembly_instances, @all_sketches], file )
+  				Marshal::dump( [@glview.image_of_instances(@project.all_part_instances,8,100,project_name).to_tiny, @project], file )
   				#@all_parts.each{|p| p.build } 
   			end
   			self.has_been_changed = false
@@ -457,43 +248,9 @@ public
 	
 	def export_selection
 	  parts = @selection.map{|s| s.class == Assembly ? s.contained_parts : s }.flatten
-	  parts = @main_assembly.contained_parts.select{|p| p.visible } if parts.empty?
-	  ExportDialog.new do |filetype|
-      dia = FileOpenDialog.new filetype
-      if dia.run == Gtk::Dialog::RESPONSE_ACCEPT
-        filename = dia.filename
-        filename += filetype unless filename =~ Regexp.new(filetype)
-        data = case filetype
-          when '.stl' : generate_stl parts
-        end
-	      File::open(filename,"w"){|f| f << data }
-      end
-      dia.destroy
-    end
+	  parts = @project.main_assembly.contained_parts.select{|p| p.visible } if parts.empty?
+    Exporter.new.export parts
 	end
-	
-	def generate_stl parts
-	  stl = "solid #{@name}\n"
-	  for p in parts
-	    for tri in p.solid.tesselate
-	      n = tri[0].vector_to(tri[1]).cross_product(tri[0].vector_to(tri[2])).normalize
-	      n = Vector[0.0, 0.0, 0.0] if n.x.nan?
-	      stl += "  facet normal #{n.x} #{n.y} #{n.z}\n"
-        stl += "    outer loop\n"
-        for v in tri
-          stl += "      vertex #{v.x} #{v.y} #{v.z}\n"
-        end
-        stl += "    endloop\n"
-	      stl += "  endfacet\n"
-	    end
-	  end
-	  stl += "endsolid #{@name}\n"
-    return stl
-	end
-
-  def display_properties
-    ProjectInformationDialog.new(self){ yield if block_given? ; puts "found myself having the name #{@name}" }
-  end
 ###                                                                                      ###
 ######---------------------- Working level and mode transitions ----------------------######
 ###                                                                                      ###
@@ -504,7 +261,7 @@ public
 	  @work_component = component
 	  @work_component.unused_sketches.each{|sk| sk.visible = true } if @work_component.class == Part
 	  # make other components transparent
-	  @main_assembly.transparent = @focus_view ? true : false
+	  @project.main_assembly.transparent = @focus_view ? true : false
 		@work_component.transparent = false
 		@selection.deselect_all
 		@op_view.set_base_component( @work_component )
@@ -529,7 +286,22 @@ public
 	end
 	
 	def upmost_working_level?
-	  @work_component == @main_assembly
+	  @work_component == @project.main_assembly
+	end
+	
+	def top_ancestor comp
+		while comp
+			break if comp.parent == @work_component
+			comp = comp.parent
+		end
+		# comp now contains the topmost ancestor of the original comp that is directly in the work assembly.
+		# if not, the component selected is in an assembly on top of the work asm and neglected
+		return comp
+	end
+	
+	def next_assembly
+	  working_level_up while @work_component.class == Part
+	  @work_component
 	end
 	
 	# return from drawing, tool or operator mode
@@ -642,7 +414,7 @@ public
 	def delete_op_view_selected
 		exit_current_mode
 	  sel = @op_view.selections.first
-    delete_object sel if sel
+    @project.delete_object sel if sel
 	end
 	
 	def activate_tool( name, temporary=false )
@@ -716,16 +488,6 @@ public
 			@glview.redraw
 		end
 	end
-	
-	def top_ancestor comp
-		while comp
-			break if comp.parent == @work_component
-			comp = comp.parent
-		end
-		# comp now contains the topmost ancestor of the original comp that is directly in the work assembly.
-		# if not, the component selected is in an assembly on top of the work asm and neglected
-		return comp
-	end
 
 	def select comp
 		comp = top_ancestor comp
@@ -735,7 +497,7 @@ public
 	
 	def delete_selected
 	  for comp in @selection
-      delete_object comp
+      @project.delete_object comp
     end
     @selection.deselect_all
 	end
@@ -797,7 +559,7 @@ public
 	end
 	
 	def display_contact_set
-		SimulationSettingsDialog.new( @all_part_instances, @colliding_instances )
+		SimulationSettingsDialog.new( @project.all_part_instances, @project.colliding_instances )
 	end
 	
 	def key_pressed( key )
@@ -819,18 +581,7 @@ public
 	end
 	
 	def show_material_editor
-	  MaterialEditor.new @materials
-	end
-	
-###                                                         ###
-######---------------------- Stuff ----------------------######
-###                                                         ###
-private
-
-	def unique_name base
-		num = 1
-		num += 1 while [@all_parts, @all_assemblies, @all_sketches].flatten.map{|e| e.name }.include? GetText._("Untitled") + " #{base} #{num}"
-		return GetText._("Untitled") + " #{base} #{num}"
+	  MaterialEditor.new @project.materials
 	end
 end
 

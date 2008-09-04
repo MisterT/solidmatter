@@ -33,7 +33,8 @@ class Quaternion
       p_v = Vector[@x,@y,@z]
       q_s = q.w
       q_v = Vector[q.x, q.y, q.z]
-      return Quaternion.new( [p_s * q_s - p_v.dot_product(q_v)] +  (q_v * p_s + p_v * q_s + p_v.cross_product(q_v)).to_a )
+      return Quaternion.new( [p_s * q_s - p_v.dot_product(q_v)] +  
+                             (q_v * p_s + p_v * q_s + p_v.cross_product(q_v)).to_a )
     when Numeric
       return Quaternion.new( w/q, x/q, y/q, z/q )
     end

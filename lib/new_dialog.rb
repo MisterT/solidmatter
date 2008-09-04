@@ -17,12 +17,12 @@ class NewDialog
   end
   
   def new_assembly
-    $manager.new_assembly
+    $manager.project.new_assembly
     close
   end
   
   def new_part
-    $manager.new_part
+    $manager.project.new_part
     close
   end
   

@@ -22,8 +22,8 @@ class PartInformationDialog
 	  # load materials into combo box
 	  combo = @glade['material_combo']
 	  combo.remove_text 0
-	  $manager.materials.each{|m| combo.append_text m.name }
-	  index = $manager.materials.index @info[:material]
+	  $manager.project.materials.each{|m| combo.append_text m.name }
+	  index = $manager.project.materials.index @info[:material]
 	  combo.active = index if index
 	  # set multi-user status
 	  @glade['part_dialog'].transient_for = $manager.main_win
@@ -36,7 +36,7 @@ class PartInformationDialog
     info[:author]   = @glade['author_entry'].text
     info[:approved] = @glade['approved_entry'].text
     info[:version]  = @glade['version_entry'].text
-    info[:material] = $manager.materials[ @glade['material_combo'].active ]
+    info[:material] = $manager.project.materials[ @glade['material_combo'].active ]
     @glade['part_dialog'].destroy
     $manager.has_been_changed = true
     @return_handler.call info

@@ -9,7 +9,7 @@ require 'preferences.rb'
 require 'widgets.rb'
 require 'gl_view.rb'
 require 'op_view.rb'
-require 'project_manager.rb'
+require 'manager.rb'
 require 'geometry.rb'
 require 'about_dialog.rb'
 require 'new_dialog.rb'
@@ -31,7 +31,7 @@ class OpenMachinistMainWin < Gtk::Window
 		statusbar = Gtk::Statusbar.new
 		@main_vbox = Gtk::VBox.new( false )
 		@op_view_controls = Gtk::HBox.new
-		ProjectManager.new( self, op_view, glview, assembly_toolbar, part_toolbar, sketch_toolbar, statusbar, @main_vbox, @op_view_controls )
+		Manager.new( self, op_view, glview, assembly_toolbar, part_toolbar, sketch_toolbar, statusbar, @main_vbox, @op_view_controls )
 		signal_connect('delete-event') do
 		  CloseProjectConfirmation.new do |response|
         case response
@@ -174,7 +174,7 @@ class OpenMachinistMainWin < Gtk::Window
 		focus_btn.active = true
 		focus_btn.signal_connect("toggled") do |b| 
 		  $manager.focus_view = b.active?
-		  $manager.main_assembly.transparent = $manager.focus_view
+		  $manager.project.main_assembly.transparent = $manager.focus_view
   		$manager.work_component.transparent = false
   		glview.redraw
 		end
@@ -239,7 +239,7 @@ class OpenMachinistMainWin < Gtk::Window
 		part_toolbar.icon_size = Gtk::IconSize::SMALL_TOOLBAR
 		part_toolbar.show_arrow = true
 		@main_vbox.pack_start(part_toolbar, false, false)
-		part_toolbar.append( GetText._("Sketch"), "Sketch on selected plane","Toolbar/Sketch", Gtk::Image.new('../data/icons/middle/sketch_middle.png') ){$manager.new_sketch}
+		part_toolbar.append( GetText._("Sketch"), "Sketch on selected plane","Toolbar/Sketch", Gtk::Image.new('../data/icons/middle/sketch_middle.png') ){$manager.project.new_sketch}
 		part_toolbar.append( Gtk::SeparatorToolItem.new )
 		part_toolbar.append( GetText._("Extrude"), "Extrude sketch", "PartToolbar/Extrude", Gtk::Image.new('../data/icons/middle/extrude_middle.png') ){ $manager.add_operator('extrude')}
 		part_toolbar.append( GetText._("Revolve"), "Rotate a sketch around an axis to produce geometry", "PartToolbar/Revolve", Gtk::Image.new('../data/icons/middle/revolve_middle.png') ){}

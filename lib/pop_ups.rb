@@ -14,7 +14,7 @@ class BackgroundMenu < Gtk::Menu
 		]
 		items[0].sensitive = ($manager.work_sketch or 
 												  $manager.work_operator or 
-												  $manager.work_component != $manager.main_assembly) ? true : false
+												  $manager.work_component != $manager.project.main_assembly) ? true : false
 		items[2].sensitive = $manager.clipboard ? true : false
 		# return
 		items[0].signal_connect("activate") do
@@ -261,7 +261,7 @@ class SketchSelectionToolMenu < Gtk::Menu
 		]
 		items[0].sensitive = ($manager.work_sketch or 
 												  $manager.work_operator or 
-												  $manager.work_component != $manager.main_assembly) ? true : false
+												  $manager.work_component != $manager.project.main_assembly) ? true : false
 		items[2].sensitive = (not $manager.selection.empty?)
 		items[3].sensitive = (not $manager.selection.empty?)
 		items[4].sensitive = $manager.clipboard ? true : false

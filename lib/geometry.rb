@@ -107,6 +107,10 @@ class Segment
   	[]
   end
   
+  def bounding_box
+    bounding_box_from snap_points.map{|p| Tool.sketch2world(p, @sketch.plane) }
+  end
+  
   def cut_with segs
   	[self]
   end
@@ -1685,7 +1689,7 @@ class Part < Component
 		                :author   => "",
 							      :approved => "",
 							      :version  => "0.1",
-							      :material => $manager.materials.first}
+							      :material => $manager.project.materials.first}
 		@displaylist = $manager.glview.add_displaylist
 		@wire_displaylist = $manager.glview.add_displaylist
 		@selection_displaylist = $manager.glview.add_displaylist

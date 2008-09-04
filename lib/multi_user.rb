@@ -5,7 +5,7 @@
 
 require 'drb'
 require 'socket'
-require 'project_manager.rb'
+require 'project.rb'
 require 'account_editor.rb'
 require 'save_request_dialog.rb'
 require 'wait_for_save_dialog.rb'
@@ -321,14 +321,9 @@ class ProjectClient
     @client_id = @server.add_client( login, password )
     if @client_id
       project = available_projects.select{|p| p.name == projectname }.first
-      $manager.exchange_all_gl_components do 
-        $manager.main_assembly          = project.main_assembly
-        $manager.all_assemblies         = project.all_assemblies
-        $manager.all_parts              = project.all_parts
-        $manager.all_assembly_instances = project.all_assembly_instances
-        $manager.all_part_instances     = project.all_part_instances
-        $manager.all_sketches           = project.all_sketches
-      end
+      $manager.project.clean_up
+      $manager.project = project
+      project.rebuild
       $manager.op_view.update
       $manager.glview.redraw
       start_polling
@@ -393,7 +388,7 @@ class ProjectClient
 
   def exchange_object new_object
     # find all occurences of object with same id and replace them
-    for inst in $manager.all_instances
+    for inst in $manager.project.all_instances
         if inst.real_component.component_id == new_object.component_id
           inst.clean_up
           inst.real_component = new_object

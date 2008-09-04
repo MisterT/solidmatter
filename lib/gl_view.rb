@@ -114,16 +114,17 @@ class GroundPlane
     GL.TexParameterf( GL::TEXTURE_2D, GL::TEXTURE_WRAP_T, GL::CLAMP )
   end
   
-  def generate_shadowmap objects=$manager.all_part_instances.select{|p| p.visible }
+  def generate_shadowmap objects=$manager.project.all_part_instances.select{|p| p.visible }
     @g_plane, @g_width, @g_height, @g_depth = ground objects
     @objects = objects
     if @g_plane and $manager.glview.render_shadows
       cancel = false
-	  	progress = ProgressDialog.new( GetText._("<b>Rendering shadowmap...</b>") ){ cancel = true }
+	  	progress = ProgressDialog.new( GetText._("<b>Rendering shadowmap...</b>") ){ cancel = true ; $manager.glview.render_shadows = false }
 	  	progress.fraction = 0.0
   		increment = 1.0 / @res_x 
       map = Image.new @res_x, @res_y
       for x in 0...@res_x
+        break if cancel
 				progress.fraction += increment
 				progress.text = GetText._("Processing scanline ") + "#{x}/#{@res_x}"
         for y in 0...@res_y
@@ -590,7 +591,7 @@ class GLView < Gtk::DrawingArea
 			# draw assembly components and sketches
 			draw_coordinate_axes unless @do_not_swap
 			GL.LineStipple(5, 0x1C47)
-			recurse_draw $manager.main_assembly
+			recurse_draw $manager.project.main_assembly
 			$manager.work_component.dimensions.each{|dim| recurse_draw dim }
 			# draw 3d interface stuff
 			GL.Disable(GL::LIGHTING)
@@ -743,14 +744,14 @@ class GLView < Gtk::DrawingArea
 	  if type or $manager.current_tool.is_a?(SelectionTool)
 	    case type or $manager.current_tool.selection_mode
 	    when :select_faces
-	      @selectables = $manager.all_part_instances.select{|inst| inst.visible }.map{|inst| inst.solid.faces }.flatten
+	      @selectables = $manager.project.all_part_instances.select{|inst| inst.visible }.map{|inst| inst.solid.faces }.flatten
 	    when :select_planes
 	      @selectables = $manager.work_component.working_planes
 	    when :select_faces_and_planes
 	    	@selectables = $manager.work_component.working_planes.dup
-	      @selectables += $manager.all_part_instances.select{|inst| inst.visible }.map{|inst| inst.solid.faces }.flatten
+	      @selectables += $manager.project.all_part_instances.select{|inst| inst.visible }.map{|inst| inst.solid.faces }.flatten
       when :select_instances
-        @selectables = $manager.all_part_instances.select{|inst| inst.visible }
+        @selectables = $manager.project.all_part_instances.select{|inst| inst.visible }
       when :select_segments
         if $manager.work_sketch
     		  @selectables = $manager.work_sketch.segments
@@ -877,7 +878,7 @@ class GLView < Gtk::DrawingArea
 	end
 	
 	def zoom_selection
-		sel = $manager.selection.empty? ? [$manager.main_assembly] : $manager.selection
+		sel = $manager.selection.empty? ? [$manager.project.main_assembly] : $manager.selection
 		zoom_onto sel
 	end
 	
@@ -945,11 +946,11 @@ class GLView < Gtk::DrawingArea
 	  # find an instance of each part for rendering
 	  temp = []
 	  instances = parts.map do |part|
-		  inst = $manager.all_part_instances.select{|inst| inst.real_component == part }.first
+		  inst = $manager.project.all_part_instances.select{|inst| inst.real_component == part }.first
 		  if inst
 		    inst
 	    else
-	      temp_inst = $manager.new_instance( part, false )
+	      temp_inst = $manager.project.new_instance( part, false )
 	      temp.push temp_inst
 	      temp_inst
       end
@@ -964,13 +965,13 @@ class GLView < Gtk::DrawingArea
 	  name = name ? name.shorten(16) : (instances.size == 1 ? instances.first.name.shorten(16) : "")
 	 	# make screenshot of parts
 		visible = {}
-		$manager.all_part_instances.each{|p| visible[p] = p.visible ; p.visible = false }
+		$manager.project.all_part_instances.each{|p| visible[p] = p.visible ; p.visible = false }
 		instances.each{|i| i.visible = true }
 		@do_not_swap = true
 		zoom_onto instances
 		screen = screenshot step
 		previous_view
-		$manager.all_part_instances.each{|p| p.visible = visible[p] }
+		$manager.project.all_part_instances.each{|p| p.visible = visible[p] }
 		@do_not_swap = false
 		# render reflection and normalize size
 		res ||= $preferences[:thumb_res]
