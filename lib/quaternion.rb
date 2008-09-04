@@ -22,8 +22,8 @@ class Quaternion
   attr_accessor :w, :x, :y, :z
   def initialize( *values )
     @w, @x, @y, @z = values.flatten
-    @w, @x, @y, @z = [0] + @w.to_a if @w.is_a? Vector
-    raise ArgumentError, "4 Floats needed or 1 Vector" unless @w and @x and @y and @z
+    @w, @x, @y, @z = [0.0] + @w.to_a if @w.is_a? Vector
+    @w, @x, @y, @z = 0.0, 1.0, 1.0, 1.0
   end
   
   def * q
@@ -77,7 +77,7 @@ class Quaternion
 end
 
 
-
+=begin
 v = Vector[8.4575475470, 1.045675475, 15.754746767]
 r = Quaternion.rotation( Vector[0.0, 1.0, 0.0], 360.0/10000 )
 
@@ -98,7 +98,7 @@ vec = (R * v.vec4).vec3!
 end
 puts "Abweichung: #{v.distance_to vec}"
 puts Time.now - t
-
+=end
 
 
 

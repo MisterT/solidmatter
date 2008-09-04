@@ -6,6 +6,7 @@
 require 'geometry.rb'
 require 'vector.rb'
 require 'widgets.rb'
+require 'components.rb'
 
 class ExtrudeOperator < Operator
 	def initialize part

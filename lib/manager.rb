@@ -257,7 +257,7 @@ public
 ###                                                                                      ###
 ######---------------------- Working level and mode transitions ----------------------######
 ###                                                                                      ###
-	def change_working_level( component )
+	def change_working_level component
 	  @selection.deselect_all
 	  # display only current part's sketches
 	  @work_component.unused_sketches.each{|sk| sk.visible = false } if @work_component.class == Part
