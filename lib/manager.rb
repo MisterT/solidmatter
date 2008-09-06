@@ -191,26 +191,23 @@ public
       if dia.run == Gtk::Dialog::RESPONSE_ACCEPT
       	filename = dia.filename
       	dia.destroy
-      	#begin
-      	  @glview.ground.clean_up
-					File::open( filename ) do |file|
-            thumbnail, @project = Marshal::restore file 
-          end
-					change_working_level @project.main_assembly 
-					@filename = filename
-					self.has_been_changed = false
-					@project.all_parts.each{|p| p.build } #XXX this shouldn't really be needed
-					@glview.zoom_onto @project.all_part_instances.select{|i| i.visible }
-  			#rescue
-  			#  dialog = Gtk::MessageDialog.new(@main_win, 
-				#                                  Gtk::Dialog::DESTROY_WITH_PARENT,
-				#                                  Gtk::MessageDialog::WARNING,
-				#                                  Gtk::MessageDialog::BUTTONS_CLOSE,
-				#                                  GetText._("Bad file format"))
-				#  dialog.secondary_text = GetText._("The file format is unsupported.\nMaybe this file was saved with an older version of Solid|matter")
-				#  dialog.run
-				#  dialog.destroy
-  			#end
+      	begin
+          @project = Project.load filename
+				  change_working_level @project.main_assembly 
+				  self.has_been_changed = false
+				  @project.rebuild
+				  @project.all_parts.each{|p| p.build } #XXX this shouldn't really be needed
+				  @glview.zoom_onto @project.all_part_instances.select{|i| i.visible }
+        rescue
+          dialog = Gtk::MessageDialog.new(@main_win, 
+                                          Gtk::Dialog::DESTROY_WITH_PARENT,
+                                          Gtk::MessageDialog::WARNING,
+                                          Gtk::MessageDialog::BUTTONS_CLOSE,
+                                          GetText._("Bad file format"))
+          dialog.secondary_text = GetText._("The file format is unsupported.\nMaybe this file was saved with an older version of Solid|matter")
+          dialog.run
+          dialog.destroy
+        end
   		else
   		  dia.destroy
       end
@@ -218,34 +215,16 @@ public
 	end
 	
 	def save_file_as 
-    dia = FileOpenDialog.new :save
-    if dia.run == Gtk::Dialog::RESPONSE_ACCEPT
-      @filename = dia.filename
-      @filename += '.omp' unless @filename =~ /.omp/
-			save_file
-			dia.destroy
-			return true
-    end
-    dia.destroy
-    return false
+    @project.save_as
 	end
 	
 	def save_file
 	  if @client
 	    @client.save_request
     else
-  		if @filename
-  		  @selection.deselect_all
-  			File::open( @filename, "w" ) do |file|
-  			  #@all_parts.each{|p| p.solid = Solid.new }
-  				Marshal::dump( [@glview.image_of_instances(@project.all_part_instances,8,100,project_name).to_tiny, @project], file )
-  				#@all_parts.each{|p| p.build } 
-  			end
-  			self.has_been_changed = false
-  			return true
-  		else
-  			save_file_as
-  		end
+		  @selection.deselect_all
+      @project.save
+			self.has_been_changed = false
 	  end
 	end
 	

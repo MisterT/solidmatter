@@ -69,10 +69,6 @@ attr_accessor :im
     @im.height
   end
   
-  def to_tiny
-    self #TinyImage.new self
-  end
-  
   def marshal_dump
     [width, height, @im.export_pixels_to_str( 0, 0, width, height, "RGBA" )]
   end

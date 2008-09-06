@@ -6,11 +6,23 @@
 require 'ui/project_dialog.rb'
 require 'ui/material_editor.rb'
 require 'geometry.rb'
+require 'components.rb'
 
 
 class Project
   attr_accessor :project_id, :materials, :main_assembly, :all_assemblies, :all_parts, :colliding_instances,
-                :all_assembly_instances, :all_part_instances, :all_sketches, :name, :author, :unit_system
+                :all_assembly_instances, :all_part_instances, :all_sketches, :name, :author, :unit_system, :filename
+                
+ 	def Project.load filename
+ 	  thumb, pr = nil
+	  File::open( filename ) do |file|
+      thumb, pr = Marshal::restore file 
+    end
+	  pr.filename = filename
+    pr
+	end
+	
+	
 	def initialize
 		@materials = [ Material.new( GetText._("Aluminum")),
                    Material.new( GetText._("Steel")),
@@ -36,10 +48,38 @@ class Project
 	def all_instances
     @all_part_instances + @all_assembly_instances
   end
+  
+	def save_as 
+    dia = FileOpenDialog.new :save
+    if dia.run == Gtk::Dialog::RESPONSE_ACCEPT
+      @filename = dia.filename
+      @filename += '.omp' unless @filename =~ /.omp/
+			save
+			dia.destroy
+			return true
+    end
+    dia.destroy
+    return false
+	end
+	
+	def save
+		if @filename
+			File::open( @filename, "w" ) do |file|
+			  #@all_parts.each{|p| p.solid = Solid.new }
+				Marshal::dump( [$manager ? $manager.glview.image_of_instances(@all_part_instances, 8, 100, @name) : Image.new(1,1), 
+				                self], file )
+				#@all_parts.each{|p| p.build } 
+			end
+			return true
+		else
+			save_as
+		end
+	end
 	
 	def rebuild
+	  glv = $manager.glview
   	@all_sketches.each do |sk| 
-      sk.displaylist = @glview.add_displaylist
+      sk.displaylist = glv.add_displaylist
       sk.build_displaylist
     end
   	progress = ProgressDialog.new
@@ -48,16 +88,16 @@ class Project
 		op_i = 1
 		increment = 1.0 / num_ops
 	  @all_parts.each do |p| 
-	    p.displaylist = @glview.add_displaylist
-	    p.wire_displaylist = @glview.add_displaylist
-	    p.selection_displaylist = @glview.add_displaylist
+	    p.displaylist = glv.add_displaylist
+	    p.wire_displaylist = glv.add_displaylist
+	    p.selection_displaylist = glv.add_displaylist
 	    p.build do |op| 
 				progress.fraction += increment
 				progress.text = GetText._("Rebuilding operator ") + "'#{op.name}' (#{op_i}/#{num_ops})" 
 				op_i += 1
 			end
 	    p.working_planes.each do |pl| 
-	      pl.displaylist = @glview.add_displaylist
+	      pl.displaylist = glv.add_displaylist
 	      pl.build_displaylists
       end
     end
