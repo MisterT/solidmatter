@@ -123,6 +123,7 @@ class GroundPlane
   end
   
   def generate_shadowmap objects=$manager.project.all_part_instances.select{|p| p.visible }
+    GC.enable
     @g_plane, @g_width, @g_height, @g_depth = ground objects
     @objects = objects
     if @g_plane and $manager.glview.render_shadows
@@ -265,8 +266,8 @@ end
 
 
 class GLView < Gtk::DrawingArea
-	attr_accessor :num_callists, :immediate_draw_routines, :selection_color, :stereo
-	attr_reader :displaymode, :ground, :cameras, :current_cam_index, :render_shadows
+	attr_accessor :num_callists, :immediate_draw_routines, :selection_color
+	attr_reader :displaymode, :ground, :cameras, :current_cam_index, :render_shadows, :stereo
 	def initialize
 		super
 		@selection_color = [1,0,1]
@@ -590,6 +591,11 @@ class GLView < Gtk::DrawingArea
 	  @ground.generate_shadowmap
 	end
 	
+	def stereo= b
+	  @stereo = b
+	  redraw
+	end
+	
 	def redraw
 		glcontext = self.gl_context
 		gldrawable = self.gl_drawable
@@ -599,7 +605,7 @@ class GLView < Gtk::DrawingArea
 	    GL.Clear(GL::DEPTH_BUFFER_BIT)
 	    cam = @cameras[@current_cam_index]
 		  if @stereo and not @selection_pass
-		    glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_TRUE)
+		    glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_TRUE)
 		    draw cam.stereo.first
 		    GL.Clear(GL::DEPTH_BUFFER_BIT)
 		    glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE)

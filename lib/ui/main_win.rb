@@ -254,7 +254,6 @@ class OpenMachinistMainWin < Gtk::Window
 		part_toolbar.append( GetText._("Draft"), "Draft faces", "PartToolbar/Draft", Gtk::Image.new('../data/icons/big/draft.png') ){}
 		part_toolbar.append( Gtk::SeparatorToolItem.new )
 		part_toolbar.append( GetText._("Pattern"), "Pattern feature along an axis or in a grid", "PartToolbar/Pattern", Gtk::Image.new('../data/icons/middle/assembly_middle.png') ){}
-		part_toolbar.append( GetText._("Mirror"), "Mirror feature along a plane", "PartToolbar/Mirror", Gtk::Image.new('../data/icons/middle/align-vertical-center_middle.png') ){}
 		sketch_toolbar.toolbar_style = Gtk::Toolbar::ICONS
 		sketch_toolbar.icon_size = Gtk::IconSize::SMALL_TOOLBAR
 		sketch_toolbar.show_arrow = true
