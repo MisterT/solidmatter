@@ -565,6 +565,30 @@ public
 	def show_material_editor
 	  MaterialEditor.new @project.materials
 	end
+	
+	def sketch2part( v, sk )
+	  
+	end
+	
+	def part2world( v, p )
+	  
+	end
+	
+	def world2part( v, p )
+	
+	end
+	
+	def part2sketch( v, sk )
+	  
+	end
+	
+	def world2sketch( v, sk )
+	  
+	end
+	
+	def sketch2world( v, sk )
+	  
+	end
 end
 
 
