@@ -84,8 +84,8 @@ class Camera
 	
 	def stereo
 	  left, right = dup, dup
-	  left.position  = @position + right_vec * -0.1
-	  right.position = @position + right_vec *  0.1
+	  left.position  = @position + right_vec * ($preferences[:eye_distance] / -160.0)
+	  right.position = @position + right_vec * ($preferences[:eye_distance] /  160.0)
 	  [left, right]
 	end
 
@@ -605,10 +605,10 @@ class GLView < Gtk::DrawingArea
 	    GL.Clear(GL::DEPTH_BUFFER_BIT)
 	    cam = @cameras[@current_cam_index]
 		  if @stereo and not @selection_pass
-		    glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_TRUE)
+		    glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE)
 		    draw cam.stereo.first
 		    GL.Clear(GL::DEPTH_BUFFER_BIT)
-		    glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE)
+		    glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_TRUE)
 		    draw cam.stereo.last
 		  else
 		    draw cam

@@ -36,7 +36,8 @@ $preferences = {
 	:server_port => 50010,
 	:default_unit_system => 'mm',
 	:decimal_places => 2,
-	:background_color => [0.3, 0.3, 0.3, 1.0]
+	:background_color => [0.3, 0.3, 0.3, 1.0],
+	:eye_distance => 8.0
 }
 
 $non_gconf_types = [Bookmark]
@@ -80,6 +81,7 @@ class PreferencesDialog
 		@glade['mouse_scale'].value = $preferences[:mouse_sensivity]
 		@glade['resolution_scale'].value = $preferences[:surface_resolution]
 		@glade['part_check'].active = $preferences[:create_part_on_new_project]
+		@glade['eye_scale'].value = $preferences[:eye_distance]
 		@react_to_changes = true
   end
   
@@ -102,6 +104,7 @@ class PreferencesDialog
 			$preferences[:mouse_sensivity] = @glade['mouse_scale'].value
 			$preferences[:surface_resolution] = @glade['resolution_scale'].value
 			$preferences[:create_part_on_new_project] = @glade['part_check'].active?
+			$preferences[:eye_distance] = @glade['eye_scale'].value
 			$manager.glview.realize
 			$manager.glview.redraw
 			save_preferences_to_gconf
