@@ -314,7 +314,7 @@ class Spline < Segment
 	end
 	
 	def dynamic_points
-	   @points
+	   @cvs
 	end
 
 	def tesselate
@@ -327,21 +327,12 @@ class Spline < Segment
 
 	def draw
 	  nurb = GLU.NewNurbsRenderer
-	  knots = [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]
-	  puts knots.size
-	  puts @cvs.size
-	  points = @cvs.map{|cv| cv.elements }.flatten
-    GLU.NurbsProperty( nurb, GLU::SAMPLING_TOLERANCE, 25.0 )
-    #GLU.NurbsProperty( nurb, GLU::DISPLAY_MODE, GLU::POLYGON_OUTLINE )
+	  knots = (0..(@cvs.size+order)).to_a
+	  points = @cvs.map{|cv| cv.elements[0..3] }.flatten
+    GLU.NurbsProperty( nurb, GLU::SAMPLING_TOLERANCE, $preferences[:surface_resolution] )
     GLU.BeginCurve nurb
-      GLU.NurbsCurve( nurb, @cvs.size+order, knots, order, points, order, GL::MAP1_VERTEX_3 )
+      GLU.NurbsCurve( nurb, @cvs.size+order, knots, 3, points, order, GL::MAP1_VERTEX_3 )
     GLU.EndCurve nurb
-	  #tesselate #if @points.empty?
-	  #GL.Begin( GL::LINE_STRIP )
-  	#  for p in @draw_points
-    #    GL.Vertex( p.x, p.y, p.z )
-    #  end
-    #GL.End
 	end
 
 	def moved_by( vec )

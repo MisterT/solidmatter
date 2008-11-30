@@ -627,17 +627,28 @@ class SketchTool < Tool
 	  GL.Enable(GL::DEPTH_TEST)
 	  # draw additional temporary geometry
 	  #XXX segs should draw themselves
-	  for seg in @temp_segments
-		  for micro_seg in seg.tesselate
-			  GL.LineWidth(2)
-			  GL.Color3f(1,1,1)
-			  GL.Begin( GL::LINES )
-			    pos1 = sketch2world( micro_seg.pos1 )
-			    pos2 = sketch2world( micro_seg.pos2 )
-				  GL.Vertex( pos1.x, pos1.y, pos1.z )
-				  GL.Vertex( pos2.x, pos2.y, pos2.z )
-			  GL.End
-		  end
+	  #for seg in @temp_segments
+		#  for micro_seg in seg.tesselate
+		#	  GL.LineWidth(2)
+		#	  GL.Color3f(1,1,1)
+		#	  GL.Begin( GL::LINES )
+		#	    pos1 = sketch2world( micro_seg.pos1 )
+		#	    pos2 = sketch2world( micro_seg.pos2 )
+		#		  GL.Vertex( pos1.x, pos1.y, pos1.z )
+		#		  GL.Vertex( pos2.x, pos2.y, pos2.z )
+		#	  GL.End
+		#  end
+		#end
+		for seg in @temp_segments
+		  GL.LineWidth(2)
+		  GL.Color3f(1,1,1)
+		  for v in seg.dynamic_points
+		    v.take_coords_from sketch2world( v )
+	    end
+	    seg.draw
+	    for v in seg.dynamic_points
+		    v.take_coords_from world2sketch( v )
+	    end
 		end
 	end
 	
@@ -937,7 +948,7 @@ class SplineTool < SketchTool
 	  super
 	  new_point, was_snapped = snapped( x,y )
 	  @draw_dot = was_snapped ? new_point : nil
-	  @temp_segments = [Spline.new( @points + [new_point], 3, @sketch )]
+	  @temp_segments = [Spline.new( @points + [new_point], 3, @sketch )] if new_point
 		@glview.redraw
 	end
 	
