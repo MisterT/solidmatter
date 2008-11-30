@@ -53,7 +53,7 @@ class JoinProjectDialog
       bus.add_match(mr) do |msg, first_param|
         if msg.params[2] and msg.params[2] == "SolidMatter"
           if msg.member == "ItemNew"
-            resolver = server.ResolveService (-1, -1, msg.params[2], "_workstation._tcp", "", 0, 0)
+            resolver = server.ResolveService( -1, -1, msg.params[2], "_workstation._tcp", "", 0, 0)
             address = resolver[7]
             port = resolver[8]
             puts "New server appeared  #{address} : #{port}"

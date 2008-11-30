@@ -293,6 +293,67 @@ class Circle < Arc
   end
 end
 
+class Spline < Segment
+	attr_accessor :pos1, :pos2
+	def initialize( cvs, degree=3, sketch=nil )
+	  super sketch
+	  @cvs = cvs
+	  @degree = degree
+	end
+	
+	def order
+	  @degree + 1
+	end
+	
+	def midpoint
+	  
+	end
+
+	def snap_points
+		super + [@cvs.first, @cvs.last]
+	end
+	
+	def dynamic_points
+	   @points
+	end
+
+	def tesselate
+    []
+	end
+	
+	def length
+    0
+	end
+
+	def draw
+	  nurb = GLU.NewNurbsRenderer
+	  knots = [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]
+	  puts knots.size
+	  puts @cvs.size
+	  points = @cvs.map{|cv| cv.elements }.flatten
+    GLU.NurbsProperty( nurb, GLU::SAMPLING_TOLERANCE, 25.0 )
+    #GLU.NurbsProperty( nurb, GLU::DISPLAY_MODE, GLU::POLYGON_OUTLINE )
+    GLU.BeginCurve nurb
+      GLU.NurbsCurve( nurb, @cvs.size+order, knots, order, points, order, GL::MAP1_VERTEX_3 )
+    GLU.EndCurve nurb
+	  #tesselate #if @points.empty?
+	  #GL.Begin( GL::LINE_STRIP )
+  	#  for p in @draw_points
+    #    GL.Vertex( p.x, p.y, p.z )
+    #  end
+    #GL.End
+	end
+
+	def moved_by( vec )
+	  Line.new( @pos1 + vec, @pos2 + vec, @sketch )
+  end
+
+	def dup
+    copy = super
+    copy.pnts.map!{|p| p.dup }
+	end
+end
+
 
 class Plane
 	attr_accessor :origin, :rotation, :u_vec, :v_vec

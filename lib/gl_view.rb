@@ -511,7 +511,7 @@ class GLView < Gtk::DrawingArea
     GL.PixelStorei(GL_UNPACK_ALIGNMENT, 1)
 		# set stipple pattern for focus transparency
 		GL.PolygonStipple [0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55] * 16
-		# make sure highlighting doesn'z flicker
+		# make sure highlighting doesn't flicker
 		GL.Enable(GL::POLYGON_OFFSET_FILL)
     GL.PolygonOffset(1.0, 1.0)
     # prepare shadows and reflections
@@ -589,6 +589,7 @@ class GLView < Gtk::DrawingArea
 	def render_shadows= b
 	  @render_shadows = b
 	  @ground.generate_shadowmap
+	  redraw
 	end
 	
 	def stereo= b

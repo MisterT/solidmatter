@@ -917,6 +917,46 @@ class DimensionTool < SketchTool
 	  @temp_dim.draw if @temp_dim
 	end
 end
+
+
+class SplineTool < SketchTool
+	def initialize sketch
+		super( GetText._("Spline   L: add point   M: move points"), sketch )
+		$manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if $manager.glview.window
+		@points = []
+	end
+	
+	def click_left( x,y )
+	  super
+		snap_p, snapped = point_snapped( world2sketch( @glview.screen2world(x,y) ) )
+		@points << snap_p
+    @last_reference_points.push snap_p
+	end
+	
+	def mouse_move( x,y )
+	  super
+	  new_point, was_snapped = snapped( x,y )
+	  @draw_dot = was_snapped ? new_point : nil
+	  @temp_segments = [Spline.new( @points + [new_point], 3, @sketch )]
+		@glview.redraw
+	end
+	
+	def pause
+	  super
+	  $manager.glview.window.cursor = nil
+	end
+	
+	def resume
+	  super
+	  $manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if $manager.glview.window
+	end
+	
+	def exit
+	  @sketch.segments << Spline.new( @points, 3, @sketch ) unless @points.size < 2
+	  @sketch.build_displaylist
+	  super
+	end
+end
   
 
 class EditSketchTool < SketchTool
@@ -1010,7 +1050,8 @@ class EditSketchTool < SketchTool
   def mouse_move( x,y, only_super=false, excluded=[] )
   	super( x,y, excluded )
   	unless only_super
-  		points = @sketch.segments.map{|s| [s.pos1, s.pos2] }.flatten
+  		#points = @sketch.segments.map{|s| [s.pos1, s.pos2] }.flatten
+  		points = @sketch.segments.map{|s| s.snap_points }.flatten
   		@draw_dot = points.select{|point|
   			dist = Point.new(x, @glview.allocation.height - y).distance_to @glview.world2screen(sketch2world(point))
   			dist < $preferences[:snap_dist]

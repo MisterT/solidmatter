@@ -261,6 +261,7 @@ class OpenMachinistMainWin < Gtk::Window
 		line_button = Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/big/list-remove.png' ), GetText._('Line') )
 		line_button.signal_connect('clicked'){ $manager.activate_tool('line', true) }
 		sketch_toolbar.append( line_button, GetText._("Line tool") )
+		sketch_toolbar.append( GetText._("Spline"), "Draw a freeform curve", "SketchToolbar/Spline", Gtk::Image.new('../data/icons/big/list-remove.png') ){ $manager.activate_tool('spline', true) }
 		circle_button = Gtk::MenuToolButton.new( Gtk::Image.new( '../data/icons/big/circle.png' ), GetText._('Circle') )
 		circle_button.signal_connect('clicked'){ $manager.activate_tool('circle', true) }
 		sketch_toolbar.append( circle_button, GetText._("Circle tool") )

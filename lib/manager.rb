@@ -435,6 +435,8 @@ public
 				tool = ArcTool.new( @work_sketch, &block )
 			when 'circle'
 				tool = TwoPointCircleTool.new( @work_sketch, &block )
+			when 'spline'
+				tool = SplineTool.new( @work_sketch, &block )
 			when 'dimension'
 				tool = DimensionTool.new( @work_sketch, &block )
 			when 'trim'
@@ -500,12 +502,9 @@ public
         copy = obj.dup
         if copy.is_a? Segment and @work_sketch
           copy.sketch = @work_sketch
-          add_object copy
-          @selection.add copy
-        else
-          add_object copy
-          @selection.add copy
         end
+        add_object copy
+        @selection.add copy
       end
     end
 	end
