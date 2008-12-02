@@ -337,14 +337,18 @@ class Spline < Segment
 	end
 
 	def draw
-	  # render curve
-	  nurb = GLU.NewNurbsRenderer
-	  knots = (0..(@cvs.size+order)).to_a
-	  points = @cvs.map{|cv| cv.elements[0..3] }.flatten
-    GLU.NurbsProperty( nurb, GLU::SAMPLING_TOLERANCE, $preferences[:surface_resolution] )
-    GLU.BeginCurve nurb
-      GLU.NurbsCurve( nurb, @cvs.size+order, knots, 3, points, order, GL::MAP1_VERTEX_3 )
-    GLU.EndCurve nurb
+	  if @cvs.size >= 2
+  	  first_p = @cvs[0] + @cvs[1].vector_to(@cvs[0])
+  	  last_p = @cvs[-1] + @cvs[-2].vector_to(@cvs[-1])
+  	  # render curve
+  	  nurb = GLU.NewNurbsRenderer
+  	  knots = (0..(@cvs.size+order+2)).to_a
+  	  points = ([first_p] + @cvs + [last_p]).map{|cv| cv.elements[0..3] }.flatten
+      GLU.NurbsProperty( nurb, GLU::SAMPLING_TOLERANCE, $preferences[:surface_resolution] )
+      GLU.BeginCurve nurb
+        GLU.NurbsCurve( nurb, @cvs.size+order+2, knots, 3, points, order, GL::MAP1_VERTEX_3 )
+      GLU.EndCurve nurb
+    end
     # draw vertices
     @cvs.each{|p| p.draw }
 	end
