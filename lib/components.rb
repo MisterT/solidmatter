@@ -195,7 +195,7 @@ class Solid
 	          box_back = back + (iz * z_span)
 	          break if cancel
 	          # shoot samples into each subvolume until it converges
-	          #subvolumes << Thread.start(box_left, box_lower, box_back) do |le,lo,ba|
+	          #subvolumes << GtkThread.start(box_left, box_lower, box_back) do |le,lo,ba|
 	            le,lo,ba = box_left, box_lower, box_back
 	            shots_fired = 0.0
 	            hits = 0.0

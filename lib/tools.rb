@@ -595,10 +595,10 @@ class SketchTool < Tool
 	  menu.popup(nil, nil, 3,  time)
 	end
 	
-	# draw guides as stippeled lines
 	def draw
     super
     GL.Disable(GL::DEPTH_TEST)
+    # draw guides as stippeled lines
     if $manager.use_sketch_guides
       [@x_guide, @z_guide].compact.each do |guide|
         first = sketch2world(guide.first)
@@ -615,8 +615,8 @@ class SketchTool < Tool
         GL.Disable GL::LINE_STIPPLE
       end
     end
+    # draw dot at snap location
 		if $manager.point_snap and @draw_dot
-      # draw dot at snap location
       dot = sketch2world @draw_dot
       GL.Color3f(1,0.3,0.1)
       GL.PointSize(8.0)
@@ -1062,7 +1062,7 @@ class EditSketchTool < SketchTool
   	super( x,y, excluded )
   	unless only_super
   		#points = @sketch.segments.map{|s| [s.pos1, s.pos2] }.flatten
-  		points = @sketch.segments.map{|s| s.snap_points }.flatten
+  		points = @sketch.segments.map{|s| s.dynamic_points }.flatten
   		@draw_dot = points.select{|point|
   			dist = Point.new(x, @glview.allocation.height - y).distance_to @glview.world2screen(sketch2world(point))
   			dist < $preferences[:snap_dist]

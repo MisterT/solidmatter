@@ -30,7 +30,7 @@ else
   si.tooltip = "Solid|matter dedicated server"
   si.visible = true
   si.blinking = true
-  Thread.start do
+  GtkThread.start do
     sleep 4
     Gtk.queue{ si.blinking = false }
   end

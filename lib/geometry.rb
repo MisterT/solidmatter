@@ -50,25 +50,6 @@ def sparse_bounding_box_from points
 end
 
 
-class Point
-	attr_accessor :x, :y, :constraints
-	def initialize( x=0, y=0 )
-		@x = x
-		@y = y
-		@constraints = []
-	end
-end
-
-
-class Vector # should be discarded in favor of point
-  attr_writer :constraints
-  def constraints
-    @constraints ||= []
-    @constraints
-  end
-end
-
-
 class InfiniteLine
   def initialize( pos, dir )
     @pos = pos
@@ -117,6 +98,28 @@ class Segment
     raise "Segment #{self} is not able to draw itself"
   end
 end
+
+
+class Vector # should be discarded in favor of point
+  attr_writer :constraints
+  def constraints
+    @constraints ||= []
+    @constraints
+  end
+  
+  def dynamic_points
+    [self]
+  end
+
+  def draw
+    GL.Color3f(0.98,0.87,0.18)
+    GL.PointSize(8.0)
+    GL.Begin( GL::POINTS )
+      GL.Vertex( x,y,z )
+    GL.End
+  end
+end
+
 
 class Line < Segment
 	attr_accessor :pos1, :pos2
@@ -294,7 +297,7 @@ class Circle < Arc
 end
 
 class Spline < Segment
-	attr_accessor :pos1, :pos2
+	attr_accessor :cvs, :degree
 	def initialize( cvs, degree=3, sketch=nil )
 	  super sketch
 	  @cvs = cvs
@@ -303,6 +306,14 @@ class Spline < Segment
 	
 	def order
 	  @degree + 1
+	end
+	
+	def pos1
+	  @cvs.first
+	end
+	
+	def pos2
+	  @cvs.last
 	end
 	
 	def midpoint
@@ -326,6 +337,7 @@ class Spline < Segment
 	end
 
 	def draw
+	  # render curve
 	  nurb = GLU.NewNurbsRenderer
 	  knots = (0..(@cvs.size+order)).to_a
 	  points = @cvs.map{|cv| cv.elements[0..3] }.flatten
@@ -333,15 +345,13 @@ class Spline < Segment
     GLU.BeginCurve nurb
       GLU.NurbsCurve( nurb, @cvs.size+order, knots, 3, points, order, GL::MAP1_VERTEX_3 )
     GLU.EndCurve nurb
+    # draw vertices
+    @cvs.each{|p| p.draw }
 	end
-
-	def moved_by( vec )
-	  Line.new( @pos1 + vec, @pos2 + vec, @sketch )
-  end
 
 	def dup
     copy = super
-    copy.pnts.map!{|p| p.dup }
+    copy.cvs.map!{|p| p.dup }
 	end
 end
 

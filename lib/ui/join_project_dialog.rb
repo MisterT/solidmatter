@@ -40,7 +40,7 @@ class JoinProjectDialog
   end
   
   def setup_zeroconf
-    @listener = Thread.start do
+    @listener = GtkThread.start do
       bus = DBus::SystemBus.instance
       p = bus.introspect("org.freedesktop.Avahi", "/")
       server = p["org.freedesktop.Avahi.Server"]

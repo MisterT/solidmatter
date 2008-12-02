@@ -286,7 +286,7 @@ class ProjectClient
   
   def start_polling
     @polling = true
-    @poller = Thread.start do
+    @poller = GtkThread.start do
       while @polling do
         # get model changes from server
         for changes in @server.get_changes_for @client_id

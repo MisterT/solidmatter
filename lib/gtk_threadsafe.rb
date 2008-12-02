@@ -35,4 +35,9 @@ module Gtk
   end
 end
 
+class GtkThread < Thread
+  def start
+    Gtk.init_add{ super }
+  end
+end
 
