@@ -508,6 +508,7 @@ class GLView < Gtk::DrawingArea
 		GL.Hint(GL::PERSPECTIVE_CORRECTION_HINT, GL::NICEST)
     GL.Enable(GL_AUTO_NORMAL)
     GL.Enable(GL_NORMALIZE)
+    GL.Enable(GL_MAP1_VERTEX_3)
     GL.PixelStorei(GL_UNPACK_ALIGNMENT, 1)
 		# set stipple pattern for focus transparency
 		GL.PolygonStipple [0xAA, 0xAA, 0xAA, 0xAA, 0x55, 0x55, 0x55, 0x55] * 16

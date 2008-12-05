@@ -329,7 +329,29 @@ class Spline < Segment
 	end
 
 	def tesselate
-    []
+	  tess_vertices = []
+	  if @cvs.size >= 2
+  	  first_p = @cvs[0] + @cvs[1].vector_to(@cvs[0])
+  	  last_p = @cvs[-1] + @cvs[-2].vector_to(@cvs[-1])
+  	  nurb = GLU.NewNurbsRenderer
+  	  knots = (0..(@cvs.size+order+2)).to_a
+  	  points = ([first_p] + @cvs + [last_p]).map{|cv| cv.elements[0..3] }.flatten
+  	  GLU.NurbsProperty( nurb, GLU::DISPLAY_MODE, GLU::OUTLINE_POLYGON)
+  	  GLU.NurbsProperty( nurb, GLU::SAMPLING_METHOD, GLU::OBJECT_PATH_LENGTH )
+      GLU.NurbsProperty( nurb, GLU::SAMPLING_TOLERANCE, $preferences[:surface_resolution] )
+      GLU.NurbsProperty( nurb, GLU::NURBS_MODE, GLU::NURBS_TESSELLATOR )
+      # register callbacks
+      GLU.NurbsCallback( nurb, GLU::NURBS_BEGIN, lambda{ } )
+      GLU.NurbsCallback( nurb, GLU::NURBS_END, lambda{ } )
+  		GLU.NurbsCallback( nurb, GLU::NURBS_VERTEX, lambda{|v| puts "hooray"; tess_vertices << Vector[v[0],v[1],v[2]] if v } )
+     	GLU.NurbsCallback( nurb, GLU::NURBS_ERROR, lambda{|errCode| raise "Nurbs tessellation Error: #{GLU::ErrorString errCode}" } )
+      # tesselate curve
+      GLU.BeginCurve nurb
+        GLU.NurbsCurve( nurb, @cvs.size+order+2, knots, 3, points, order, GL::MAP1_VERTEX_3 )
+      GLU.EndCurve nurb
+      GLU.DeleteNurbsRenderer nurb
+    end
+    tess_vertices
 	end
 	
 	def length
@@ -344,10 +366,12 @@ class Spline < Segment
   	  nurb = GLU.NewNurbsRenderer
   	  knots = (0..(@cvs.size+order+2)).to_a
   	  points = ([first_p] + @cvs + [last_p]).map{|cv| cv.elements[0..3] }.flatten
+  	  GLU.NurbsProperty( nurb, GLU::SAMPLING_METHOD, GLU::OBJECT_PATH_LENGTH )
       GLU.NurbsProperty( nurb, GLU::SAMPLING_TOLERANCE, $preferences[:surface_resolution] )
       GLU.BeginCurve nurb
         GLU.NurbsCurve( nurb, @cvs.size+order+2, knots, 3, points, order, GL::MAP1_VERTEX_3 )
       GLU.EndCurve nurb
+      GLU.DeleteNurbsRenderer nurb
     end
     # draw vertices
     @cvs.each{|p| p.draw }
