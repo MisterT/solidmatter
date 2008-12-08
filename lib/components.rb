@@ -259,9 +259,12 @@ class Solid
 		return bounding_box_from points
 	end
 	
-	def tesselate
+	def tesselate heal=false
 	  tris = @faces.inject([]){|triangles,f| triangles + f.tesselate }
-	  tris.flatten.each{|p1| tris.flatten.each{|p2| p1.take_coords_from p2 if p1.near_to p2 } }
+	  if heal
+	    vertices = tris.flatten
+	    vertices.each{|p1| vertices.each{|p2| p1.take_coords_from p2 if p1.near_to p2 } }
+    end
 	  tris
 	end
 	

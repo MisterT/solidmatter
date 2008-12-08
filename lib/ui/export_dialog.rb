@@ -9,7 +9,7 @@ class ExportDialog
 	def initialize &block
 	  @glade = GladeXML.new( "../data/glade/export_dialog.glade", nil, 'openmachinist' ) {|handler| method(handler)}
     @block = block
-    @formats = ['STL']
+    @formats = ['STL', 'lxs']
     @glade['format_combo'].model.clear
     @formats.each{|f| @glade['format_combo'].append_text f }
     @glade['format_combo'].active = 0
@@ -20,7 +20,7 @@ class ExportDialog
   end
   
   def ok
-    @block.call( '.' + @formats[@glade['format_combo'].active].downcase )
+    @block.call( '.' + @formats[@glade['format_combo'].active].downcase, false )
     close
   end
 	
