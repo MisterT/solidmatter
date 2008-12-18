@@ -47,10 +47,11 @@ private
     lxs =  "# Lux Render Scene File\n"
     lxs << "# Exported by Solid|matter\n"
     # setup camera
-    lxs << 'LookAt 2.428421 -5.649076 4.271002 2.041153 -4.912292 3.716770 -0.329526 0.450819 0.829563
-           Camera "perspective" "float fov" [49.134342] "float hither" [0.100000] "float yon" [100.000000] 
-                  "float lensradius" [0.000000] "bool autofocus" ["true"] "float shutteropen" [0.000000] 
-                  "float shutterclose" [1.000000] "float screenwindow" [-1.000000 1.000000 -0.750000 0.750000]
+    cam = $manager.glview.cameras[$manager.glview.current_cam_index]
+    lxs << "LookAt #{cam.position.x} #{cam.position.y} #{cam.position.z} #{cam.target.x} #{cam.target.y} #{cam.target.z} 0 1 0 \n"
+    lxs << 'Camera "perspective" "float fov" [49.134342] "float hither" [0.100000] "float yon" [100.000000] 
+                   "float lensradius" [0.000000] "bool autofocus" ["true"] "float shutteropen" [0.000000] 
+                   "float shutterclose" [1.000000] "float screenwindow" [-1.000000 1.000000 -0.750000 0.750000]
            '
     # setup frame and render settings
     lxs << 'Film "fleximage" "integer xresolution" [640] "integer yresolution" [480] "integer haltspp" [0] 
@@ -99,11 +100,24 @@ private
       puts "generated indices"
       lxs << "]\n"
       lxs << '"point P" ['
-      tris.flatten.each{|v| lxs << v.to_a.map { |e| e * 4.0 }.join(" ") << "\n" }
+      tris.flatten.each{|v| lxs << v.to_a.map{|e| e * 1.0 }.join(" ") << "\n" }
       puts "generated vertices"
       lxs << "]\n"
       lxs << "AttributeEnd\n"
     end
+    # create groundplane
+    tris = [ [Vector[-100, 0, -100], Vector[-100, 0, 100], Vector[100, 0, -100]], 
+             [Vector[-100, 0, 100],  Vector[100, 0, 100],  Vector[100, 0, -100]] ]
+    lxs << "AttributeBegin\n"
+    lxs << 'NamedMaterial "lux_clayMat"
+    '
+    lxs << 'Shape "trianglemesh" "integer indices" ['
+    tris.size.times{|i| lxs << "#{i*3} #{i*3+1} #{i*3+2} \n" }
+    lxs << "]\n"
+    lxs << '"point P" ['
+    tris.flatten.each{|v| lxs << v.to_a.join(" ") << "\n" }
+    lxs << "]\n"
+    lxs << "AttributeEnd\n"
     lxs << "WorldEnd\n"
   end
 end
