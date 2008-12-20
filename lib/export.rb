@@ -55,9 +55,9 @@ private
            '
     # setup frame and render settings
     lxs << 'Film "fleximage" "integer xresolution" [640] "integer yresolution" [480] "integer haltspp" [0] 
-                 "float reinhard_prescale" [1.000000] "float reinhard_postscale" [1.200000] "float reinhard_burn" [6.000000] 
-                 "bool premultiplyalpha" ["true"] "integer displayinterval" [12] "integer writeinterval" [120] 
-                 "string filename" ["/Users/syntheticore/Desktop//matter"] "bool write_tonemapped_tga" ["true"] 
+                 "float reinhard_prescale" [1.000000] "float reinhard_postscale" [1.800000] "float reinhard_burn" [6.000000] 
+                 "bool premultiplyalpha" ["true"] "integer displayinterval" [6] "integer writeinterval" [120] 
+                 "string filename" ["/Users/syntheticore/Desktop/matter"] "bool write_tonemapped_tga" ["true"] 
                  "bool write_tonemapped_exr" ["false"] "bool write_untonemapped_exr" ["false"] "bool write_tonemapped_igi" ["false"] 
                  "bool write_untonemapped_igi" ["false"] "bool write_resume_flm" ["false"] "bool restart_resume_flm" ["false"] 
                  "integer reject_warmup" [3] "bool debug" ["false"] "float colorspace_white" [0.314275 0.329411] 
@@ -77,9 +77,9 @@ private
             AttributeEnd
            '
     lxs << 'AttributeBegin
-           	Transform [-0.290864646435 0.95517116785 -0.0551890581846 0.0  -0.771100819111 -0.19988335669 0.604524731636 0.0  0.566393196583 0.21839119494 0.794672250748 0.0  4.07624530792 1.00545394421 5.90386199951 1.0]
+           	Transform [-0.290864646435 1.35517116785 -0.0551890581846 0.0  -0.771100819111 -0.19988335669 0.604524731636 0.0  0.566393196583 0.21839119494 0.794672250748 0.0  4.07624530792 1.00545394421 5.90386199951 1.0]
            	AreaLightSource "area" "color L" [0.900000 0.900000 0.900000] "float gain" [10.427602]
-            "color L" [0.900000 0.900000 0.900000] "float gain" [10.427602]	Shape "trianglemesh" "integer indices" [0 1 2 0 2 3] "point P" [-1.000000 1.000000 0.0 1.000000 1.000000 0.0 1.000000 -1.000000 0.0 -1.000000 -1.000000 0.0]
+            "color L" [0.900000 0.900000 0.900000] "float gain" [15.0]	Shape "trianglemesh" "integer indices" [0 1 2 0 2 3] "point P" [-1.000000 1.000000 0.0 1.000000 1.000000 0.0 1.000000 -1.000000 0.0 -1.000000 -1.000000 0.0]
            AttributeEnd
            '
     puts "static stuff finished"
