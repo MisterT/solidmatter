@@ -12,6 +12,17 @@ require 'ui/assembly_dialog.rb'
 require 'ui/progress_dialog.rb'
 
 
+class Array
+  def each_combination
+    size.times do |i|
+      size.times do |j|
+        yield self[i], self[j] if i <= j
+      end
+    end
+  end
+end
+
+
 class Face
   include Selectable
   include ChainCompletion
@@ -264,6 +275,16 @@ class Solid
 	  if heal
 	    vertices = tris.flatten
 	    vertices.each{|p1| vertices.each{|p2| p1.take_coords_from p2 if p1.near_to p2 } }
+    end
+    # make sure we have no redundant points and triangles are properly connected
+    tris.each_combination do |tri1, tri2|
+      3.times do |pi1|
+        3.times do |pi2|
+          if tri1[pi1] == tri2[pi2]
+            tri2[pi2] = tri1[pi1]
+          end
+        end
+      end
     end
 	  tris
 	end
