@@ -20,16 +20,15 @@ class RenderDialog
     Thread.start{ `./../bin/luxconsole tmp/lux.lxs` }
     $manager.glview.visible = false
     $manager.render_view.visible = true
-    Thread.start do
+    @render_thread = Thread.start do
+      sleep 4  # to compensate luxrender startup
       loop do
-        sleep 4  # to compensate luxrender startup
-        sleep 9 #$preferences[:lux_display_interval] - 1  # to compensate for image conversion time
-        begin
+        sleep $preferences[:lux_display_interval]
+        if File.exist? "tmp/lux.tga"
           Gtk.queue do
             gtkim = native2gtk Image.new("tmp/lux.tga")
             $manager.render_view.pixbuf = gtkim.pixbuf
           end
-        rescue
         end
       end
     end
@@ -39,6 +38,24 @@ class RenderDialog
     @glade['render_dialog'].destroy
   end
   
+  def save_image
+    dia = FileOpenDialog.new '.png'
+    if dia.run == Gtk::Dialog::RESPONSE_ACCEPT
+      filename = dia.filename
+      filename += '.png' unless filename =~ /.png/
+      im = Image.new "tmp/lux.tga"
+      im.save filename
+    end
+    dia.destroy
+  end
+  
+  def stop_rendering
+    `killall luxconsole`
+    @render_thread.kill if @render_thread
+    $manager.render_view.visible = false
+    $manager.glview.visible = true 
+  end
+  
   def generate_luxrender parts, width, height, heal_mesh
     lxs =  "# Lux Render Scene File\n"
     lxs << "# Exported by Solid|matter\n"
@@ -46,13 +63,13 @@ class RenderDialog
     cam = $manager.glview.cameras[$manager.glview.current_cam_index]
     lxs << "LookAt #{cam.position.x} #{cam.position.y} #{cam.position.z} #{cam.target.x} #{cam.target.y} #{cam.target.z} 0 1 0 \n"
     lxs << 'Camera "perspective" "float fov" [49.134342] "float hither" [0.100000] "float yon" [100.000000] 
-                   "float lensradius" [0.000000] "bool autofocus" ["true"] "float shutteropen" [0.000000] 
+                   "float lensradius" [0.050000] "bool autofocus" ["true"] "float shutteropen" [0.000000] 
                    "float shutterclose" [1.000000] "float screenwindow" [-1.000000 1.000000 -0.750000 0.750000]
            '
     # setup frame and render settings
     lxs << "Film \"fleximage\" \"integer xresolution\" [#{width}] \"integer yresolution\" [#{height}] \"integer haltspp\" [0] 
                  \"float reinhard_prescale\" [1.000000] \"float reinhard_postscale\" [1.800000] \"float reinhard_burn\" [6.000000] 
-                 \"bool premultiplyalpha\" [\"true\"] \"integer displayinterval\" [6] \"integer writeinterval\" [10] 
+                 \"bool premultiplyalpha\" [\"true\"] \"integer displayinterval\" [10] \"integer writeinterval\" [#{$preferences[:lux_display_interval]}] 
                  \"string filename\" [\"lux\"] \"bool write_tonemapped_tga\" [\"true\"] 
                  \"bool write_tonemapped_exr\" [\"false\"] \"bool write_untonemapped_exr\" [\"false\"] \"bool write_tonemapped_igi\" [\"false\"] 
                  \"bool write_untonemapped_igi\" [\"false\"] \"bool write_resume_flm\" [\"false\"] \"bool restart_resume_flm\" [\"false\"] 

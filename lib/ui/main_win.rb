@@ -37,7 +37,7 @@ class OpenMachinistMainWin < Gtk::Window
 		signal_connect('delete-event') do
 		  CloseProjectConfirmation.new do |response|
         case response
-          when :save then $manager.save_file and Gtk.main_quit
+          when :save then $manager.save_file and quit
           when :close then Gtk.main_quit
         end
       end
@@ -68,7 +68,7 @@ class OpenMachinistMainWin < Gtk::Window
 				[GetText._("/File/sep1"), "<Separator>"],
 				[GetText._("/File/Print..."), "<StockItem>", nil, Gtk::Stock::PRINT_PREVIEW, lambda{}],
 				[GetText._("/File/sep2"), "<Separator>"],
-				[GetText._("/File/Quit"), "<StockItem>", nil, Gtk::Stock::QUIT, lambda{ Gtk.main_quit }],
+				[GetText._("/File/Quit"), "<StockItem>", nil, Gtk::Stock::QUIT, lambda{ quit }],
 			[GetText._("/_Edit")],
 				[GetText._("/Edit/Undo"),        "<StockItem>", nil, Gtk::Stock::UNDO,  lambda{}],
 				[GetText._("/Edit/Redo"),        "<StockItem>", nil, Gtk::Stock::REDO,  lambda{}],
@@ -102,7 +102,6 @@ class OpenMachinistMainWin < Gtk::Window
 				[GetText._("/Tools/Bill of materials"),         "<Item>", nil, nil, lambda{}],
 				[GetText._("/Tools/sep4"), "<Separator>"],
 				[GetText._("/Tools/Material editor"),  "<Item>", nil, nil, lambda{ $manager.show_material_editor }],
-				[GetText._("/Tools/Render"),           "<Item>", nil, nil, lambda{ RenderDialog.new }],
 			[GetText._("/_Simulation")],
 				[GetText._("/Simulation/Update constraints"),                   "<Item>", nil, nil, lambda{}],
 				[GetText._("/Simulation/Update sub-assembly constraints"),      "<Item>", nil, nil, lambda{}],
@@ -112,6 +111,10 @@ class OpenMachinistMainWin < Gtk::Window
 				[GetText._("/Simulation/sep4"), "<Separator>"],
 				[GetText._("/Simulation/Activate contact solver"),              "<CheckItem>", nil, nil, lambda{}],
 				[GetText._("/Simulation/Define contact set..."),                "<Item>", nil, nil, lambda{ $manager.display_contact_set }],
+			[GetText._("/_Render")],
+				[GetText._("/Render/Render..."),                   "<Item>", nil, nil, lambda{ @render_dia = RenderDialog.new }],
+				[GetText._("/Render/Save current image..."),       "<Item>", nil, nil, lambda{ @render_dia.save_image if @render_dia }],
+				[GetText._("/Render/Stop rendering"),              "<Item>", nil, nil, lambda{ @render_dia.stop_rendering if @render_dia }],
 			[GetText._("/_Help")],
 				[GetText._("/Help/_About Solid|matter"), "<StockItem>", nil, Gtk::Stock::ABOUT, lambda{ AboutDialog.new }
 				] 
@@ -293,6 +296,11 @@ class OpenMachinistMainWin < Gtk::Window
 		main_box.pack_start(statusbar, false, false)
 		show_all
 		render_view.visible = false
+	end
+	
+	def quit
+	  @render_dia.stop_rendering if @render_dia
+	  Gtk.main_quit
 	end
 end
 

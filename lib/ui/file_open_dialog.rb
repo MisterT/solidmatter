@@ -22,15 +22,21 @@ class FileOpenDialog < Gtk::FileChooserDialog
     set_property('do-overwrite-confirmation', true) 
     self.current_folder = $preferences[:project_dir]
     # add solid|matter file filter
-    filter = Gtk::FileFilter.new
-    filter.name = GetText._("Open Machinist project")
-    filter.add_pattern "*.omp"
-    add_filter filter if mode == :save or mode == :open
-    # add export-format specific file filter
-    filter = Gtk::FileFilter.new
-    filter.name = GetText._("#{mode} files")
-    filter.add_pattern "*#{mode}"
-    add_filter filter unless mode == :save or mode == :open
+    if mode == :save or mode == :open
+      filter = Gtk::FileFilter.new
+      filter.name = GetText._("Open Machinist project")
+      filter.add_pattern "*.omp"
+      add_filter filter
+    else
+      # add export-format specific file filter
+      mode = [mode] unless mode.is_a? Array
+      for m in mode
+        filter = Gtk::FileFilter.new
+        filter.name = GetText._("#{m} files")
+        filter.add_pattern "*#{m}"
+        add_filter filter
+      end
+    end
     # add default filter
     filter = Gtk::FileFilter.new
     filter.name = GetText._("All filetypes")
