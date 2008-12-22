@@ -339,7 +339,7 @@ public
 	def operator_mode op
 		@op_toolbar ||= op.show_toolbar
 		@main_vbox.pack_start( @op_toolbar, false, true )
-		@main_vbox.show_all
+		@op_toolbar.show_all
 		@prt_toolbar.visible = false
 		@asm_toolbar.visible = false
 		@sketch_toolbar.visible = false
@@ -349,7 +349,7 @@ public
 	def tool_mode tool
 	  if tool.uses_toolbar
 		  @main_vbox.pack_start( tool.toolbar, false, true )
-		  @main_vbox.show_all
+		  tool.toolbar.show_all
 		  @prt_toolbar.visible = false
 		  @asm_toolbar.visible = false
 		  @sketch_toolbar.visible = false

@@ -14,6 +14,7 @@ class RenderDialog
 
   def ok
     close
+    GC.enable
     parts = $manager.project.main_assembly.contained_parts.select{|p| p.visible }
     luxdata = generate_luxrender parts, $manager.glview.allocation.width, $manager.glview.allocation.height, false
     File::open("tmp/lux.lxs",'w'){|f| f << luxdata }
@@ -21,12 +22,13 @@ class RenderDialog
     $manager.glview.visible = false
     $manager.render_view.visible = true
     @render_thread = Thread.start do
-      sleep 4  # to compensate luxrender startup
+      sleep 3  # to compensate luxrender startup
       loop do
         sleep $preferences[:lux_display_interval]
         if File.exist? "tmp/lux.tga"
+          `cp tmp/lux.tga tmp/luxcopy.tga`
           Gtk.queue do
-            gtkim = native2gtk Image.new("tmp/lux.tga")
+            gtkim = Gtk::Image.new("tmp/luxcopy.tga")
             $manager.render_view.pixbuf = gtkim.pixbuf
           end
         end
@@ -63,7 +65,7 @@ class RenderDialog
     cam = $manager.glview.cameras[$manager.glview.current_cam_index]
     lxs << "LookAt #{cam.position.x} #{cam.position.y} #{cam.position.z} #{cam.target.x} #{cam.target.y} #{cam.target.z} 0 1 0 \n"
     lxs << 'Camera "perspective" "float fov" [49.134342] "float hither" [0.100000] "float yon" [100.000000] 
-                   "float lensradius" [0.050000] "bool autofocus" ["true"] "float shutteropen" [0.000000] 
+                   "float lensradius" [0.010000] "bool autofocus" ["true"] "float shutteropen" [0.000000] 
                    "float shutterclose" [1.000000] "float screenwindow" [-1.000000 1.000000 -0.750000 0.750000]
            '
     # setup frame and render settings
