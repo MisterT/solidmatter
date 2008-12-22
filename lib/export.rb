@@ -23,7 +23,7 @@ class Exporter
       dia.destroy
     end
   end
-private
+
   def generate_stl parts, heal_mesh
     stl = "solid #{@name}\n"
     for p in parts
@@ -56,8 +56,8 @@ private
     # setup frame and render settings
     lxs << 'Film "fleximage" "integer xresolution" [640] "integer yresolution" [480] "integer haltspp" [0] 
                  "float reinhard_prescale" [1.000000] "float reinhard_postscale" [1.800000] "float reinhard_burn" [6.000000] 
-                 "bool premultiplyalpha" ["true"] "integer displayinterval" [6] "integer writeinterval" [120] 
-                 "string filename" ["/Users/syntheticore/Desktop/matter"] "bool write_tonemapped_tga" ["true"] 
+                 "bool premultiplyalpha" ["true"] "integer displayinterval" [6] "integer writeinterval" [10] 
+                 "string filename" ["lux"] "bool write_tonemapped_tga" ["true"] 
                  "bool write_tonemapped_exr" ["false"] "bool write_untonemapped_exr" ["false"] "bool write_tonemapped_igi" ["false"] 
                  "bool write_untonemapped_igi" ["false"] "bool write_resume_flm" ["false"] "bool restart_resume_flm" ["false"] 
                  "integer reject_warmup" [3] "bool debug" ["false"] "float colorspace_white" [0.314275 0.329411] 

@@ -17,7 +17,6 @@ Gtk.init
 Gtk::GL.init
 win = OpenMachinistMainWin.new
 $main_win = win
-win.show_all
 Gtk.main_with_queue 100
 
 

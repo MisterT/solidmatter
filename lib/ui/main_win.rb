@@ -16,6 +16,7 @@ require 'ui/new_dialog.rb'
 require 'ui/component_browser.rb'
 require 'ui/open_project_dialog.rb'
 require 'ui/server_win.rb'
+require 'ui/render_dialog.rb'
 
 class OpenMachinistMainWin < Gtk::Window
 	def initialize
@@ -25,13 +26,14 @@ class OpenMachinistMainWin < Gtk::Window
 		self.window_position = Gtk::Window::POS_CENTER
 		op_view = OpView.new
 		glview = GLView.new
+		render_view = Gtk::Image.new
 		assembly_toolbar = Gtk::Toolbar.new
 		part_toolbar = Gtk::Toolbar.new
 		sketch_toolbar = Gtk::Toolbar.new
 		statusbar = Gtk::Statusbar.new
 		@main_vbox = Gtk::VBox.new( false )
 		@op_view_controls = Gtk::HBox.new
-		Manager.new( self, op_view, glview, assembly_toolbar, part_toolbar, sketch_toolbar, statusbar, @main_vbox, @op_view_controls )
+		Manager.new( self, op_view, glview, render_view, assembly_toolbar, part_toolbar, sketch_toolbar, statusbar, @main_vbox, @op_view_controls )
 		signal_connect('delete-event') do
 		  CloseProjectConfirmation.new do |response|
         case response
@@ -100,6 +102,7 @@ class OpenMachinistMainWin < Gtk::Window
 				[GetText._("/Tools/Bill of materials"),         "<Item>", nil, nil, lambda{}],
 				[GetText._("/Tools/sep4"), "<Separator>"],
 				[GetText._("/Tools/Material editor"),  "<Item>", nil, nil, lambda{ $manager.show_material_editor }],
+				[GetText._("/Tools/Render"),           "<Item>", nil, nil, lambda{ RenderDialog.new }],
 			[GetText._("/_Simulation")],
 				[GetText._("/Simulation/Update constraints"),                   "<Item>", nil, nil, lambda{}],
 				[GetText._("/Simulation/Update sub-assembly constraints"),      "<Item>", nil, nil, lambda{}],
@@ -216,6 +219,7 @@ class OpenMachinistMainWin < Gtk::Window
 		# create main display area
 		hpaned.pack2(@main_vbox,true,true)
 		@main_vbox.pack_start(glview, true, true)
+		@main_vbox.pack_start( render_view, true, true )
 ###                                                                  ###
 ######---------------------- Lower toolbars ----------------------######
 ###                                                                  ###
@@ -287,6 +291,8 @@ class OpenMachinistMainWin < Gtk::Window
 		self.signal_connect_after('realize'){ $manager.assembly_toolbar; @op_view_controls.hide }
 		# create Statusbar
 		main_box.pack_start(statusbar, false, false)
+		show_all
+		render_view.visible = false
 	end
 end
 
