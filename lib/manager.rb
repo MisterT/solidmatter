@@ -519,8 +519,11 @@ public
 ######---------------------- Interface customizations ----------------------######
 ###                                                                            ###
 	def set_status_text( text )
-		@statusbar.pop( @statusbar.get_context_id('') )
-		@statusbar.push( @statusbar.get_context_id(''),  " " + text )
+	  @status_text_mutex ||= Mutex.new
+	  @status_text_mutex.synchronize do
+		  @statusbar.pop( @statusbar.get_context_id('') )
+		  @statusbar.push( @statusbar.get_context_id(''),  " " + text )
+		end
 	end
 	
 	def assembly_toolbar

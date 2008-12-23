@@ -94,7 +94,7 @@ class MaterialEditor
       mat = @materials[@combo.active]
       name =  @glade['name_entry'].text
       mat.name = name
-      @combo.active_iter[0] = name
+      #@combo.active_iter[0] = name
       col = @glade['color_btn'].color
       mat.color = [col.red, col.green, col.blue].map{|c| c / 65535.0 }
       mat.reflectivity = @glade['reflectivity_scale'].value

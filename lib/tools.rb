@@ -73,7 +73,7 @@ public
 	def resume
 	  @draw_routine = lambda{ draw }
 		@glview.immediate_draw_routines.push @draw_routine
-		$manager.set_status_text( @status_text )
+		$manager.set_status_text @status_text
 	end
 	
 	def exit

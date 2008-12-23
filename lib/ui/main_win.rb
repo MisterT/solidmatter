@@ -41,7 +41,7 @@ class OpenMachinistMainWin < Gtk::Window
 		  CloseProjectConfirmation.new do |response|
         case response
           when :save then $manager.save_file and quit
-          when :close then Gtk.main_quit
+          when :close then quit
         end
       end
     end

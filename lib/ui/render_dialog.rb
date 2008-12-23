@@ -21,10 +21,13 @@ class RenderDialog
     Thread.start{ `./../bin/luxconsole tmp/lux.lxs` }
     $manager.glview.visible = false
     $manager.render_view.visible = true
+    $manager.set_status_text "Rendering started..."
+    start_time = Time.now
     @render_thread = Thread.start do
       sleep $preferences[:lux_display_interval] / 2.0 + 2  # to compensate luxrender startup
       loop do
         sleep $preferences[:lux_display_interval]
+        Gtk.queue{ $manager.set_status_text "Render time: #{time_from start_time}" }
         if File.exist? "tmp/lux.tga"
           #`cp tmp/lux.tga tmp/luxcopy.tga`
           Gtk.queue do
@@ -94,20 +97,21 @@ class RenderDialog
     lxs << 'AttributeBegin
            	Transform [-0.290864646435 1.35517116785 -0.0551890581846 0.0  -0.771100819111 -0.19988335669 0.604524731636 0.0  0.566393196583 0.21839119494 0.794672250748 0.0  4.07624530792 1.00545394421 5.90386199951 1.0]
            	AreaLightSource "area" "color L" [0.900000 0.900000 0.900000] "float gain" [10.427602]
-            "color L" [0.900000 0.900000 0.900000] "float gain" [15.0]	Shape "trianglemesh" "integer indices" [0 1 2 0 2 3] "point P" [-1.000000 1.000000 0.0 1.000000 1.000000 0.0 1.000000 -1.000000 0.0 -1.000000 -1.000000 0.0]
+            "color L" [0.999000 0.900000 0.900000] "float gain" [15.0]	Shape "trianglemesh" "integer indices" [0 1 2 0 2 3] "point P" [-1.000000 1.000000 0.0 1.000000 1.000000 0.0 1.000000 -1.000000 0.0 -1.000000 -1.000000 0.0]
            AttributeEnd
            '
     puts "static stuff finished"
     # create materials
-    lxs << 'MakeNamedMaterial "lux_clayMat" "string type" ["matte"] "color Kd" [0.900000 0.900000 0.900000]
-    '
+    lxs << "MakeNamedMaterial \"default_mat\" \"string type\" [\"matte\"] \"color Kd\" [0.9 0.9 0.9]"
+    for m in parts.map{|p| p.information[:material] }
+      lxs << "MakeNamedMaterial \"#{m.name}\" \"string type\" [\"matte\"] \"color Kd\" [#{m.color.join ' '}]"
+    end
     # convert geometry
     for p in parts
       puts "building part"
       lxs << "AttributeBegin\n"
       lxs << "Transform [#{p.position.to_a.join ' '} #{p.position.to_a.join ' '} 1.0]\n"
-      lxs << 'NamedMaterial "lux_clayMat"
-      '
+      lxs << "NamedMaterial \"#{p.information[:material].name}\""
       tris = p.solid.tesselate heal_mesh
       puts "tesselated"
       lxs << 'Shape "trianglemesh" "integer indices" ['
@@ -124,7 +128,7 @@ class RenderDialog
     tris = [ [Vector[-100, 0, -100], Vector[-100, 0, 100], Vector[100, 0, -100]], 
              [Vector[-100, 0, 100],  Vector[100, 0, 100],  Vector[100, 0, -100]] ]
     lxs << "AttributeBegin\n"
-    lxs << 'NamedMaterial "lux_clayMat"
+    lxs << 'NamedMaterial "default_mat"
     '
     lxs << 'Shape "trianglemesh" "integer indices" ['
     tris.size.times{|i| lxs << "#{i*3} #{i*3+1} #{i*3+2} \n" }
@@ -134,6 +138,14 @@ class RenderDialog
     lxs << "]\n"
     lxs << "AttributeEnd\n"
     lxs << "WorldEnd\n"
+  end
+  
+  def time_from start
+    total_seconds = (Time.now - start).round
+    seconds = total_seconds % 60
+    minutes = ((total_seconds - seconds) / 60) % 60
+    hours = ((total_seconds - seconds) / 60 - minutes) / 60
+    [hours, minutes, seconds].map{|a| a.to_s.rjust(2, "0") }.join ":"
   end
 end
 

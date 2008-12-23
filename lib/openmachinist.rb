@@ -11,7 +11,7 @@ require 'preferences.rb'
 require 'gtk_threadsafe.rb'
 
 GetText.bindtextdomain 'openmachinist'
-
+Thread.abort_on_exception = true
 
 Gtk.init
 Gtk::GL.init
