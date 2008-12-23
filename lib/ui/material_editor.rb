@@ -38,6 +38,21 @@ class Material
     end
   end
   
+  def to_lux
+    return case @name
+      when "Aluminum"   : ""
+      when "Steel"      : "MakeNamedMaterial \"#{@name}\" \"string type\" [\"shinymetal\"] \"color Kr\" [#{@color.join ' '}] \"color Ks\" [0.900000 0.900000 0.900000] \"float uroughness\" [0.002000] \"float vroughness\" [0.002000]"
+      when "Copper"     : ""
+      when "Carbon"     : ""
+      when "ABS"        : "MakeNamedMaterial \"#{@name}\" \"string type\" [\"plastic\"] \"color Kd\" [#{@color.join ' '}] \"color Ks\" [0.900000 0.900000 0.900000] \"float uroughness\" [0.002000] \"float vroughness\" [0.002000]"
+	    when "Glass"      : "MakeNamedMaterial \"#{@name}\" \"string type\" [\"glass\"] \"color Kr\" [0.900000 0.900000 0.900000] \"color Kt\" [#{@color.join ' '}] \"float index\" [1.458000] \"bool architectural\" [\"false\"]"
+	                       #"MakeNamedMaterial \"#{m.name}\" \"string type\" [\"roughglass\"] \"color Kr\" [0.900000 0.900000 0.900000] \"color Kt\" [#{m.color.join ' '}] \"float uroughness\" [0.002000] \"float vroughness\" [0.002000] \"float index\" [1.458000] \"float cauchyb\" [0.003540]"
+	    when "Polystyrol" : "MakeNamedMaterial \"#{@name}\" \"string type\" [\"matte\"] \"color Kd\" [#{@color.join ' '}]"
+	    when "Poly-acryl" : "MakeNamedMaterial \"#{@name}\" \"string type\" [\"mattetranslucent\"] \"color Kr\" [0.900000 0.900000 0.900000] \"color Kt\" [0.900000 0.900000 0.900000]"
+	    else ""
+    end
+  end
+  
   def == other
   	@name == other.name
   end

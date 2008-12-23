@@ -24,13 +24,7 @@ class Project
 	
 	
 	def initialize
-		@materials = [ Material.new( GetText._("Aluminum")),
-                   Material.new( GetText._("Steel")),
-                   Material.new( GetText._("Copper")),
-                   Material.new( GetText._("Carbon")),
-                   Material.new( GetText._("Glass")),
-                   Material.new( GetText._("Polystyrol")),
-                   Material.new( GetText._("Poly-acryl")) ]
+		@materials = create_materials
     @unit_system = $preferences[:default_unit_system]
   	@name = GetText._("Untitled project")
   	@author = ""
@@ -253,5 +247,19 @@ class Project
 		num += 1 while [@all_parts, @all_assemblies, @all_sketches].flatten.map{|e| e.name }.include? GetText._("Untitled") + " #{base} #{num}"
 		return GetText._("Untitled") + " #{base} #{num}"
 	end
+	
+	def create_materials
+	  [Material.new( GetText._("Aluminum")),
+     Material.new( GetText._("Steel")),
+     Material.new( GetText._("Copper")),
+     Material.new( GetText._("Carbon")),
+     Material.new( GetText._("Glass")),
+     Material.new( GetText._("ABS")),
+     Material.new( GetText._("Polystyrol")),
+     Material.new( GetText._("Poly-acryl"))]
+	end
 end
+
+
+
 

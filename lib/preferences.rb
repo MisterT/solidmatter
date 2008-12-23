@@ -38,7 +38,7 @@ $preferences = {
 	:decimal_places => 2,
 	:background_color => [0.3, 0.3, 0.3, 1.0],
 	:eye_distance => 8.0,
-	:lux_display_interval => 6
+	:lux_display_interval => 8
 }
 
 $non_gconf_types = [Bookmark]
