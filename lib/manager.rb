@@ -65,9 +65,9 @@ class Manager
 	attr_accessor :focus_view, :save_btn, :return_btn, :previous_btn, :next_btn, :clipboard,
 	              :main_win, :point_snap, :grid_snap, :use_sketch_guides, :filename
 	attr_reader :selection, :work_component, :work_sketch, :work_operator, :project,
-	            :glview, :render_view, :op_view, :keys_pressed, :keymap, :has_been_changed
+	            :glview, :render_view, :render_image, :op_view, :keys_pressed, :keymap, :has_been_changed
 	            
-	def initialize( main_win, op_view, glview, render_view, asm_toolbar, prt_toolbar, sketch_toolbar, statusbar, main_vbox, op_view_controls )
+	def initialize( main_win, op_view, glview, render_view, render_image, asm_toolbar, prt_toolbar, sketch_toolbar, statusbar, main_vbox, op_view_controls )
 	  $manager = self
 	  @main_win = main_win
 		@op_view = op_view
@@ -77,6 +77,7 @@ class Manager
 		@statusbar = statusbar
 		@glview = glview
 		@render_view = render_view
+		@render_image = render_image
 		@main_vbox = main_vbox
 		@op_view_controls = op_view_controls
 		@focus_view = true

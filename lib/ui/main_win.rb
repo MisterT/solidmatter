@@ -26,14 +26,17 @@ class OpenMachinistMainWin < Gtk::Window
 		self.window_position = Gtk::Window::POS_CENTER
 		op_view = OpView.new
 		glview = GLView.new
-		render_view = Gtk::Image.new
+		render_image = Gtk::Image.new
+		render_view = Gtk::ScrolledWindow.new
+		render_view.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+		render_view.add_with_viewport render_image
 		assembly_toolbar = Gtk::Toolbar.new
 		part_toolbar = Gtk::Toolbar.new
 		sketch_toolbar = Gtk::Toolbar.new
 		statusbar = Gtk::Statusbar.new
 		@main_vbox = Gtk::VBox.new( false )
 		@op_view_controls = Gtk::HBox.new
-		Manager.new( self, op_view, glview, render_view, assembly_toolbar, part_toolbar, sketch_toolbar, statusbar, @main_vbox, @op_view_controls )
+		Manager.new( self, op_view, glview, render_view, render_image, assembly_toolbar, part_toolbar, sketch_toolbar, statusbar, @main_vbox, @op_view_controls )
 		signal_connect('delete-event') do
 		  CloseProjectConfirmation.new do |response|
         case response

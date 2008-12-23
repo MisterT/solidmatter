@@ -16,20 +16,20 @@ class RenderDialog
     close
     GC.enable
     parts = $manager.project.main_assembly.contained_parts.select{|p| p.visible }
-    luxdata = generate_luxrender parts, $manager.glview.allocation.width, $manager.glview.allocation.height, false
+    luxdata = generate_luxrender parts, $manager.glview.allocation.width-2, $manager.glview.allocation.height-2, false
     File::open("tmp/lux.lxs",'w'){|f| f << luxdata }
     Thread.start{ `./../bin/luxconsole tmp/lux.lxs` }
     $manager.glview.visible = false
     $manager.render_view.visible = true
     @render_thread = Thread.start do
-      sleep 3  # to compensate luxrender startup
+      sleep $preferences[:lux_display_interval] / 2.0 + 2  # to compensate luxrender startup
       loop do
         sleep $preferences[:lux_display_interval]
         if File.exist? "tmp/lux.tga"
-          `cp tmp/lux.tga tmp/luxcopy.tga`
+          #`cp tmp/lux.tga tmp/luxcopy.tga`
           Gtk.queue do
-            gtkim = Gtk::Image.new("tmp/luxcopy.tga")
-            $manager.render_view.pixbuf = gtkim.pixbuf
+            gtkim = Gtk::Image.new("tmp/lux.tga")
+            $manager.render_image.pixbuf = gtkim.pixbuf
           end
         end
       end
