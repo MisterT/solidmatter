@@ -27,7 +27,7 @@ class ComponentBrowser
   
   def build_buttons( regen_thumbs=false )
 	  # generate Gtk::Images for all parts
-    @thumbs = $manager.all_parts.dup.map do |part|
+    @thumbs = $manager.project.all_parts.dup.map do |part|
     	im = (regen_thumbs or not part.thumbnail) ? $manager.glview.image_of_parts( part ) : part.thumbnail
     	part.thumbnail = im
       gtkim = native2gtk(im)
