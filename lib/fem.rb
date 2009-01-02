@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-#  Created by Björn Breitgoff and Philip Silva on 19.12.2008.
+#  Created by Philip Silva on 19.12.2008.
 #  Copyright (c) 2008. All rights reserved.
 
 =begin
