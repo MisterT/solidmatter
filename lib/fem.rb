@@ -55,47 +55,40 @@ class NSet
     non_dj_sets = []
     @ranges.each do |x|
       unless j.disjoint? r
-	non_dj_sets << r
-	r = nil
-	non_dj_sets.compact!
+	      non_dj_sets << r
+	      r = nil
+	      non_dj_sets.compact!
       end
     end
     
-    non_dj_sets.each {|x| x.join_with r}
-    while non_dj_sets.size > 0
+    non_dj_sets.each{|x| x.join_with r }
+    while not non_dj_sets.empty?
       if non_dj_sets.size == 1
-	@ranges << non_dj_sets[0]
-	non_dj_sets = []
+        @ranges << non_dj_sets[0]
+        non_dj_sets = []
       else
-	pivot = non_dj_sets[0]
-	found_ndj = false
-	ndj_idx = nil
-	for i in 1...non_dj_sets.size
-	  unless non_dj_sets[i].disjoint? pivot
-	    found_ndj = true
-	    ndj_idx = i
-	  end
-	end
-	@ranges << pivot
-	if found_ndj
-	  non_dj_sets[ndj_idx] = non_dj_sets[ndj_idx].join_with pivot
-	end
-	non_dj_sets[0] = nil
-	non_dj_sets.compact!
+        pivot = non_dj_sets[0]
+        found_ndj = false
+        ndj_idx = nil
+        for i in 1...non_dj_sets.size
+          unless non_dj_sets[i].disjoint? pivot
+            found_ndj = true
+            ndj_idx = i
+          end
+        end
+        @ranges << pivot
+        if found_ndj
+          non_dj_sets[ndj_idx] = non_dj_sets[ndj_idx].join_with pivot
+        end
+        non_dj_sets[0] = nil
+        non_dj_sets.compact!
       end
     end
   end
-  
+
   # Sortierung würdes optimieren...
   def include? x
-    found = false
-    @ranges.each do |r|
-      if r.include? x
-	found = true
-	break
-      end
-    end
-    return found
+    @ranges.any?{|r| r.include? x }
   end
   
   # Sortierung...
@@ -133,7 +126,7 @@ end
 class L2Vector
   attr_reader :domain, :support # make this read_only!
   
-  def initialize(func, domain, support=domain)
+  def initialize(domain, support=domain, &func)
     @func = func
     @domain = domain
     @support = support
@@ -141,7 +134,7 @@ class L2Vector
   
   # !!! this is the representation of Proc as step-wise function
   def discretize n
-    delta_x = (domain.last - domain.first)/Float(n-1)
+    delta_x = (domain.last - domain.first) / (n-1).to_f
     v = NVector.new(Float, n)
     for i in 0...n
       v[i] = @func[domain.first + i*delta_x]
@@ -168,9 +161,9 @@ class L2Vector
   def multiply(g, n=40, subdomain=nil)
     if subdomain==nil
       assert @domain == g.domain
-      L2Vector.new(lambda{|x| @func[x]*g[x]}, @domain).integrate(@domain, n)
+      L2Vector.new(@domain){|x| @func[x]*g[x] }.integrate(@domain, n)
     else # this sucks!!!!!!!!!!!!!!!
-      L2Vector.new(lambda{|x| @func[x]*g[x]}, subdomain).integrate(subdomain, n)
+      L2Vector.new(subdomain){|x| @func[x]*g[x] }.integrate(subdomain, n)
     end
   end
   
@@ -181,28 +174,27 @@ class L2Vector
   # check_domain: specifies where the function is well-defined
   def diff(check_domain=@domain, h = $h)
     assert @domain != nil
-      
-    g = lambda{|x|
+    g = lambda do |x|
       if check_domain.include? x-h and check_domain.include? x+h
-	(@func[x+h] - @func[x-h]) / (2*h)
+        (@func[x+h] - @func[x-h]) / (2*h)
       elsif check_domain.include? x and check_domain.include? x+h
-	# nur rechtsseitige Ableitung - ggf. noch verfeinern (h adaptiv verändern)
-	(@func[x+h] - @func[x]) / h
+        # nur rechtsseitige Ableitung - ggf. noch verfeinern (h adaptiv verändern)
+        (@func[x+h] - @func[x]) / h
       elsif check_domain.include? x-h and check_domain.include? x
-	# nur linksseitige
-	(@func[x] - @func[x-h]) / h
+        # nur linksseitige
+        (@func[x] - @func[x-h]) / h
       else
-	raise "function is not differentiable at x=#{x}"
+        raise "function is not differentiable at x=#{x}"
       end
-    }
+    end
     return L2Vector.new(g, @domain)
   end
   
   def * c
     if c.kind_of? Numeric
-      return L2Vector.new(lambda{|x| @func[x] * c}, @domain)
+      return L2Vector.new(@domain){|x| @func[x] * c }
     elsif c.kind_of? L2Vector
-      return multiply(c,$n,support)
+      return multiply(c, $n, support)
     end
   end
   
@@ -220,14 +212,14 @@ end
 class Basis # seems ok
   attr_reader :n
 
-def initialize(domain, n = 10)
+  def initialize(domain, n = 10)
     @n = n
     @x = []
     for i in 0..n+1
       a = domain.first
       b = domain.last
-      @x[i] = a + (b - a) * Float(i)/Float(n+1)
-      @delta_x = (b - a) / Float(n+1)
+      @x[i] = a + (b - a) * i.to_f / (n+1).to_f
+      @delta_x = (b - a) / (n+1).to_f
     end
     @domain = domain
   end
@@ -235,25 +227,21 @@ def initialize(domain, n = 10)
   # tent function
   def [] k   # k = 1..n
     assert 1 <= k and k <= @n
-    return L2Vector.new( lambda{|x|
+    return L2Vector.new( @domain, @x[k-1]..@x[k+1] ) do |x|
       if @x[k-1] <= x and x <= @x[k]
-	 sqrt(@n+1) / @delta_x * (x - @x[k-1]).abs # / ((@x[k] - @x[k-1]))
+        sqrt(@n+1) / @delta_x * (x - @x[k-1]).abs # / ((@x[k] - @x[k-1]))
       elsif @x[k] <= x and x <= @x[k+1]
-	 sqrt(@n+1) / @delta_x * (@x[k+1] - x).abs # / ((@x[k+1] - @x[k]))
+        sqrt(@n+1) / @delta_x * (@x[k+1] - x).abs # / ((@x[k+1] - @x[k]))
       else
-	0
+        0
       end
-    }, @domain, @x[k-1]..@x[k+1])
+    end
   end
-  
+
   def build_func_with c
-    L2Vector.new( lambda{|x|
-      sum = 0.0
-      for i in 0...@n
-	sum += c[i] * self[i+1][x]
-      end
-      sum
-    }, @domain)
+    L2Vector.new(@domain) do |x|
+      (0...@n).inject{|sum,i| sum + c[i] * self[i+1][x] }
+    end
   end
 end
 
@@ -267,11 +255,7 @@ class Object2D
   end
   
   def include? a
-    if x.include? a.x and y.include? a.y
-      true
-    else
-      false
-    end
+    @x.include? a.x and @y.include? a.y
   end
 end
 
@@ -285,37 +269,33 @@ def grad f
 end
 
 class Basis2D
-  def initialize(domain, n = 10)
-    @base = Object2D.new(Basis.new(domain.x, n), Basis.new(domain.y, n))
+  def initialize( domain, n=10 )
+    @base = Object2D.new( Basis.new(domain.x, n), Basis.new(domain.y, n) )
   end
   
   def x
-    return @base.x
+    @base.x
   end
   
   def y
-    return @base.y
+    @base.y
   end
   
   def [] k
-    return Object2D.new(base.x[k], base.y[k])
+    Object2D.new(base.x[k], base.y[k])
   end
   
   def build_func_with c
-    raise "fuck you"
+    raise "Blaaaaa"
   end
 end
 
 # characteristic function
 def chi (support, domain=support)
 #  assert support.begin <= support.end
-  L2Vector.new( lambda {|x| 
-    if support.include? x
-      1
-    else
-      0
-    end
-  }, domain, support) # !!!!!!!!!!!!!!!!!!! change this shit
+  L2Vector.new( domain, support) do |x| 
+    support.include?(x) ? 1 : 0
+  end# !!!!!!!!!!!!!!!!!!! change this shit
 end
 
 
@@ -344,8 +324,8 @@ def test_1D
   u_disc = solve_laplace1D n, v, f
   puts "expected:"
   for i in 0...10
-    xx = Float(i)/9.0
-    soll = 0.5*(xx**2 - xx)
+    xx = i.to_f / 9.0
+    soll = 0.5 * (xx**2 - xx)
     berechn = u_disc[i]
     puts "u(#{xx})=#{soll}\t\t  #{berechn}\t\trel_err=#{(soll-berechn)/soll*100}%"
   end
