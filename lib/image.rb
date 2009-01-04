@@ -17,7 +17,7 @@ attr_accessor :im
     if args.size > 1
       width, height = args
       @im = Magick::Image.new( width , height ) do
-      	self.background_color = 'dimgrey'
+        self.background_color = 'dimgrey'
       end
     else
       filename = args.first
@@ -79,17 +79,17 @@ attr_accessor :im
     @im.import_pixels( 0, 0, width, height, "RGBA", raw )
   end
   
-	def method_missing( method, *args )
-		args.map!{|a| (a.is_a? Image) ? a.im : a }
-		new_im = @im.send( method, *args )
-		if new_im.is_a? Magick::Image
-		  native_im = Image.new( new_im.width, new_im.height )
-		  native_im.im = new_im
-		  return native_im
-	  else
-	    return new_im
+  def method_missing( method, *args )
+    args.map!{|a| (a.is_a? Image) ? a.im : a }
+    new_im = @im.send( method, *args )
+    if new_im.is_a? Magick::Image
+      native_im = Image.new( new_im.width, new_im.height )
+      native_im.im = new_im
+      return native_im
+    else
+      return new_im
     end
-	end
+  end
 end
 
 =begin
@@ -122,10 +122,10 @@ end
 =end
 
 class Pixel
-	attr_accessor :red, :green, :blue, :alpha
-	alias hue red
-	alias saturation green
-	alias value blue
+  attr_accessor :red, :green, :blue, :alpha
+  alias hue red
+  alias saturation green
+  alias value blue
   def initialize( r=0.0, g=0.0, b=0.0, a=1.0)
     @red   = r
     @green = g 
@@ -133,32 +133,32 @@ class Pixel
     @alpha = a
   end
 
-	# h = 0..360, s = 0..1, v = 0..1
+  # h = 0..360, s = 0..1, v = 0..1
   def hsv
-		min = [@red, @green, @blue].min
-		max = [@red, @green, @blue].max
-		value = max
-		delta = max - min
-		if max == 0 
-			saturation = 0
-		else
-			saturation = delta / max
-		end
-		if @red == max 
-			# between yellow & magenta
-			hue = ( @green - @blue ) / delta		
-		elsif @green == max 
-			# between cyan & yellow
-			hue = 2 + ( @blue - @red ) / delta
-		else
-			# between magenta & cyan
-			hue = 4 + ( @red - @green ) / delta
-		end
-		hue = 1 if hue.nan? or hue.infinite?
-		# degrees
-		hue *= 60				
-		hue += 360 if hue < 0 
-		return Pixel.new( hue, saturation, value )
+    min = [@red, @green, @blue].min
+    max = [@red, @green, @blue].max
+    value = max
+    delta = max - min
+    if max == 0 
+      saturation = 0
+    else
+      saturation = delta / max
+    end
+    if @red == max 
+      # between yellow & magenta
+      hue = ( @green - @blue ) / delta    
+    elsif @green == max 
+      # between cyan & yellow
+      hue = 2 + ( @blue - @red ) / delta
+    else
+      # between magenta & cyan
+      hue = 4 + ( @red - @green ) / delta
+    end
+    hue = 1 if hue.nan? or hue.infinite?
+    # degrees
+    hue *= 60       
+    hue += 360 if hue < 0 
+    return Pixel.new( hue, saturation, value )
   end
   
   def difference( pix )
@@ -177,9 +177,9 @@ class Pixel
   
   def add( pix )
     @red   += pix.red
-		@green += pix.green
-		@blue  += pix.blue
-		@alpha += pix.alpha
+    @green += pix.green
+    @blue  += pix.blue
+    @alpha += pix.alpha
   end
   
   def repair_bounds
@@ -190,20 +190,20 @@ class Pixel
     @green = 0.0 if @green < 0.0
     @blue  = 0.0 if @blue  < 0.0
   end
-	
-	def to_s
-	 return "r:#{@red} g:#{@green} b:#{@blue} a:#{@alpha}"
-	end
-	
-	def to_a
-	  [@red, @green, @blue, @alpha]
-	end
+  
+  def to_s
+   return "r:#{@red} g:#{@green} b:#{@blue} a:#{@alpha}"
+  end
+  
+  def to_a
+    [@red, @green, @blue, @alpha]
+  end
 end
 
 
 def native2gtk im
-	im.save "tmp/tmp.png"
-	return Gtk::Image.new( "tmp/tmp.png" )
+  im.save "tmp/tmp.png"
+  return Gtk::Image.new( "tmp/tmp.png" )
 end
 
 

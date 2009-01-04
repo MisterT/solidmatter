@@ -48,11 +48,11 @@ class FileOpenDialog < Gtk::FileChooserDialog
       begin
         image = nil
         File::open( filename ) do |file|
-					scene = Marshal::restore file 
+          scene = Marshal::restore file 
           image = scene[0]
-				end
-				gtkim = native2gtk image
-				self.preview_widget = gtkim
+        end
+        gtkim = native2gtk image
+        self.preview_widget = gtkim
         self.preview_widget_active = true
       rescue
         self.preview_widget_active = false
@@ -61,4 +61,4 @@ class FileOpenDialog < Gtk::FileChooserDialog
   end
 end
 
-	
+  

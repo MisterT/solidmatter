@@ -55,9 +55,9 @@ class NSet
     non_dj_sets = []
     @ranges.each do |x|
       unless j.disjoint? r
-	      non_dj_sets << r
-	      r = nil
-	      non_dj_sets.compact!
+        non_dj_sets << r
+        r = nil
+        non_dj_sets.compact!
       end
     end
     

@@ -24,7 +24,7 @@ class NMatrix
   def fill_by f # ok
     for i in 0...sqrt(self.size)
       for j in 0...sqrt(self.size)
-	self[i,j] = f[j,i] # sic!
+  self[i,j] = f[j,i] # sic!
       end
     end
   end
@@ -40,9 +40,9 @@ class NMatrix
     else
       i = n - 1
       for j in 0...n
-	if self[j,i] != 0
-	  sum += ((-1)**(i+j)) * self[j,i] * remove_cross(i, j).det # sic!
-	end
+  if self[j,i] != 0
+    sum += ((-1)**(i+j)) * self[j,i] * remove_cross(i, j).det # sic!
+  end
       end
       return sum
     end
@@ -55,17 +55,17 @@ class NMatrix
 
     for a in 0...n
       for b in 0...n
-	k = a
-	l = b
-	if a >= i
-	  k -= 1
-	end
-	if b >= j
-	  l -= 1
-	end
-	if a != i or b != j
-	  m[k,l] = self[a,b] # sic!?
-	end
+  k = a
+  l = b
+  if a >= i
+    k -= 1
+  end
+  if b >= j
+    l -= 1
+  end
+  if a != i or b != j
+    m[k,l] = self[a,b] # sic!?
+  end
       end
     end
     m
@@ -77,7 +77,7 @@ class NMatrix
     for i in 0...n
       str += "["
       for j in 0...n
-	str += "#{self[j,i]}, "
+  str += "#{self[j,i]}, "
       end
       str += "]\n"
     end

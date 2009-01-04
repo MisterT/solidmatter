@@ -48,22 +48,22 @@ else
   # create pop-up menu for tray icon
   m = Gtk::Menu.new
   items = [
-	  Gtk::ImageMenuItem.new(GetText._("_Manage users and projects")).set_image( Gtk::Image.new('../data/icons/small/preferences-system_small.png') ),
-	  Gtk::ImageMenuItem.new(GetText._("_Run")).set_image( Gtk::Image.new(Gtk::Stock::EXECUTE, Gtk::IconSize::MENU) ),
-	  Gtk::ImageMenuItem.new(Gtk::Stock::STOP),
-	  Gtk::ImageMenuItem.new(Gtk::Stock::ABOUT),
-	  Gtk::SeparatorMenuItem.new,
-	  Gtk::ImageMenuItem.new(Gtk::Stock::QUIT)
+    Gtk::ImageMenuItem.new(GetText._("_Manage users and projects")).set_image( Gtk::Image.new('../data/icons/small/preferences-system_small.png') ),
+    Gtk::ImageMenuItem.new(GetText._("_Run")).set_image( Gtk::Image.new(Gtk::Stock::EXECUTE, Gtk::IconSize::MENU) ),
+    Gtk::ImageMenuItem.new(Gtk::Stock::STOP),
+    Gtk::ImageMenuItem.new(Gtk::Stock::ABOUT),
+    Gtk::SeparatorMenuItem.new,
+    Gtk::ImageMenuItem.new(Gtk::Stock::QUIT)
   ]
   items[0].signal_connect("activate") do
-	  si.activate
+    si.activate
   end
   items[3].signal_connect("activate") do
-	  AboutDialog.new
+    AboutDialog.new
   end
   items[5].signal_connect("activate") do
-	  server.stop
-	  Gtk.main_quit
+    server.stop
+    Gtk.main_quit
   end
   items.each{|i| m.append i }
   m.show_all

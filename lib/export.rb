@@ -73,13 +73,13 @@ class Exporter
     lxs << "WorldBegin\n"
     # create lights
     lxs << 'AttributeBegin
-            	LightSource "infinite" "color L" [0.0565629 0.220815 0.3]
+              LightSource "infinite" "color L" [0.0565629 0.220815 0.3]
             AttributeEnd
            '
     lxs << 'AttributeBegin
-           	Transform [-0.290864646435 1.35517116785 -0.0551890581846 0.0  -0.771100819111 -0.19988335669 0.604524731636 0.0  0.566393196583 0.21839119494 0.794672250748 0.0  4.07624530792 1.00545394421 5.90386199951 1.0]
-           	AreaLightSource "area" "color L" [0.900000 0.900000 0.900000] "float gain" [10.427602]
-            "color L" [0.900000 0.900000 0.900000] "float gain" [15.0]	Shape "trianglemesh" "integer indices" [0 1 2 0 2 3] "point P" [-1.000000 1.000000 0.0 1.000000 1.000000 0.0 1.000000 -1.000000 0.0 -1.000000 -1.000000 0.0]
+            Transform [-0.290864646435 1.35517116785 -0.0551890581846 0.0  -0.771100819111 -0.19988335669 0.604524731636 0.0  0.566393196583 0.21839119494 0.794672250748 0.0  4.07624530792 1.00545394421 5.90386199951 1.0]
+            AreaLightSource "area" "color L" [0.900000 0.900000 0.900000] "float gain" [10.427602]
+            "color L" [0.900000 0.900000 0.900000] "float gain" [15.0]  Shape "trianglemesh" "integer indices" [0 1 2 0 2 3] "point P" [-1.000000 1.000000 0.0 1.000000 1.000000 0.0 1.000000 -1.000000 0.0 -1.000000 -1.000000 0.0]
            AttributeEnd
            '
     puts "static stuff finished"
