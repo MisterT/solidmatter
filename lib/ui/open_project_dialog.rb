@@ -9,7 +9,7 @@ require 'ui/join_project_dialog.rb'
 
 class OpenProjectDialog
 	def initialize
-	  @glade = GladeXML.new( "../data/glade/open_project.glade", nil, 'openmachinist' ) {|handler| method(handler)}
+	  @glade = GladeXML.new( "../data/glade/open_project.glade", nil, 'solidmatter' ) {|handler| method(handler)}
   end
   
   def ok_handle( w )

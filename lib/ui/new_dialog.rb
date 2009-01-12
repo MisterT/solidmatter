@@ -8,7 +8,7 @@ require 'ui/new_project_dialog.rb'
 
 class NewDialog
   def initialize
-    @glade = GladeXML.new( "../data/glade/new_dialog.glade", nil, 'openmachinist' ) {|handler| method(handler)}
+    @glade = GladeXML.new( "../data/glade/new_dialog.glade", nil, 'solidmatter' ) {|handler| method(handler)}
   end
   
   def new_project

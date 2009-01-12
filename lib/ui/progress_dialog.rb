@@ -7,7 +7,7 @@ require 'libglade2'
 
 class ProgressDialog
   def initialize title=nil
-    @glade = GladeXML.new( "../data/glade/progress.glade", nil, 'openmachinist' ) {|handler| method(handler)}
+    @glade = GladeXML.new( "../data/glade/progress.glade", nil, 'solidmatter' ) {|handler| method(handler)}
     @glade['title_label'].markup = title if title
     self.fraction = 0.0
     @block = Proc.new if block_given?

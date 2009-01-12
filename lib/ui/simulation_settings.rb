@@ -10,7 +10,7 @@ class SimulationSettingsDialog
   def initialize( all_parts, colliding_parts )
     @all_parts = all_parts
     @colliding_parts = colliding_parts
-    @glade = GladeXML.new( "../data/glade/simulation_settings.glade", nil, 'openmachinist' ) {|handler| method(handler)}
+    @glade = GladeXML.new( "../data/glade/simulation_settings.glade", nil, 'solidmatter' ) {|handler| method(handler)}
     # ------- create unused parts view ------- #
     pix = Gtk::CellRendererPixbuf.new
 		text = Gtk::CellRendererText.new

@@ -12,7 +12,7 @@ class AssemblyInformationDialog
 	def initialize assembly
 	  @assembly = assembly
 	  @return_handler = Proc.new
-	  @glade = GladeXML.new( "../data/glade/assembly_dialog.glade", nil, 'openmachinist' ) {|handler| method(handler)}
+	  @glade = GladeXML.new( "../data/glade/assembly_dialog.glade", nil, 'solidmatter' ) {|handler| method(handler)}
 	  @glade['name_entry'].text     = @assembly.information[:name]
 	  @glade['author_entry'].text   = @assembly.information[:author]
 	  @glade['approved_entry'].text = @assembly.information[:approved]

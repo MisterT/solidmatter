@@ -8,7 +8,7 @@ require 'libglade2'
 class WaitForSaveDialog
   def initialize client
     @client = client
-    @glade = GladeXML.new( "../data/glade/wait_for_save.glade", nil, 'openmachinist' ) {|handler| method(handler)}
+    @glade = GladeXML.new( "../data/glade/wait_for_save.glade", nil, 'solidmatter' ) {|handler| method(handler)}
     @glade['wait_for_save'].signal_connect('destroy'){ @t.kill }
     progressbar = @glade['progressbar']
     @t = GtkThread.start do

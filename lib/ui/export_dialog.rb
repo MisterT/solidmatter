@@ -7,7 +7,7 @@ require 'libglade2'
             
 class ExportDialog
 	def initialize &block
-	  @glade = GladeXML.new( "../data/glade/export_dialog.glade", nil, 'openmachinist' ) {|handler| method(handler)}
+	  @glade = GladeXML.new( "../data/glade/export_dialog.glade", nil, 'solidmatter' ) {|handler| method(handler)}
     @block = block
     @formats = ['STL', 'lxs']
     @glade['format_combo'].model.clear

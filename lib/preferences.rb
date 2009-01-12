@@ -45,7 +45,7 @@ $non_gconf_types = [Bookmark]
 
 
 def load_preferences_from_gconf
-  gconf_prefix = '/apps/openmachinist/'
+  gconf_prefix = '/apps/solidmatter/'
   cl = GConf::Client.default
   for key in $preferences.keys
     value = cl[gconf_prefix + key.to_s]
@@ -54,7 +54,7 @@ def load_preferences_from_gconf
 end
 
 def save_preferences_to_gconf
-  gconf_prefix = '/apps/openmachinist/'
+  gconf_prefix = '/apps/solidmatter/'
   cl = GConf::Client.default
   $preferences.each do |key, value|
     subtype_forbidden = value.flatten.map{|v| v.class }.any?{|clas| $non_gconf_types.include? clas } if value.is_a? Array
@@ -67,7 +67,7 @@ load_preferences_from_gconf
                   
 class PreferencesDialog
   def initialize
-    @glade = GladeXML.new( "../data/glade/preferences.glade", nil, 'openmachinist' ) {|handler| method(handler)}
+    @glade = GladeXML.new( "../data/glade/preferences.glade", nil, 'solidmatter' ) {|handler| method(handler)}
     load_preferences_from_gconf
     @react_to_changes = false
     @glade['antialiasing_check'].active=  $preferences[:anti_aliasing]

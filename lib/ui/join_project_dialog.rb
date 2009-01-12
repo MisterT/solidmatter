@@ -12,7 +12,7 @@ end
 
 class JoinProjectDialog
 	def initialize
-	  @glade = GladeXML.new( "../data/glade/join_project.glade", nil, 'openmachinist' ) {|handler| method(handler)}
+	  @glade = GladeXML.new( "../data/glade/join_project.glade", nil, 'solidmatter' ) {|handler| method(handler)}
 	  @servers = []
 	  # create server list
     pix = Gtk::CellRendererPixbuf.new

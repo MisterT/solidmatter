@@ -8,7 +8,7 @@ require 'libglade2'
 
 class ProjectInformationDialog
 	def initialize project
-	  @glade = GladeXML.new( "../data/glade/project_dialog.glade", nil, 'openmachinist' ) {|handler| method(handler)}
+	  @glade = GladeXML.new( "../data/glade/project_dialog.glade", nil, 'solidmatter' ) {|handler| method(handler)}
 	  @glade['name_entry'].text   = project.name  
 	  @glade['author_entry'].text = project.author
 	  @glade['tn_parts_label'].text = project.all_part_instances.size.to_s

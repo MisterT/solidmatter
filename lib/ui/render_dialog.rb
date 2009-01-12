@@ -9,7 +9,7 @@ require 'image.rb'
             
 class RenderDialog
   def initialize
-    @glade = GladeXML.new( "../data/glade/render_dialog.glade", nil, 'openmachinist' ) {|handler| method(handler)}
+    @glade = GladeXML.new( "../data/glade/render_dialog.glade", nil, 'solidmatter' ) {|handler| method(handler)}
   end
 
   def ok

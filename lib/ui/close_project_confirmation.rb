@@ -9,7 +9,7 @@ require 'libglade2'
 class CloseProjectConfirmation
   def initialize
     @block = Proc.new if block_given?
-    @glade = GladeXML.new( "../data/glade/close_project_confirmation.glade", nil, 'openmachinist' ) {|handler| method(handler)}
+    @glade = GladeXML.new( "../data/glade/close_project_confirmation.glade", nil, 'solidmatter' ) {|handler| method(handler)}
     @glade['main_label'].markup = "<b>" + GetText._("Save changes to ") + "'#{$manager.project_name}'?</b>"
     if $manager.has_been_changed
       @glade['close_project_confirmation'].show_all

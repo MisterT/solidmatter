@@ -9,7 +9,7 @@ require 'multi_user.rb'
 class AccountEditor
   def initialize account
     @account = account
-    @glade = GladeXML.new( "../data/glade/account_editor.glade", nil, 'openmachinist' ) {|handler| method(handler)}
+    @glade = GladeXML.new( "../data/glade/account_editor.glade", nil, 'solidmatter' ) {|handler| method(handler)}
     @glade['login_entry'].text    = @account.login 
     @glade['password_entry'].text = @account.password
     # ------- create server view ------- #

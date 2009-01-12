@@ -8,7 +8,7 @@ require 'libglade2'
 class ServerWin
   attr_accessor :server, :destroyed
   def initialize server
-    @glade = GladeXML.new( "../data/glade/server_win.glade", nil, 'openmachinist' ) {|handler| method(handler)}
+    @glade = GladeXML.new( "../data/glade/server_win.glade", nil, 'solidmatter' ) {|handler| method(handler)}
     @server = server
     @glade['server_win'].signal_connect('destroy'){ @destroyed = true }
     # ------- create projects view ------- #

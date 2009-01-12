@@ -24,7 +24,7 @@ class FileOpenDialog < Gtk::FileChooserDialog
     # add solid|matter file filter
     if mode == :save or mode == :open
       filter = Gtk::FileFilter.new
-      filter.name = GetText._("Open Machinist project")
+      filter.name = GetText._("Solid|matter project")
       filter.add_pattern "*.omp"
       add_filter filter
     else

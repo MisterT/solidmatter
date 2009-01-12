@@ -13,7 +13,7 @@ end
                   
 class ComponentBrowser
   def initialize
-    @glade = GladeXML.new( "../data/glade/component_browser.glade", nil, 'openmachinist' ) {|handler| method(handler)}
+    @glade = GladeXML.new( "../data/glade/component_browser.glade", nil, 'solidmatter' ) {|handler| method(handler)}
     @parts = {}
     # generate Radiobuttons for thumbnails
     @btn_width = $preferences[:thumb_res] + 65.0

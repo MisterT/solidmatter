@@ -8,7 +8,7 @@ require 'libglade2'
 
 class NewProjectDialog
 	def initialize
-	  @glade = GladeXML.new( "../data/glade/new_project.glade", nil, 'openmachinist' ) {|handler| method(handler)}
+	  @glade = GladeXML.new( "../data/glade/new_project.glade", nil, 'solidmatter' ) {|handler| method(handler)}
   end
   
   def ok_handle( w )

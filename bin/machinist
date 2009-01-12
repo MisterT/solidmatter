@@ -1,3 +1,0 @@
-#!/usr/bin/env sh
-cd lib
-ruby openmachinist.rb

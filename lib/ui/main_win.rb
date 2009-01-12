@@ -18,7 +18,7 @@ require 'ui/open_project_dialog.rb'
 require 'ui/server_win.rb'
 require 'ui/render_dialog.rb'
 
-class OpenMachinistMainWin < Gtk::Window
+class SolidMatterMainWin < Gtk::Window
   def initialize
     super
     Gtk::Window.set_default_icon_list [Gdk::Pixbuf.new('../data/icons/small/preferences-system_small.png'), Gdk::Pixbuf.new('../data/icons/big/tools.png')]
