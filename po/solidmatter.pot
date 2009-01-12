@@ -1,0 +1,1708 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: openmachinist 0.0.2\n"
+"POT-Creation-Date: 2008-09-05 01:42+0200\n"
+"PO-Revision-Date: 2008-08-16 02:14+0200\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: lib/multi_user.rb:247
+msgid "Connection error"
+msgstr ""
+
+#: lib/multi_user.rb:248
+msgid "Could not connect to the requested server"
+msgstr ""
+
+#: lib/multi_user.rb:279
+msgid "Login failed"
+msgstr ""
+
+#: lib/multi_user.rb:280
+msgid "Please make sure that your login information is correct"
+msgstr ""
+
+#: lib/multi_user.rb:318
+msgid "Request canceled"
+msgstr ""
+
+#: lib/multi_user.rb:319
+msgid "The save request was cancelled by another user"
+msgstr ""
+
+#: lib/project.rb:15
+msgid "Aluminum"
+msgstr ""
+
+#: lib/project.rb:16
+msgid "Steel"
+msgstr ""
+
+#: lib/project.rb:17
+msgid "Copper"
+msgstr ""
+
+#: lib/project.rb:18
+msgid "Carbon"
+msgstr ""
+
+#: lib/project.rb:19
+msgid "Glass"
+msgstr ""
+
+#: lib/project.rb:20
+msgid "Polystyrol"
+msgstr ""
+
+#: lib/project.rb:21
+msgid "Poly-acryl"
+msgstr ""
+
+#: lib/project.rb:23
+msgid "Untitled project"
+msgstr ""
+
+#: lib/project.rb:25
+msgid "Untitled assembly"
+msgstr ""
+
+#: lib/project.rb:56
+msgid "Rebuilding operator "
+msgstr ""
+
+#: lib/project.rb:88
+msgid "part"
+msgstr ""
+
+#: lib/project.rb:95
+msgid "assembly"
+msgstr ""
+
+#: lib/project.rb:105
+msgid "sketch"
+msgstr ""
+
+#: lib/project.rb:173
+msgid "Delete Sketch?"
+msgstr ""
+
+#: lib/project.rb:176
+msgid ""
+"The operator includes an associated sketch.\n"
+"Do you want to delete it?"
+msgstr ""
+
+#: lib/project.rb:213 lib/project.rb:214
+msgid "Untitled"
+msgstr ""
+
+#: lib/manager.rb:107
+msgid "<not saved>"
+msgstr ""
+
+#: lib/gl_view.rb:130
+msgid "<b>Rendering shadowmap...</b>"
+msgstr ""
+
+#: lib/gl_view.rb:137
+msgid "Processing scanline "
+msgstr ""
+
+#: lib/om_server_gui.rb:51
+msgid "_Manage users and projects"
+msgstr ""
+
+#: lib/om_server_gui.rb:52 data/glade/server_win.glade:71
+msgid "_Run"
+msgstr ""
+
+#: lib/widgets.rb:14
+msgid "Search"
+msgstr ""
+
+#: lib/widgets.rb:60
+msgid "Shading"
+msgstr ""
+
+#: lib/widgets.rb:63
+msgid "Shaded"
+msgstr ""
+
+#: lib/widgets.rb:64
+msgid "Overlay"
+msgstr ""
+
+#: lib/widgets.rb:65
+msgid "Wireframe"
+msgstr ""
+
+#: lib/widgets.rb:66
+msgid "Hidden Lines"
+msgstr ""
+
+#: lib/widgets.rb:123
+msgid "Measure value"
+msgstr ""
+
+#: lib/widgets.rb:124
+msgid "Bind to measured value"
+msgstr ""
+
+#: lib/operators.rb:85 lib/ui/main_win.rb:242
+msgid "Sketch"
+msgstr ""
+
+#: lib/operators.rb:109
+msgid "Type"
+msgstr ""
+
+#: lib/operators.rb:122
+msgid "Direction"
+msgstr ""
+
+#: lib/operators.rb:139
+msgid "Constant depth"
+msgstr ""
+
+#: lib/operators.rb:140
+msgid "Up to selection"
+msgstr ""
+
+#: lib/operators.rb:143
+msgid "Extrusion limit"
+msgstr ""
+
+#: lib/operators.rb:147
+msgid "Depth"
+msgstr ""
+
+#: lib/components.rb:185
+msgid "<b>Calculating solid volume...</b>"
+msgstr ""
+
+#: lib/components.rb:224
+msgid "sampling bucket"
+msgstr ""
+
+#: lib/components.rb:320
+msgid "Exit operator without saving changes"
+msgstr ""
+
+#: lib/components.rb:321
+msgid "Save changes and exit operator"
+msgstr ""
+
+#: lib/components.rb:480
+msgid "Part could not be built"
+msgstr ""
+
+#: lib/components.rb:481
+msgid "Please recheck all operator settings and close any open sketch regions!"
+msgstr ""
+
+#: lib/tools.rb:91
+msgid "Finish using tool"
+msgstr ""
+
+#: lib/tools.rb:127
+msgid "Drag a part to move it around, right click for options:"
+msgstr ""
+
+#: lib/tools.rb:184
+msgid "Select a feature from your model, right click for options:"
+msgstr ""
+
+#: lib/tools.rb:256
+msgid "Pick a closed region from a sketch:"
+msgstr ""
+
+#: lib/tools.rb:333
+msgid "Select a single plane:"
+msgstr ""
+
+#: lib/tools.rb:366
+msgid ""
+"Drag left to pan, drag right to rotate the camera, middle drag for zoom:"
+msgstr ""
+
+#: lib/tools.rb:402
+msgid "Pick a series of points to display the lenght of the path along them:"
+msgstr ""
+
+#: lib/tools.rb:425
+msgid "Distance:"
+msgstr ""
+
+#: lib/tools.rb:661
+msgid "Click left to create a point, middle click to move points:"
+msgstr ""
+
+#: lib/tools.rb:709 lib/tools.rb:764
+msgid "Click left to select center:"
+msgstr ""
+
+#: lib/tools.rb:721
+msgid "Click left to select first point on arc:"
+msgstr ""
+
+#: lib/tools.rb:726
+msgid "Click left to select second point on arc:"
+msgstr ""
+
+#: lib/tools.rb:775
+msgid "Click left to select a point on the circle:"
+msgstr ""
+
+#: lib/tools.rb:805
+msgid "Click left to select first point on circle:"
+msgstr ""
+
+#: lib/tools.rb:816
+msgid "Click left to select second point on circle:"
+msgstr ""
+
+#: lib/tools.rb:841
+msgid "Choose a segment or two points to add a dimension:"
+msgstr ""
+
+#: lib/tools.rb:865 lib/tools.rb:871
+msgid "Choose a point to position your dimension:"
+msgstr ""
+
+#: lib/tools.rb:924
+msgid ""
+"Click left to select points, drag to move points, right click for options:"
+msgstr ""
+
+#: lib/tools.rb:1049
+msgid "Click left to delete subsegments of your sketch:"
+msgstr ""
+
+#: lib/ui/file_open_dialog.rb:12
+msgid "Save project as.."
+msgstr ""
+
+#: lib/ui/file_open_dialog.rb:13
+msgid "Choose project file"
+msgstr ""
+
+#: lib/ui/file_open_dialog.rb:15
+msgid "Export as..."
+msgstr ""
+
+#: lib/ui/file_open_dialog.rb:26
+msgid "Open Machinist project"
+msgstr ""
+
+#: lib/ui/file_open_dialog.rb:36
+msgid "All filetypes"
+msgstr ""
+
+#: lib/ui/main_win.rb:57
+msgid "/_File"
+msgstr ""
+
+#: lib/ui/main_win.rb:58
+msgid "/File/New project..."
+msgstr ""
+
+#: lib/ui/main_win.rb:59
+msgid "/File/Open project..."
+msgstr ""
+
+#: lib/ui/main_win.rb:60
+msgid "/File/_Save project"
+msgstr ""
+
+#: lib/ui/main_win.rb:61
+msgid "/File/Save project as..."
+msgstr ""
+
+#: lib/ui/main_win.rb:62
+msgid "/File/Export selection..."
+msgstr ""
+
+#: lib/ui/main_win.rb:63 lib/ui/main_win.rb:66
+msgid "/File/sep1"
+msgstr ""
+
+#: lib/ui/main_win.rb:64
+msgid "/File/Project information"
+msgstr ""
+
+#: lib/ui/main_win.rb:65
+msgid "/File/Make project public..."
+msgstr ""
+
+#: lib/ui/main_win.rb:67
+msgid "/File/Print..."
+msgstr ""
+
+#: lib/ui/main_win.rb:68
+msgid "/File/sep2"
+msgstr ""
+
+#: lib/ui/main_win.rb:69
+msgid "/File/Quit"
+msgstr ""
+
+#: lib/ui/main_win.rb:70
+msgid "/_Edit"
+msgstr ""
+
+#: lib/ui/main_win.rb:71
+msgid "/Edit/Undo"
+msgstr ""
+
+#: lib/ui/main_win.rb:72
+msgid "/Edit/Redo"
+msgstr ""
+
+#: lib/ui/main_win.rb:73 lib/ui/main_win.rb:78
+msgid "/Edit/sep4"
+msgstr ""
+
+#: lib/ui/main_win.rb:74
+msgid "/Edit/Cut"
+msgstr ""
+
+#: lib/ui/main_win.rb:75
+msgid "/Edit/Copy"
+msgstr ""
+
+#: lib/ui/main_win.rb:76
+msgid "/Edit/Paste"
+msgstr ""
+
+#: lib/ui/main_win.rb:77
+msgid "/Edit/Delete"
+msgstr ""
+
+#: lib/ui/main_win.rb:79
+msgid "/Edit/Preferences"
+msgstr ""
+
+#: lib/ui/main_win.rb:80
+msgid "/_View"
+msgstr ""
+
+#: lib/ui/main_win.rb:81
+msgid "/View/Front"
+msgstr ""
+
+#: lib/ui/main_win.rb:82
+msgid "/View/Back"
+msgstr ""
+
+#: lib/ui/main_win.rb:83
+msgid "/View/Right"
+msgstr ""
+
+#: lib/ui/main_win.rb:84
+msgid "/View/Left"
+msgstr ""
+
+#: lib/ui/main_win.rb:85
+msgid "/View/Top"
+msgstr ""
+
+#: lib/ui/main_win.rb:86
+msgid "/View/Bottom"
+msgstr ""
+
+#: lib/ui/main_win.rb:87
+msgid "/View/Isometric"
+msgstr ""
+
+#: lib/ui/main_win.rb:88 lib/ui/main_win.rb:92
+msgid "/View/sep4"
+msgstr ""
+
+#: lib/ui/main_win.rb:89
+msgid "/View/Stereo vision"
+msgstr ""
+
+#: lib/ui/main_win.rb:90
+msgid "/View/Diagnostic shading"
+msgstr ""
+
+#: lib/ui/main_win.rb:91
+msgid "/View/Render shadows"
+msgstr ""
+
+#: lib/ui/main_win.rb:93
+msgid "/View/Fullscreen"
+msgstr ""
+
+#: lib/ui/main_win.rb:94
+msgid "/_Tools"
+msgstr ""
+
+#: lib/ui/main_win.rb:95
+msgid "/Tools/Measure distance"
+msgstr ""
+
+#: lib/ui/main_win.rb:96
+msgid "/Tools/Measure area"
+msgstr ""
+
+#: lib/ui/main_win.rb:97
+msgid "/Tools/Measure angle"
+msgstr ""
+
+#: lib/ui/main_win.rb:98 lib/ui/main_win.rb:101
+msgid "/Tools/sep4"
+msgstr ""
+
+#: lib/ui/main_win.rb:99
+msgid "/Tools/Analyze interference"
+msgstr ""
+
+#: lib/ui/main_win.rb:100
+msgid "/Tools/Bill of materials"
+msgstr ""
+
+#: lib/ui/main_win.rb:102
+msgid "/Tools/Material editor"
+msgstr ""
+
+#: lib/ui/main_win.rb:103
+msgid "/_Simulation"
+msgstr ""
+
+#: lib/ui/main_win.rb:104
+msgid "/Simulation/Update constraints"
+msgstr ""
+
+#: lib/ui/main_win.rb:105
+msgid "/Simulation/Update sub-assembly constraints"
+msgstr ""
+
+#: lib/ui/main_win.rb:106 lib/ui/main_win.rb:109
+msgid "/Simulation/sep4"
+msgstr ""
+
+#: lib/ui/main_win.rb:107
+msgid "/Simulation/Auto-update constraints"
+msgstr ""
+
+#: lib/ui/main_win.rb:108
+msgid "/Simulation/Auto-update sub-assembly constraints"
+msgstr ""
+
+#: lib/ui/main_win.rb:110
+msgid "/Simulation/Activate contact solver"
+msgstr ""
+
+#: lib/ui/main_win.rb:111
+msgid "/Simulation/Define contact set..."
+msgstr ""
+
+#: lib/ui/main_win.rb:112
+msgid "/_Help"
+msgstr ""
+
+#: lib/ui/main_win.rb:113
+msgid "/Help/_About Solid|matter"
+msgstr ""
+
+#: lib/ui/main_win.rb:129
+msgid " New"
+msgstr ""
+
+#: lib/ui/main_win.rb:132
+msgid "Create a new project, part or assembly"
+msgstr ""
+
+#: lib/ui/main_win.rb:133
+msgid " Save"
+msgstr ""
+
+#: lib/ui/main_win.rb:137
+msgid "Save current part or assembly"
+msgstr ""
+
+#: lib/ui/main_win.rb:140
+msgid "Select"
+msgstr ""
+
+#: lib/ui/main_win.rb:142
+msgid "Choose selection mode"
+msgstr ""
+
+#: lib/ui/main_win.rb:143
+msgid "Return"
+msgstr ""
+
+#: lib/ui/main_win.rb:143
+msgid "Work on parent assembly"
+msgstr ""
+
+#: lib/ui/main_win.rb:147
+msgid " Camera"
+msgstr ""
+
+#: lib/ui/main_win.rb:150
+msgid "Position the 3d viewpoint"
+msgstr ""
+
+#: lib/ui/main_win.rb:151
+msgid " Zoom selection"
+msgstr ""
+
+#: lib/ui/main_win.rb:154
+msgid "Fit all selected objects into view"
+msgstr ""
+
+#: lib/ui/main_win.rb:155
+msgid " Look at"
+msgstr ""
+
+#: lib/ui/main_win.rb:158
+msgid "Make view orthogonal to selected plane"
+msgstr ""
+
+#: lib/ui/main_win.rb:160
+msgid "Previous"
+msgstr ""
+
+#: lib/ui/main_win.rb:160
+msgid "Previous camera location"
+msgstr ""
+
+#: lib/ui/main_win.rb:167
+msgid "Next camera location"
+msgstr ""
+
+#: lib/ui/main_win.rb:170
+msgid "Select shading mode for the viewport"
+msgstr ""
+
+#: lib/ui/main_win.rb:173
+msgid "Focus"
+msgstr ""
+
+#: lib/ui/main_win.rb:181
+msgid "Make all components except the current one transparent"
+msgstr ""
+
+#: lib/ui/main_win.rb:226
+msgid "Insert"
+msgstr ""
+
+#: lib/ui/main_win.rb:227
+msgid "Library"
+msgstr ""
+
+#: lib/ui/main_win.rb:229 lib/ui/main_win.rb:276
+msgid "Constrain"
+msgstr ""
+
+#: lib/ui/main_win.rb:230
+msgid "Contacts"
+msgstr ""
+
+#: lib/ui/main_win.rb:231
+msgid "Spring"
+msgstr ""
+
+#: lib/ui/main_win.rb:232
+msgid "Belt"
+msgstr ""
+
+#: lib/ui/main_win.rb:233
+msgid "Animate"
+msgstr ""
+
+#: lib/ui/main_win.rb:235 lib/ui/main_win.rb:282
+msgid "Grid pattern"
+msgstr ""
+
+#: lib/ui/main_win.rb:236 lib/ui/main_win.rb:283
+msgid "Circular pattern"
+msgstr ""
+
+#: lib/ui/main_win.rb:237 lib/ui/main_win.rb:257 lib/ui/main_win.rb:284
+msgid "Mirror"
+msgstr ""
+
+#: lib/ui/main_win.rb:244
+msgid "Extrude"
+msgstr ""
+
+#: lib/ui/main_win.rb:245
+msgid "Revolve"
+msgstr ""
+
+#: lib/ui/main_win.rb:246
+msgid "Hole"
+msgstr ""
+
+#: lib/ui/main_win.rb:247
+msgid "Shell"
+msgstr ""
+
+#: lib/ui/main_win.rb:248
+msgid "Loft"
+msgstr ""
+
+#: lib/ui/main_win.rb:249
+msgid "Sweep"
+msgstr ""
+
+#: lib/ui/main_win.rb:250
+msgid "Coil"
+msgstr ""
+
+#: lib/ui/main_win.rb:252 lib/ui/main_win.rb:272
+msgid "Fillet"
+msgstr ""
+
+#: lib/ui/main_win.rb:253
+msgid "Chamfer"
+msgstr ""
+
+#: lib/ui/main_win.rb:254
+msgid "Draft"
+msgstr ""
+
+#: lib/ui/main_win.rb:256
+msgid "Pattern"
+msgstr ""
+
+#: lib/ui/main_win.rb:262
+msgid "Line"
+msgstr ""
+
+#: lib/ui/main_win.rb:264
+msgid "Line tool"
+msgstr ""
+
+#: lib/ui/main_win.rb:265
+msgid "Circle"
+msgstr ""
+
+#: lib/ui/main_win.rb:267
+msgid "Circle tool"
+msgstr ""
+
+#: lib/ui/main_win.rb:268
+msgid "Arc"
+msgstr ""
+
+#: lib/ui/main_win.rb:270
+msgid "Arc tool"
+msgstr ""
+
+#: lib/ui/main_win.rb:271
+msgid "Rectangle"
+msgstr ""
+
+#: lib/ui/main_win.rb:273
+msgid "Polygon"
+msgstr ""
+
+#: lib/ui/main_win.rb:275
+msgid "Dimension"
+msgstr ""
+
+#: lib/ui/main_win.rb:278
+msgid "Trim"
+msgstr ""
+
+#: lib/ui/main_win.rb:280
+msgid "Project"
+msgstr ""
+
+#: lib/ui/main_win.rb:285
+msgid "Offset"
+msgstr ""
+
+#: lib/ui/simulation_settings.rb:17
+msgid "All part instances"
+msgstr ""
+
+#: lib/ui/simulation_settings.rb:29
+msgid "Parts checked for collisions"
+msgstr ""
+
+#: lib/ui/account_editor.rb:18
+msgid "Projects on server"
+msgstr ""
+
+#: lib/ui/account_editor.rb:30
+msgid "User's projects"
+msgstr ""
+
+#: lib/ui/server_win.rb:17
+msgid "Projects"
+msgstr ""
+
+#: lib/ui/server_win.rb:29
+msgid "Users"
+msgstr ""
+
+#: lib/ui/join_project_dialog.rb:20
+msgid "Servers on local network"
+msgstr ""
+
+#: lib/ui/close_project_confirmation.rb:13
+msgid "Save changes to "
+msgstr ""
+
+#: lib/op_view.rb:26 lib/op_view.rb:92
+msgid "Operators"
+msgstr ""
+
+#: lib/pop_ups.rb:11 lib/pop_ups.rb:251
+msgid "_Return"
+msgstr ""
+
+#: lib/pop_ups.rb:37
+msgid "Duplicate instance"
+msgstr ""
+
+#: lib/pop_ups.rb:38
+msgid "Duplicate original"
+msgstr ""
+
+#: lib/pop_ups.rb:44
+msgid "Visible"
+msgstr ""
+
+#: lib/pop_ups.rb:45
+msgid "Show center of gravity"
+msgstr ""
+
+#: lib/pop_ups.rb:105 lib/pop_ups.rb:149
+msgid "Edit dimensions"
+msgstr ""
+
+#: lib/pop_ups.rb:106 lib/pop_ups.rb:150
+msgid "Edit operator"
+msgstr ""
+
+#: lib/pop_ups.rb:107 lib/pop_ups.rb:151
+msgid "Edit sketch"
+msgstr ""
+
+#: lib/pop_ups.rb:109 lib/pop_ups.rb:153
+msgid "Enabled"
+msgstr ""
+
+#: lib/pop_ups.rb:190
+msgid "Duplicate sketch"
+msgstr ""
+
+#: lib/pop_ups.rb:211 lib/pop_ups.rb:258
+msgid "Snap to points"
+msgstr ""
+
+#: lib/pop_ups.rb:212 lib/pop_ups.rb:259
+msgid "Snap to grid"
+msgstr ""
+
+#: lib/pop_ups.rb:213 lib/pop_ups.rb:260
+msgid "Use guides"
+msgstr ""
+
+#: lib/pop_ups.rb:214
+msgid "Create reference geometry"
+msgstr ""
+
+#: data/glade/assembly_dialog.glade:9
+#: data/glade/close_project_confirmation.glade:8
+#: data/glade/make_public_dialog.glade:9 data/glade/preferences.glade:280
+#: data/glade/preferences.glade:311 data/glade/material_editor.glade:9
+#: data/glade/simulation_settings.glade:9 data/glade/part_dialog.glade:9
+#: data/glade/account_editor.glade:9 data/glade/new_project.glade:9
+#: data/glade/join_project.glade:9 data/glade/save_request.glade:9
+#: data/glade/open_project.glade:9 data/glade/component_browser.glade:9
+#: data/glade/progress.glade:8 data/glade/progress.glade:97
+#: data/glade/export_dialog.glade:9 data/glade/project_dialog.glade:9
+msgid " "
+msgstr ""
+
+#: data/glade/assembly_dialog.glade:44
+msgid ""
+"\n"
+"<b>Assembly properties</b>\n"
+msgstr ""
+
+#: data/glade/assembly_dialog.glade:92 data/glade/material_editor.glade:159
+#: data/glade/part_dialog.glade:93 data/glade/project_dialog.glade:92
+msgid "Name:"
+msgstr ""
+
+#: data/glade/assembly_dialog.glade:102 data/glade/part_dialog.glade:103
+#: data/glade/project_dialog.glade:102
+msgid "Author:"
+msgstr ""
+
+#: data/glade/assembly_dialog.glade:113 data/glade/part_dialog.glade:114
+#: data/glade/project_dialog.glade:113
+msgid "Approved by:"
+msgstr ""
+
+#: data/glade/assembly_dialog.glade:124 data/glade/part_dialog.glade:125
+#: data/glade/project_dialog.glade:124
+msgid "Version:"
+msgstr ""
+
+#: data/glade/assembly_dialog.glade:205
+msgid "<b>Information  </b>"
+msgstr ""
+
+#: data/glade/assembly_dialog.glade:243 data/glade/part_dialog.glade:357
+msgid "Area:"
+msgstr ""
+
+#: data/glade/assembly_dialog.glade:253 data/glade/part_dialog.glade:367
+msgid "Volume:"
+msgstr ""
+
+#: data/glade/assembly_dialog.glade:264 data/glade/part_dialog.glade:378
+msgid "Mass:"
+msgstr ""
+
+#: data/glade/assembly_dialog.glade:288 data/glade/assembly_dialog.glade:300
+#: data/glade/assembly_dialog.glade:313 data/glade/part_dialog.glade:402
+#: data/glade/part_dialog.glade:414 data/glade/part_dialog.glade:427
+msgid "n/a"
+msgstr ""
+
+#: data/glade/assembly_dialog.glade:336 data/glade/part_dialog.glade:452
+msgid "Update"
+msgstr ""
+
+#: data/glade/assembly_dialog.glade:352
+msgid "<b>Solid properties </b>"
+msgstr ""
+
+#: data/glade/new_dialog.glade:8
+msgid "Create new..."
+msgstr ""
+
+#: data/glade/new_dialog.glade:43
+msgid "Create new project, assembly or part..."
+msgstr ""
+
+#: data/glade/new_dialog.glade:74
+msgid "Create new project..."
+msgstr ""
+
+#: data/glade/new_dialog.glade:93
+msgid "Create new assembly"
+msgstr ""
+
+#: data/glade/new_dialog.glade:116
+msgid "Create new Part"
+msgstr ""
+
+#: data/glade/new_dialog.glade:138 data/glade/preferences.glade:1919
+msgid "gtk-close"
+msgstr ""
+
+#: data/glade/close_project_confirmation.glade:47
+msgid "<b>Save changes to 'Untitled project'?</b>"
+msgstr ""
+
+#: data/glade/close_project_confirmation.glade:60
+msgid "Your changes will be lost if you don't save them"
+msgstr ""
+
+#: data/glade/close_project_confirmation.glade:90
+msgid "_Close without saving"
+msgstr ""
+
+#: data/glade/close_project_confirmation.glade:102
+msgid "gtk-cancel"
+msgstr ""
+
+#: data/glade/close_project_confirmation.glade:117
+msgid "gtk-save"
+msgstr ""
+
+#: data/glade/make_public_dialog.glade:52
+msgid ""
+"\n"
+"<b>Make project public</b>\n"
+msgstr ""
+
+#: data/glade/make_public_dialog.glade:111
+msgid "<b>Host project locally</b>"
+msgstr ""
+
+#: data/glade/make_public_dialog.glade:136
+msgid ""
+"This allows other machines\n"
+" to connect to your computer\n"
+"and take part in your project"
+msgstr ""
+
+#: data/glade/make_public_dialog.glade:178
+msgid "<b>Upload to remote server</b>"
+msgstr ""
+
+#: data/glade/make_public_dialog.glade:207
+msgid ""
+"This uploads the project to\n"
+"a central server and joins it"
+msgstr ""
+
+#: data/glade/make_public_dialog.glade:232
+msgid "Bookmarks:"
+msgstr ""
+
+#: data/glade/make_public_dialog.glade:239 data/glade/join_project.glade:217
+msgid "Adress:"
+msgstr ""
+
+#: data/glade/make_public_dialog.glade:250 data/glade/join_project.glade:228
+msgid "Port:"
+msgstr ""
+
+#: data/glade/make_public_dialog.glade:261 data/glade/account_editor.glade:91
+msgid "Login:"
+msgstr ""
+
+#: data/glade/make_public_dialog.glade:272 data/glade/account_editor.glade:101
+#: data/glade/join_project.glade:106
+msgid "Password:"
+msgstr ""
+
+#: data/glade/make_public_dialog.glade:299
+#: data/glade/make_public_dialog.glade:353
+msgid "localhost"
+msgstr ""
+
+#: data/glade/make_public_dialog.glade:365
+msgid "2222"
+msgstr ""
+
+#: data/glade/make_public_dialog.glade:461
+msgid "_Make public"
+msgstr ""
+
+#: data/glade/preferences.glade:9
+msgid "Preferences"
+msgstr ""
+
+#: data/glade/preferences.glade:53
+msgid "Save projects here:  "
+msgstr ""
+
+#: data/glade/preferences.glade:64
+msgid "Choose project directory"
+msgstr ""
+
+#: data/glade/preferences.glade:79
+msgid "_Create part automatically"
+msgstr ""
+
+#: data/glade/preferences.glade:97
+msgid "<b>New Projects</b>"
+msgstr ""
+
+#: data/glade/preferences.glade:136
+msgid "Mouse sensitivity"
+msgstr ""
+
+#: data/glade/preferences.glade:162
+msgid "Snapping distance"
+msgstr ""
+
+#: data/glade/preferences.glade:189
+msgid "pixels"
+msgstr ""
+
+#: data/glade/preferences.glade:211
+msgid "<b>View handling</b>"
+msgstr ""
+
+#: data/glade/preferences.glade:234
+msgid "Behaviour"
+msgstr ""
+
+#: data/glade/preferences.glade:270
+msgid "Unit system:  "
+msgstr ""
+
+#: data/glade/preferences.glade:301
+msgid "Default unit:  "
+msgstr ""
+
+#: data/glade/preferences.glade:333
+msgid "Digits:  "
+msgstr ""
+
+#: data/glade/preferences.glade:362
+msgid "_Show units"
+msgstr ""
+
+#: data/glade/preferences.glade:380
+msgid "<b>Units</b>"
+msgstr ""
+
+#: data/glade/preferences.glade:418
+msgid "Major grid spacing:  "
+msgstr ""
+
+#: data/glade/preferences.glade:451
+msgid "Minor grid spacing:  "
+msgstr ""
+
+#: data/glade/preferences.glade:481
+msgid "_Show minor lines"
+msgstr ""
+
+#: data/glade/preferences.glade:499
+msgid "<b>Grid</b>"
+msgstr ""
+
+#: data/glade/preferences.glade:522
+msgid "Units"
+msgstr ""
+
+#: data/glade/preferences.glade:578
+msgid "Light two"
+msgstr ""
+
+#: data/glade/preferences.glade:618
+msgid "Light one"
+msgstr ""
+
+#: data/glade/preferences.glade:656
+msgid "Background"
+msgstr ""
+
+#: data/glade/preferences.glade:692
+msgid "Selection"
+msgstr ""
+
+#: data/glade/preferences.glade:730
+msgid "Edges"
+msgstr ""
+
+#: data/glade/preferences.glade:767
+msgid "Viewport controls"
+msgstr ""
+
+#: data/glade/preferences.glade:790
+msgid "<b>Viewport</b>"
+msgstr ""
+
+#: data/glade/preferences.glade:851
+msgid "Reference geometry"
+msgstr ""
+
+#: data/glade/preferences.glade:901
+msgid "Guides"
+msgstr ""
+
+#: data/glade/preferences.glade:949
+msgid "Temporary"
+msgstr ""
+
+#: data/glade/preferences.glade:995
+msgid "Under-defined"
+msgstr ""
+
+#: data/glade/preferences.glade:1043
+msgid "Completely defined"
+msgstr ""
+
+#: data/glade/preferences.glade:1091
+msgid "Over-defined"
+msgstr ""
+
+#: data/glade/preferences.glade:1118
+msgid "<b>Sketch</b>"
+msgstr ""
+
+#: data/glade/preferences.glade:1142
+msgid "Colors"
+msgstr ""
+
+#: data/glade/preferences.glade:1175
+msgid "Managed _garbage collection"
+msgstr ""
+
+#: data/glade/preferences.glade:1191
+msgid "(much faster, but higher peak memory usage)"
+msgstr ""
+
+#: data/glade/preferences.glade:1206
+msgid "<b>Internal</b>"
+msgstr ""
+
+#: data/glade/preferences.glade:1240
+msgid "Memory"
+msgstr ""
+
+#: data/glade/preferences.glade:1269 data/glade/preferences.glade:1309
+msgid "Performance"
+msgstr ""
+
+#: data/glade/preferences.glade:1285
+msgid "<b>Optimize for</b>"
+msgstr ""
+
+#: data/glade/preferences.glade:1341
+msgid "Use line _antialiasing"
+msgstr ""
+
+#: data/glade/preferences.glade:1357
+msgid "Use _stencil transparency"
+msgstr ""
+
+#: data/glade/preferences.glade:1376
+msgid "<b>Open GL</b>"
+msgstr ""
+
+#: data/glade/preferences.glade:1414
+msgid "Surface resolution"
+msgstr ""
+
+#: data/glade/preferences.glade:1448
+msgid "_Dynamic level of detail"
+msgstr ""
+
+#: data/glade/preferences.glade:1467
+msgid "<b>Tesselation</b>"
+msgstr ""
+
+#: data/glade/preferences.glade:1501
+msgid "Use _view transitions"
+msgstr ""
+
+#: data/glade/preferences.glade:1524
+msgid "Transition duration"
+msgstr ""
+
+#: data/glade/preferences.glade:1557
+msgid "Use _working plane animations"
+msgstr ""
+
+#: data/glade/preferences.glade:1583
+msgid "Animation duration"
+msgstr ""
+
+#: data/glade/preferences.glade:1619
+msgid "<b>Animations</b>"
+msgstr ""
+
+#: data/glade/preferences.glade:1642
+msgid "Display"
+msgstr ""
+
+#: data/glade/preferences.glade:1677
+msgid "Left eye:"
+msgstr ""
+
+#: data/glade/preferences.glade:1708
+msgid "Right eye:"
+msgstr ""
+
+#: data/glade/preferences.glade:1741
+msgid "<b>Colors</b>"
+msgstr ""
+
+#: data/glade/preferences.glade:1779
+msgid "Eye distance:"
+msgstr ""
+
+#: data/glade/preferences.glade:1805
+msgid "cm"
+msgstr ""
+
+#: data/glade/preferences.glade:1826
+msgid "Focused"
+msgstr ""
+
+#: data/glade/preferences.glade:1839
+msgid "Parallel"
+msgstr ""
+
+#: data/glade/preferences.glade:1862
+msgid "<b>Spatial settings</b>"
+msgstr ""
+
+#: data/glade/preferences.glade:1884
+msgid "Stereo vision"
+msgstr ""
+
+#: data/glade/preferences.glade:1908
+msgid "gtk-help"
+msgstr ""
+
+#: data/glade/material_editor.glade:44
+msgid ""
+"\n"
+"<b> Create and edit materials</b>\n"
+msgstr ""
+
+#: data/glade/material_editor.glade:80
+msgid "Material:"
+msgstr ""
+
+#: data/glade/material_editor.glade:194
+msgid "Color:"
+msgstr ""
+
+#: data/glade/material_editor.glade:233
+msgid "Smoothness:"
+msgstr ""
+
+#: data/glade/material_editor.glade:270
+msgid "Specularity:"
+msgstr ""
+
+#: data/glade/material_editor.glade:307
+msgid "Reflectivity:"
+msgstr ""
+
+#: data/glade/material_editor.glade:344
+msgid "Density:"
+msgstr ""
+
+#: data/glade/material_editor.glade:372
+msgid "g/cm³"
+msgstr ""
+
+#: data/glade/simulation_settings.glade:44
+msgid ""
+"\n"
+"<b>Simulation settings</b>\n"
+msgstr ""
+
+#: data/glade/simulation_settings.glade:118
+#: data/glade/account_editor.glade:229
+msgid "Move to user's projects"
+msgstr ""
+
+#: data/glade/simulation_settings.glade:140
+#: data/glade/account_editor.glade:251
+msgid "Remove project from user"
+msgstr ""
+
+#: data/glade/simulation_settings.glade:195
+msgid "<b>Colliding parts</b>"
+msgstr ""
+
+#: data/glade/simulation_settings.glade:230
+msgid "Samples / second:"
+msgstr ""
+
+#: data/glade/simulation_settings.glade:240
+msgid "Accuracy:"
+msgstr ""
+
+#: data/glade/simulation_settings.glade:252
+msgid "Friction:"
+msgstr ""
+
+#: data/glade/simulation_settings.glade:263
+msgid "Interactive:"
+msgstr ""
+
+#: data/glade/simulation_settings.glade:354
+msgid "<b>Solver parameters</b>"
+msgstr ""
+
+#: data/glade/part_dialog.glade:45
+msgid ""
+"\n"
+"<b>Part properties</b>\n"
+msgstr ""
+
+#: data/glade/part_dialog.glade:206
+msgid "<b>Information</b>"
+msgstr ""
+
+#: data/glade/part_dialog.glade:227
+msgid "Material:            "
+msgstr ""
+
+#: data/glade/part_dialog.glade:240
+msgid "\n"
+msgstr ""
+
+#: data/glade/part_dialog.glade:262
+msgid "In use by:"
+msgstr ""
+
+#: data/glade/part_dialog.glade:274
+msgid "nobody"
+msgstr ""
+
+#: data/glade/part_dialog.glade:311
+msgid "Mark as used"
+msgstr ""
+
+#: data/glade/part_dialog.glade:468
+msgid "<b>Solid properties</b>"
+msgstr ""
+
+#: data/glade/server_win.glade:9
+msgid "Solid|matter Workgroup server"
+msgstr ""
+
+#: data/glade/server_win.glade:23
+msgid "_File"
+msgstr ""
+
+#: data/glade/server_win.glade:31
+msgid "Projects directory ..."
+msgstr ""
+
+#: data/glade/server_win.glade:50
+msgid "gtk-quit"
+msgstr ""
+
+#: data/glade/server_win.glade:63
+msgid "_Server"
+msgstr ""
+
+#: data/glade/server_win.glade:85
+msgid "S_top"
+msgstr ""
+
+#: data/glade/server_win.glade:103
+msgid "_Help"
+msgstr ""
+
+#: data/glade/server_win.glade:111
+msgid "gtk-about"
+msgstr ""
+
+#: data/glade/server_win.glade:146
+msgid ""
+"\n"
+"<b>Manage multi-user projects</b>\n"
+msgstr ""
+
+#: data/glade/server_win.glade:204
+msgid "Add new project to the pool"
+msgstr ""
+
+#: data/glade/server_win.glade:225
+msgid "Remove selected project from the pool"
+msgstr ""
+
+#: data/glade/server_win.glade:247
+msgid "Edit selected project"
+msgstr ""
+
+#: data/glade/server_win.glade:301
+msgid "<b>Hosted Projects</b>"
+msgstr ""
+
+#: data/glade/server_win.glade:339
+msgid "Add new user account"
+msgstr ""
+
+#: data/glade/server_win.glade:360
+msgid "Delete selected user account"
+msgstr ""
+
+#: data/glade/server_win.glade:382
+msgid "Edit selected user account"
+msgstr ""
+
+#: data/glade/server_win.glade:435
+msgid "<b>User Accounts</b>"
+msgstr ""
+
+#: data/glade/account_editor.glade:43
+msgid ""
+"\n"
+"<b> User account properties</b>\n"
+msgstr ""
+
+#: data/glade/account_editor.glade:168
+msgid "<b>Information </b>"
+msgstr ""
+
+#: data/glade/account_editor.glade:306
+msgid "<b>Projects</b>"
+msgstr ""
+
+#: data/glade/new_project.glade:46
+msgid ""
+"\n"
+"<b>New project</b>\n"
+msgstr ""
+
+#: data/glade/new_project.glade:105
+msgid "<b>Create new local project</b>"
+msgstr ""
+
+#: data/glade/new_project.glade:126
+msgid ""
+"This creates a regular project \n"
+"file on your local hard-drive"
+msgstr ""
+
+#: data/glade/new_project.glade:165
+msgid "<b>Create new multi-user project...</b>"
+msgstr ""
+
+#: data/glade/new_project.glade:194
+msgid ""
+"This creates a project file\n"
+"on your hard-drive and makes\n"
+"it accessible to other users on \n"
+"the network"
+msgstr ""
+
+#: data/glade/join_project.glade:45
+msgid ""
+"\n"
+"<b>Join multi-user project</b>\n"
+msgstr ""
+
+#: data/glade/join_project.glade:99
+msgid "Username: "
+msgstr ""
+
+#: data/glade/join_project.glade:152
+msgid "<b>Login data</b>"
+msgstr ""
+
+#: data/glade/join_project.glade:210
+msgid "Bookmarks: "
+msgstr ""
+
+#: data/glade/join_project.glade:348
+msgid "gtk-connect"
+msgstr ""
+
+#: data/glade/join_project.glade:363
+msgid "<b>Server information</b>"
+msgstr ""
+
+#: data/glade/join_project.glade:393
+msgid "<b>Projects on server</b>"
+msgstr ""
+
+#: data/glade/join_project.glade:459
+msgid "_Join project"
+msgstr ""
+
+#: data/glade/save_request.glade:45
+msgid ""
+"\n"
+"<b>Save request</b>\n"
+msgstr ""
+
+#: data/glade/save_request.glade:83
+msgid "<b>Somebody wants to save the project to the server</b>"
+msgstr ""
+
+#: data/glade/save_request.glade:96
+msgid ""
+"You can delay the request for a minute to clean up changes\n"
+"that you made to the project, before choosing \n"
+"'File -> Save project' from the menu.\n"
+"\n"
+"Choose \"Cancel request\" if you left a part in dysfunctional state \n"
+"or don't otherwise feel ready to save just now."
+msgstr ""
+
+#: data/glade/save_request.glade:150
+msgid "Delay save"
+msgstr ""
+
+#: data/glade/save_request.glade:187
+msgid "Cancel request"
+msgstr ""
+
+#: data/glade/save_request.glade:223
+msgid "Save now"
+msgstr ""
+
+#: data/glade/open_project.glade:47
+msgid ""
+"\n"
+"<b>Open project</b>\n"
+msgstr ""
+
+#: data/glade/open_project.glade:106
+msgid "<b>Open local project...</b>"
+msgstr ""
+
+#: data/glade/open_project.glade:127
+msgid ""
+"This opens a regular project \n"
+"file on your local hard-drive"
+msgstr ""
+
+#: data/glade/open_project.glade:167
+msgid "<b>Join a multi-user project...</b>"
+msgstr ""
+
+#: data/glade/open_project.glade:196
+msgid ""
+"This allows you to specify a network\n"
+"server hosting an Open Machinist \n"
+"multi-user session. You need a login\n"
+"for that server to make edits"
+msgstr ""
+
+#: data/glade/component_browser.glade:45
+msgid ""
+"\n"
+"<b>Insert component</b>\n"
+msgstr ""
+
+#: data/glade/component_browser.glade:79
+msgid ""
+"Parts\n"
+"Assemblies"
+msgstr ""
+
+#: data/glade/component_browser.glade:145
+msgid "Refresh thumbnails"
+msgstr ""
+
+#: data/glade/component_browser.glade:166
+msgid "Delete selected component"
+msgstr ""
+
+#: data/glade/component_browser.glade:187
+msgid "Add a new instance of selected part to the project"
+msgstr ""
+
+#: data/glade/component_browser.glade:188
+msgid "gtk-add"
+msgstr ""
+
+#: data/glade/progress.glade:44
+msgid "<b>The model is being rebuilt...</b>"
+msgstr ""
+
+#: data/glade/wait_for_save.glade:8
+msgid "Save request"
+msgstr ""
+
+#: data/glade/wait_for_save.glade:44
+msgid ""
+"\n"
+"<b>Waiting for other clients...</b>\n"
+msgstr ""
+
+#: data/glade/wait_for_save.glade:73
+msgid ""
+"Please wait while other users take their time to get the project\n"
+"ready for saving. If this takes way too long, you can still cancel the\n"
+"request and retry at a later time."
+msgstr ""
+
+#: data/glade/export_dialog.glade:46
+msgid ""
+"\n"
+"<b>Export selected geometry</b>\n"
+msgstr ""
+
+#: data/glade/export_dialog.glade:83
+msgid "Format: "
+msgstr ""
+
+#: data/glade/export_dialog.glade:133
+msgid "Surface resolution:"
+msgstr ""
+
+#: data/glade/export_dialog.glade:143
+msgid "Max. COG deviation:"
+msgstr ""
+
+#: data/glade/export_dialog.glade:192
+msgid "mm"
+msgstr ""
+
+#: data/glade/export_dialog.glade:215
+msgid "Show _preview"
+msgstr ""
+
+#: data/glade/export_dialog.glade:233
+msgid "<b>Export quality settings</b>"
+msgstr ""
+
+#: data/glade/export_dialog.glade:290
+msgid "_Export"
+msgstr ""
+
+#: data/glade/about.glade:9
+msgid "About Solid|matter"
+msgstr ""
+
+#: data/glade/about.glade:20
+msgid "Copyright (c) 2008, Björn Breitgoff\n"
+msgstr ""
+
+#: data/glade/about.glade:22
+msgid ""
+"A parametrical, 3d, mechanical design application for the Gnome desktop."
+msgstr ""
+
+#: data/glade/about.glade:24
+msgid "openmachinist.sourceforge.net"
+msgstr ""
+
+#: data/glade/about.glade:25
+msgid ""
+"Solid|matter is free software; you can redistribute it and/or modify it "
+"under the terms of the GNU General Public License as published by the Free "
+"Software Foundation; either version 2 of the License, or (at your option) "
+"any later version.\n"
+"\n"
+"Solid|matter is distributed in the hope that it will be useful, but WITHOUT "
+"ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
+"FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for "
+"more details.\n"
+"\n"
+"You should have received a copy of the GNU General Public License along with "
+"Solid|matter; if not, write to the Free Software Foundation, Inc., 51 "
+"Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA."
+msgstr ""
+
+#: data/glade/project_dialog.glade:44
+msgid ""
+"\n"
+"<b>Project Information</b>\n"
+msgstr ""
+
+#: data/glade/project_dialog.glade:205
+msgid "<b>General</b>"
+msgstr ""
+
+#: data/glade/project_dialog.glade:250
+msgid "Total number of parts:"
+msgstr ""
+
+#: data/glade/project_dialog.glade:266
+msgid "Number of unique parts:"
+msgstr ""
+
+#: data/glade/project_dialog.glade:285
+msgid "Total number of subassemblies:"
+msgstr ""
+
+#: data/glade/project_dialog.glade:304
+msgid "Number of unique subassemblies:"
+msgstr ""
+
+#: data/glade/project_dialog.glade:384
+msgid "<b>Bill of Materials</b>"
+msgstr ""
