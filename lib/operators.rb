@@ -149,14 +149,54 @@ class ExtrudeOperator < Operator
     entry.on_change_value{|val| @settings[:depth] = val; show_changes}
     bar.append entry
   end
-  
-  def draw_gl_interface
-    
-  end
 end
 
 
-
+class FEMOperator < Operator
+  def initialize part
+    @name = "FEM"
+    super
+  end
+  
+  def real_operate
+    []
+  end
+  
+  def fill_toolbar bar
+    # sketch selection
+    fixed_button = Gtk::ToggleToolButton.new
+    fixed_button.icon_widget = Gtk::Image.new('../data/icons/middle/sketch_middle.png').show
+    fixed_button.label = GetText._("Fixed faces")
+    fixed_button.signal_connect("clicked") do |b| 
+      if fixed_button.active?
+        $manager.activate_tool("region_select", true) do |segments|
+          if segments
+            
+          end
+          fixed_button.active = false
+        end
+      end
+    end
+    bar.append( fixed_button )
+    bar.append( Gtk::SeparatorToolItem.new )
+    # extrusion limit selection
+    vbox = Gtk::VBox.new 
+    mode_combo = Gtk::ComboBox.new
+    mode_combo.focus_on_click = false
+    mode_combo.append_text GetText._("Constant depth")
+    mode_combo.append_text GetText._("Up to selection")
+    mode_combo.active = 0
+    vbox.pack_start( mode_combo, true, false )
+    vbox.add Gtk::Label.new GetText._("Extrusion limit")
+    bar.append( vbox )
+    bar.append( Gtk::SeparatorToolItem.new )
+    # constant depth
+    entry = MeasureEntry.new GetText._("Depth")
+    entry.value = @settings[:depth]
+    entry.on_change_value{|val| @settings[:depth] = val; show_changes}
+    bar.append entry
+  end
+end
 
 
 
