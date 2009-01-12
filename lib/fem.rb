@@ -22,26 +22,24 @@ include Test::Unit::Assertions
 Force = Struct.new( :origin, :direction )
 
 class FEMSolver
-  def initialize( part, forces )
-    @mesh = part.tesselate
+  def initialize( mesh, forces, fixed_points )
+    @mesh = mesh
     @forces = forces
+    @fixed_points = fixed_points
   end
   
   def neighboors point
     @cache ||= {}
     unless @cache[point]
-      #checked = []
       #my_tris = @mesh.select{|t| t.include? point }
       #@cache[point] = my_tris.flatten.uniq - [point]
-      @mesh.flatten.sort_by{|p| p.distance_to point }
+      @cache[point] = @mesh.flatten.sort_by{|p| p.distance_to point }[0..10]
     end
     @cache[p]
   end
   
   def solve samples
-    samples.times do
-      
-    end
+
   end
 end
 
@@ -301,9 +299,9 @@ end
 
 def solve_laplace1D n, v, f
   mat_L = NMatrix.new(Float,n,n)
-  mat_L.fill_by lambda{|i,j| v[i+1].diff*v[j+1].diff}
+  mat_L.fill_by{|i,j| v[i+1].diff*v[j+1].diff}
   mat_M = NMatrix.new(Float,n,n)
-  mat_M.fill_by lambda{|i,j| v[i+1]*v[j+1]}
+  mat_M.fill_by{|i,j| v[i+1]*v[j+1]}
   g = f.coeffs_wrt(v)*mat_M
   # now we have: -Lu = Mf = g -> solve for u
   u = mat_L.lu.solve(-g)
