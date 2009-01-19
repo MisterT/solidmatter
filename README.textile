@@ -8,14 +8,12 @@ h3. Introduction
 
     It is also designed to integrate well with the Gnome desktop.
 
------------------------------------------------------------------------------
 
 h3. Getting the source code
 
    _git clone git://github.com/syntheticore/solidmatter.git_
    _cd solidmatter_
    
------------------------------------------------------------------------------
 
 h3. Installing dependencies
 
@@ -27,7 +25,6 @@ h3. Installing dependencies
     On Ubuntu for example, just type:
     _sudo apt-get install gtkglext libglade ruby-gnome2 ruby-rmagick_
     
------------------------------------------------------------------------------
 
 h3. Running the application
 
