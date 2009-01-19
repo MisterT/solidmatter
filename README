@@ -1,0 +1,48 @@
+h2. Solid|matter
+
+-----------------------------------------------------------------------------
+h3. Introduction
+-----------------------------------------------------------------------------
+
+    Solid|matter is an open source 3D-CAD application for product design.
+
+    It is planned to feature parametrical, solid-based modeling, 
+    a sketcher with associative dimensions
+    and basic simulation of assembly kinematics.
+
+    It is also designed to integrate well with the Gnome desktop.
+
+
+-----------------------------------------------------------------------------
+h3. Getting the source code
+-----------------------------------------------------------------------------
+
+   _git clone git://github.com/syntheticore/solidmatter.git_
+   _cd solidmatter_
+   
+
+-----------------------------------------------------------------------------
+h3. Installing dependencies
+-----------------------------------------------------------------------------
+
+    You need several packages to use Solid|matter:
+    ruby 1.8, ruby-gnome2, rmagick, gtkglext, libglade
+    
+    You can usually install these using your package manager.
+    
+    On Ubuntu for example, just type:
+    _sudo apt-get install gtkglext libglade ruby-gnome2 ruby-rmagick_
+    
+    
+-----------------------------------------------------------------------------
+h3. Running the application
+-----------------------------------------------------------------------------
+
+    For the moment the program cannot be properly installed. 
+    To try it out locally, just cd to the topmost directory 
+    and type _./bin/solidmatter_.
+    
+    Be aware that Solid|matter is currently <b>completely unusable</b> for actual
+    work. It is still in its early phases of development and surely more
+    exciting for people interested in helping out development, than for actual
+    end-users.
