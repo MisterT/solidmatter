@@ -357,6 +357,42 @@ class PlaneSelectionTool < SelectionTool
   end
 end
 
+
+class FaceSelectionTool < SelectionTool
+  def initialize
+    super GetText._("Select solid faces or surfaces:")
+  end
+  
+  def selection_mode
+    :select_faces
+  end
+  
+  def click_left( x,y )
+    super
+    mouse_move( x,y )
+    if @current_face
+      @selection = @current_face
+      $manager.cancel_current_tool
+    end
+  end
+  
+  def mouse_move( x,y )
+    super
+    @current_face = @glview.select(x,y, :select_faces)
+    raise "Wörkking plane" if @current_face.is_a? WorkingPlane
+    @current_face = nil unless $manager.work_component.solid.faces.include? @current_face
+    @glview.redraw
+  end
+  
+  def draw
+    super
+    GL.Color4f( 0.9, 0.2, 0.0, 0.5 )
+    GL.Disable(GL::POLYGON_OFFSET_FILL)
+    @current_face.draw if @current_face
+    GL.Enable(GL::POLYGON_OFFSET_FILL)
+  end
+end
+
 ###                                                                  ###
 ######---------------------- Standard tools ----------------------######
 ###                                                                  ###
