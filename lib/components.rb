@@ -70,12 +70,6 @@ class PlanarFace < Face
     end
   end
   
-  def tesselate
-    @polygon or pretesselate
-    @polygon.tesselate
-  end
-  
-  
   def draw
     pretesselate unless @polygon
     normal = @plane.normal_vector.invert
@@ -99,6 +93,11 @@ class PlanarFace < Face
       GLU::TessEndContour tess
     GLU::TessEndPolygon tess
     GLU::DeleteTess tess
+  end
+  
+  def tesselate
+    @polygon or pretesselate
+    @polygon.tesselate
   end
   
   def area
@@ -127,8 +126,6 @@ class CircularFace < Face
   end
   
   def draw
-    plane = Plane.new
-    plane.normal = @axis
     arc = Arc.new( @position, @radius, @start_angle, @end_angle )
     for line in arc.tesselate
       corner1 = line.pos1
@@ -146,6 +143,21 @@ class CircularFace < Face
         GL.Vertex( corner4.x, corner4.y, corner4.z )
       GL.End
     end
+  end
+  
+  def tesselate
+    tris = []
+    arc = Arc.new( @position, @radius, @start_angle, @end_angle )
+    for line in arc.tesselate
+      corner1 = line.pos1
+      corner2 = line.pos1 + @axis * @height
+      corner3 = line.pos2 + @axis * @height
+      corner4 = line.pos2
+      tri1 = [corner1, corner2, corner3]
+      tri2 = [corner3, corner4, corner1]
+      tris << tri1 << tri2
+    end
+    return tris
   end
 end
 
