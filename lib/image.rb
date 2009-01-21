@@ -202,8 +202,8 @@ end
 
 
 def native2gtk im
-  im.save "tmp/tmp.png"
-  return Gtk::Image.new( "tmp/tmp.png" )
+  im.save "/tmp/tmp.png"
+  return Gtk::Image.new( "/tmp/tmp.png" )
 end
 
 

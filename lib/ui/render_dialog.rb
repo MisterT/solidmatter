@@ -17,8 +17,8 @@ class RenderDialog
     GC.enable
     parts = $manager.project.main_assembly.contained_parts.select{|p| p.visible }
     luxdata = generate_luxrender parts, $manager.glview.allocation.width-2, $manager.glview.allocation.height-2, false
-    File::open("tmp/lux.lxs",'w'){|f| f << luxdata }
-    Thread.start{ `./../bin/luxconsole tmp/lux.lxs` }
+    File::open("/tmp/lux.lxs",'w'){|f| f << luxdata }
+    Thread.start{ `./../bin/luxconsole /tmp/lux.lxs` }
     $manager.glview.visible = false
     $manager.render_view.visible = true
     $manager.set_status_text "Rendering started..."
@@ -28,10 +28,10 @@ class RenderDialog
       loop do
         sleep $preferences[:lux_display_interval]
         Gtk.queue{ $manager.set_status_text "Render time: #{time_from start_time}" }
-        if File.exist? "tmp/lux.tga"
-          #`cp tmp/lux.tga tmp/luxcopy.tga`
+        if File.exist? "/tmp/lux.tga"
+          #`cp /tmp/lux.tga /tmp/luxcopy.tga`
           Gtk.queue do
-            gtkim = Gtk::Image.new("tmp/lux.tga")
+            gtkim = Gtk::Image.new("/tmp/lux.tga")
             $manager.render_image.pixbuf = gtkim.pixbuf
           end
         end
@@ -48,7 +48,7 @@ class RenderDialog
     if dia.run == Gtk::Dialog::RESPONSE_ACCEPT
       filename = dia.filename
       filename += '.png' unless filename =~ /.png/
-      im = Image.new "tmp/lux.tga"
+      im = Image.new "/tmp/lux.tga"
       im.save filename
     end
     dia.destroy
