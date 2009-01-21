@@ -42,12 +42,8 @@ Description: Solid|matter
     end
   '
   File.open('debian/DEBIAN/postinst', 'w' ){|f| f << postinst ; f.chmod(0755) }
-  postinst =
   # create debian package
   `dpkg -b debian solid-matter_0.1.0_all.deb`
 ensure
   rm_r 'debian'
 end
-
-# another test
-
