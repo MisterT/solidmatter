@@ -647,11 +647,13 @@ class GLView < Gtk::DrawingArea
     GL.Color4f( *$preferences[:background_color] )
     unless @picking_pass and $manager.work_sketch
       if [:shaded,  :overlay, :hidden_lines ].any?{|e| e == @displaymode}
-        if p.information[:material].reflectivity > 0
-          GL.BindTexture( GL::TEXTURE_2D, @spheremap )
-          glEnable(GL_TEXTURE_GEN_S)
-          glEnable(GL_TEXTURE_GEN_T)
-          glEnable(GL_TEXTURE_2D)
+        unless @displaymode == :hidden_lines
+          if p.information[:material].reflectivity > 0
+            GL.BindTexture( GL::TEXTURE_2D, @spheremap )
+            glEnable(GL_TEXTURE_GEN_S)
+            glEnable(GL_TEXTURE_GEN_T)
+            glEnable(GL_TEXTURE_2D)
+          end
         end
         glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, p.information[:material].color + [1.0])
         s = p.information[:material].specularity
