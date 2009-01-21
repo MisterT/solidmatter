@@ -163,13 +163,13 @@ class FEMOperator < Operator
   end
   
   def fill_toolbar bar
-    # sketch selection
+    # fixed faces selection
     fixed_button = Gtk::ToggleToolButton.new
     fixed_button.icon_widget = Gtk::Image.new('../data/icons/middle/sketch_middle.png').show
     fixed_button.label = GetText._("Fixed faces")
     fixed_button.signal_connect("clicked") do |b| 
       if fixed_button.active?
-        $manager.activate_tool("region_select", true) do |segments|
+        $manager.activate_tool("face_select", true) do |segments|
           if segments
             
           end
@@ -179,7 +179,7 @@ class FEMOperator < Operator
     end
     bar.append( fixed_button )
     bar.append( Gtk::SeparatorToolItem.new )
-    # extrusion limit selection
+    # force editor
     vbox = Gtk::VBox.new 
     mode_combo = Gtk::ComboBox.new
     mode_combo.focus_on_click = false
