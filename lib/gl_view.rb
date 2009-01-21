@@ -801,6 +801,9 @@ class GLView < Gtk::DrawingArea
       when :select_segments_and_dimensions
         @selectables = $manager.work_sketch.segments.dup
         @selectables += $manager.work_component.dimensions
+      when :select_faces_and_dimensions
+        @selectables = $manager.project.all_part_instances.select{|inst| inst.visible }.map{|inst| inst.solid.faces }.flatten
+        @selectables += $manager.work_component.dimensions
       end
       # create colors to represent selectable objects
       current_color = [0, 0, 0]

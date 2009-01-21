@@ -78,7 +78,7 @@ public
   
   def exit
     @glview.immediate_draw_routines.delete @draw_routine
-    $manager.glview.window.cursor = nil
+    @glview.window.cursor = nil
   end
   
   #--- UI ---#
@@ -133,7 +133,7 @@ class PartSelectionTool < SelectionTool
   
   def click_left( x,y )
     super
-    sel = @glview.select(x,y, :select_instances)
+    sel = @glview.select(x,y)
     if sel
       if $manager.key_pressed? :Shift
         $manager.selection.add $manager.top_ancestor( sel ) 
@@ -157,7 +157,7 @@ class PartSelectionTool < SelectionTool
   
   def mouse_move( x,y )
     super
-    @current_part = @glview.select(x,y, :select_instances)
+    @current_part = @glview.select(x,y)
     @glview.redraw
   end
   
@@ -198,10 +198,31 @@ class OperatorSelectionTool < SelectionTool
   end
   
   def selection_mode
-    :select_faces
+    :select_faces_and_dimensions
   end
   
   def click_left( x,y )
+    super
+    if (dim = @glview.select(x,y)).is_a? Dimension
+      FloatingEntry.new( x,y, dim.value ) do |value| 
+        dim.value = value
+        $manager.work_component.build @op
+        @glview.redraw
+      end
+    else
+      mouse_move( x,y )
+      @dims.each{|d| d.visible = false } if @dims
+      if @current_face
+        @op = @current_face.created_by_op
+        sk = @op.settings[:sketch]
+        @dims = (@op.dimensions + (sk ? sk.dimensions : [])).flatten
+        @dims.each{|d| d.visible = true }
+      end
+    end
+    @glview.redraw
+  end
+  
+  def double_click( x,y )
     super
     mouse_move( x,y )
     if @current_face
@@ -215,9 +236,10 @@ class OperatorSelectionTool < SelectionTool
   
   def mouse_move( x,y )
     super
-    @current_face = @glview.select(x,y, :select_faces)
-    raise "Wörkking plane" if @current_face.is_a? WorkingPlane
-    @current_face = nil unless $manager.work_component.operators.include? @current_face.created_by_op if @current_face
+    sel = @glview.select(x,y)
+    raise "Wörkking plane" if sel.is_a? WorkingPlane
+    @current_face = nil
+    @current_face = sel if sel.is_a? Face and $manager.work_component.operators.include? sel.created_by_op
     @draw_faces = @current_face ? @current_face.solid.faces.select{|f| f.created_by_op == @current_face.created_by_op } : []
     #face = @glview.select(x,y, :select_faces)
     #@current_op = (face and @op_displaylists[face.created_by_op]) ? face.created_by_op : nil
@@ -246,6 +268,7 @@ class OperatorSelectionTool < SelectionTool
   def exit
     super
     #@op_displaylists.values.each{|l| @glview.delete_displaylist l }
+    @dims.each{|d| d.visible = false } if @dims
   end
 end
 
@@ -300,7 +323,7 @@ class RegionSelectionTool < SelectionTool
         break if @current_region
       end
     end
-    $manager.glview.window.cursor = @current_region ? Gdk::Cursor.new(Gdk::Cursor::HAND2) : nil
+    @glview.window.cursor = @current_region ? Gdk::Cursor.new(Gdk::Cursor::HAND2) : nil
   end
   
   def draw
@@ -400,7 +423,7 @@ end
 class CameraTool < Tool
   def initialize
     super( GetText._("Drag left to pan, drag right to rotate the camera, middle drag for zoom:") )
-    $manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::FLEUR
+    @glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::FLEUR
   end
   
   def click_left( x,y )
@@ -409,22 +432,22 @@ class CameraTool < Tool
   
   def press_left( x,y )
     super
-    $manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::FLEUR
+    @glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::FLEUR
   end
   
   def click_middle( x,y )
     super
-    $manager.glview.window.cursor =Gdk::Cursor.new Gdk::Cursor::SB_V_DOUBLE_ARROW
+    @glview.window.cursor =Gdk::Cursor.new Gdk::Cursor::SB_V_DOUBLE_ARROW
   end
   
   def press_right( x,y, time )
     super
-    $manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::EXCHANGE
+    @glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::EXCHANGE
   end
   
   def button_release
     super
-    $manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::FLEUR
+    @glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::FLEUR
   end
   
   def draw
@@ -463,8 +486,8 @@ private
   end
   
   def draw
-    glcontext = $manager.glview.gl_context
-    gldrawable =  $manager.glview.gl_drawable
+    glcontext = @glview.gl_context
+    gldrawable =  @glview.gl_drawable
     if gldrawable.gl_begin( glcontext )
       GL.LineWidth(3)
       GL.Color3f(1,0,1)
@@ -706,7 +729,7 @@ end
 class LineTool < SketchTool
   def initialize sketch
     super( GetText._("Click left to create a point, middle click to move points:"), sketch )
-    $manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if $manager.glview.window
+    @glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if @glview.window
     @first_line = true
   end
   
@@ -741,12 +764,12 @@ class LineTool < SketchTool
   
   def pause
     super
-    $manager.glview.window.cursor = nil
+    @glview.window.cursor = nil
   end
   
   def resume
     super
-    $manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if $manager.glview.window
+    @glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if @glview.window
   end
 end
 
@@ -754,7 +777,7 @@ end
 class ArcTool < SketchTool
   def initialize sketch
     super( GetText._("Click left to select center:"), sketch )
-    $manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if $manager.glview.window
+    @glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if @glview.window
     @step = 1
     @uses_toolbar = true
   end
@@ -809,7 +832,7 @@ end
 class CircleTool < SketchTool
   def initialize sketch
     super( GetText._("Click left to select center:"), sketch )
-    $manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if $manager.glview.window
+    @glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if @glview.window
     @step = 1
   end
   
@@ -850,7 +873,7 @@ end
 class TwoPointCircleTool < SketchTool
   def initialize sketch
     super( GetText._("Click left to select first point on circle:"), sketch )
-    $manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if $manager.glview.window
+    @glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if @glview.window
     @step = 1
   end
   
@@ -969,7 +992,7 @@ end
 class SplineTool < SketchTool
   def initialize sketch
     super( GetText._("Spline   L: add point   M: move points"), sketch )
-    $manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if $manager.glview.window
+    @glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if @glview.window
     @points = []
   end
   
@@ -990,12 +1013,12 @@ class SplineTool < SketchTool
   
   def pause
     super
-    $manager.glview.window.cursor = nil
+    @glview.window.cursor = nil
   end
   
   def resume
     super
-    $manager.glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if $manager.glview.window
+    @glview.window.cursor = Gdk::Cursor.new Gdk::Cursor::PENCIL if @glview.window
   end
   
   def exit

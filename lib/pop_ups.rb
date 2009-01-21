@@ -102,80 +102,31 @@ class OperatorMenu < Gtk::Menu
   def initialize operator
     super()
     items = [
-      Gtk::MenuItem.new( GetText._("Edit dimensions")),
       Gtk::ImageMenuItem.new(GetText._("Edit operator")).set_image( Gtk::Image.new('../data/icons/small/wheel_small.png') ),
       Gtk::ImageMenuItem.new(GetText._("Edit sketch")).set_image( Gtk::Image.new('../data/icons/small/sketch_small.png') ),
       Gtk::SeparatorMenuItem.new,
       Gtk::CheckMenuItem.new( GetText._("Enabled")),
       Gtk::ImageMenuItem.new(Gtk::Stock::DELETE)
     ]
-    # edit dimensions
-    items[0].signal_connect("activate") do
-      sk = operator.settings[:sketch]
-      dims = (operator.dimensions + (sk ? sk.dimensions : [])).flatten
-      dims.each{|d| d.visible = true }
-      $manager.glview.redraw
-    end
     # edit operators
-    items[1].signal_connect("activate") do
+    items[0].signal_connect("activate") do
       $manager.exit_current_mode
       $manager.operator_mode operator
     end
     # edit sketch
-    items[2].signal_connect("activate") do
+    items[1].signal_connect("activate") do
       sk = operator.settings[:sketch]
       $manager.exit_current_mode
       $manager.sketch_mode sk
     end
     # enable/disable
-    items[4].active = operator.enabled
-    items[4].signal_connect("activate") do
+    items[3].active = operator.enabled
+    items[3].signal_connect("activate") do
       $manager.enable_operator operator
     end
     # delete
-    items[5].signal_connect("activate") do
-      $manager.delete_object operator
-    end
-    items.each{|i| append i }
-    show_all
-  end
-end
-
-
-class OpViewOperatorMenu < Gtk::Menu
-  def initialize operator
-    super()
-    items = [
-      Gtk::MenuItem.new( GetText._("Edit dimensions")),
-      Gtk::ImageMenuItem.new(GetText._("Edit operator")).set_image( Gtk::Image.new('../data/icons/small/wheel_small.png') ),
-      Gtk::ImageMenuItem.new(GetText._("Edit sketch")).set_image( Gtk::Image.new('../data/icons/small/sketch_small.png') ),
-      Gtk::SeparatorMenuItem.new,
-      Gtk::CheckMenuItem.new( GetText._("Enabled")),
-      Gtk::ImageMenuItem.new(Gtk::Stock::DELETE)
-    ]
-    # edit dimensions
-    items[0].signal_connect("activate") do
-      operator.show_dimensions
-    end
-    # edit operators
-    items[1].signal_connect("activate") do
-      $manager.exit_current_mode
-      $manager.operator_mode operator
-    end
-    # edit sketch
-    items[2].signal_connect("activate") do
-      sk = operator.settings[:sketch]
-      $manager.exit_current_mode
-      $manager.sketch_mode sk
-    end
-    # enable/disable
-    items[4].active = operator.enabled
     items[4].signal_connect("activate") do
-      $manager.enable_selected_operator
-    end
-    # delete
-    items[5].signal_connect("activate") do
-      $manager.delete_op_view_selected
+      $manager.delete_object operator
     end
     items.each{|i| append i }
     show_all
