@@ -343,7 +343,7 @@ class Operator
   end
   
   def real_operate
-    raise "Error in #{self} : Operator#real_operate must be overriden by child class"
+    raise "Error in #{self} : Operator#real_operate must be overriden by child class and report all newly created faces"
   end
   
   def show_toolbar
