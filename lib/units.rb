@@ -21,7 +21,7 @@ module Units
     value + usys.to_s + POWERS[power]
   end
 
-  def ununit( value, power=1, usys=$manager.unit_system )
+  def ununit( value, power=1, usys=$manager.project.unit_system )
     power.times{ value /= CONVERSION_FACTORS[usys.to_sym] }
     value
   end

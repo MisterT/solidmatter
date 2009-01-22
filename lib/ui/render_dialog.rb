@@ -35,6 +35,8 @@ class RenderDialog
             $manager.render_image.pixbuf = gtkim.pixbuf
           end
         end
+        # for some reason we need to collect regularly
+        GC.run 
       end
     end
   end
