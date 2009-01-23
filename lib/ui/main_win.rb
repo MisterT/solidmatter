@@ -263,6 +263,8 @@ class SolidMatterMainWin < Gtk::Window
     part_toolbar.append( GetText._("Chamfer"), "Chamfer ege", "PartToolbar/Chamfer", Gtk::Image.new('../data/icons/big/chamfer.png') ){}
     part_toolbar.append( GetText._("Draft"), "Draft faces", "PartToolbar/Draft", Gtk::Image.new('../data/icons/big/draft.png') ){}
     part_toolbar.append( Gtk::SeparatorToolItem.new )
+    part_toolbar.append( GetText._("FEM"), "Analyze physical properties", "PartToolbar/FEM", Gtk::Image.new('../data/icons/middle/extrude_middle.png') ){ $manager.add_operator('fem') }
+    part_toolbar.append( Gtk::SeparatorToolItem.new )
     part_toolbar.append( GetText._("Pattern"), "Pattern feature along an axis or in a grid", "PartToolbar/Pattern", Gtk::Image.new('../data/icons/middle/assembly_middle.png') ){}
     sketch_toolbar.toolbar_style = Gtk::Toolbar::ICONS
     sketch_toolbar.icon_size = Gtk::IconSize::SMALL_TOOLBAR

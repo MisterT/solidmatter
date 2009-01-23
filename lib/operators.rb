@@ -152,7 +152,7 @@ class ExtrudeOperator < Operator
 end
 
 
-Force = Struct.new( :faces, :magnitude, :dir_or_plane )
+Force = Struct.new( :faces, :magnitude, :plane )
 
 class FEMOperator < Operator
   def initialize part
@@ -181,6 +181,22 @@ class FEMOperator < Operator
           glade['fixed_toggle'].active = false
         end
       end
+    end
+    # add force
+    glade['force_combo'].remove_text 0
+    glade['add_force_btn'].signal_connect("clicked") do |b|
+      @settings[:forces] << Force.new( [], 1, nil )
+      glade['force_combo'].append_text GetText._("Force #{@settings[:forces].size}")
+      glade['force_combo'].active = @settings[:forces].size - 1
+      glade['remove_force_btn'].sensitive = true
+    end
+    # remove force
+    glade['remove_force_btn'].signal_connect("clicked") do |b|
+      combo = glade['force_combo'] ; i = glade['force_combo'].active
+      @settings[:forces].delete_at i
+      combo.remove_text i
+      combo.active = [i, i - 1].find{|e| (-1...@settings[:forces].size).include? e } 
+      glade['remove_force_btn'].sensitive = false if @settings[:forces].empty?
     end
   end
   

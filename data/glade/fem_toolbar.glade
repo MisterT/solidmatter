@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.5 on Thu Jan 22 02:00:05 2009 -->
+<!--Generated with glade3 3.4.5 on Fri Jan 23 01:53:03 2009 -->
 <glade-interface>
   <widget class="GtkWindow" id="fem_toolbar">
     <child>
@@ -19,7 +19,7 @@
                 <child>
                   <widget class="GtkImage" id="image2">
                     <property name="visible">True</property>
-                    <property name="stock">gtk-stop</property>
+                    <property name="stock">gtk-color-picker</property>
                   </widget>
                 </child>
                 <child>
@@ -57,6 +57,7 @@
                 <child>
                   <widget class="GtkComboBox" id="force_combo">
                     <property name="visible">True</property>
+                    <property name="items" translatable="yes"> </property>
                   </widget>
                   <packing>
                     <property name="expand">False</property>
@@ -68,6 +69,7 @@
                     <child>
                       <widget class="GtkButton" id="remove_force_btn">
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="image_position">GTK_POS_TOP</property>
@@ -87,10 +89,16 @@
                     <child>
                       <widget class="GtkButton" id="pick_force_face_toggle">
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="label" translatable="yes">pick</property>
                         <property name="response_id">0</property>
+                        <child>
+                          <widget class="GtkImage" id="image6">
+                            <property name="visible">True</property>
+                            <property name="stock">gtk-color-picker</property>
+                          </widget>
+                        </child>
                       </widget>
                       <packing>
                         <property name="position">1</property>
@@ -149,6 +157,7 @@
                 <child>
                   <widget class="GtkComboBox" id="direction_combo">
                     <property name="visible">True</property>
+                    <property name="active">0</property>
                     <property name="items" translatable="yes">Normal to face
 Normal to plane</property>
                   </widget>
@@ -159,10 +168,16 @@ Normal to plane</property>
                 <child>
                   <widget class="GtkButton" id="pick_plane_toggle">
                     <property name="visible">True</property>
+                    <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="label" translatable="yes">Pick</property>
                     <property name="response_id">0</property>
+                    <child>
+                      <widget class="GtkImage" id="image7">
+                        <property name="visible">True</property>
+                        <property name="stock">gtk-color-picker</property>
+                      </widget>
+                    </child>
                   </widget>
                   <packing>
                     <property name="expand">False</property>
@@ -256,6 +271,7 @@ Normal to plane</property>
           <widget class="GtkButton" id="run_btn">
             <property name="width_request">65</property>
             <property name="visible">True</property>
+            <property name="sensitive">False</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="relief">GTK_RELIEF_NONE</property>
@@ -288,8 +304,9 @@ Normal to plane</property>
           </packing>
         </child>
         <child>
-          <widget class="GtkVBox" id="vbox1">
+          <widget class="GtkVBox" id="display_vbox">
             <property name="visible">True</property>
+            <property name="sensitive">False</property>
             <child>
               <widget class="GtkRadioButton" id="show_tension_radio">
                 <property name="visible">True</property>
@@ -340,6 +357,7 @@ Normal to plane</property>
         <child>
           <widget class="GtkButton" id="optimize_btn">
             <property name="visible">True</property>
+            <property name="sensitive">False</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="relief">GTK_RELIEF_NONE</property>

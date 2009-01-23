@@ -366,6 +366,8 @@ public
         op = ExtrudeOperator.new @work_component
       when 'revolve'
         op = RevolveOperator.new @work_component
+      when 'fem'
+        op = FEMOperator.new @work_component
     end
     @work_component.add_operator op 
     @op_view.update
